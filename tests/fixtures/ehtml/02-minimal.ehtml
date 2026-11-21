@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>最小文档</title>
+    <script type="application/json" id="eh-meta">{"title":"最小文档","created":"2026-11-22","tags":[],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <p data-eh="b1">Hello, EditHTML. 你好，这是只有一段话的笔记。</p>
+    </main>
+  </body>
+</html>

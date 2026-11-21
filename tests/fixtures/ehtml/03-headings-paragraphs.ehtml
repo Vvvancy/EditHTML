@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>标题与段落</title>
+    <script type="application/json" id="eh-meta">{"title":"标题与段落","created":"2026-11-22","tags":["结构"],"theme":"default"}</script>
+    <style id="eh-theme">:root{--eh-fg:#222;--eh-bg:#fff}</style>
+    <style id="eh-user-style">[data-eh="h3"]{color:#0a6}</style>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h1 data-eh="h1">一级标题 Heading 1</h1>
+      <p data-eh="p1">第一段正文。The first paragraph under H1.</p>
+      <h2 data-eh="h2">二级标题 Heading 2</h2>
+      <p data-eh="p2">第二段正文，包含中英混排 mixed content。</p>
+      <h3 data-eh="h3">三级标题 Heading 3</h3>
+      <p data-eh="p3">这个标题有用户自定义样式（见 #eh-user-style）。</p>
+      <h4 data-eh="h4">四级标题 Heading 4</h4>
+      <h5 data-eh="h5">五级标题 Heading 5</h5>
+      <h6 data-eh="h6">六级标题 Heading 6</h6>
+      <p data-eh="p4">最后一段。Last paragraph.</p>
+    </main>
+  </body>
+</html>

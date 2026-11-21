@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>提示框与折叠</title>
+    <script type="application/json" id="eh-meta">{"title":"提示框与折叠","created":"2026-11-22","tags":["callout","toggle"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <eh-callout data-eh="c1">
+        <script type="application/json">{"kind":"info","title":"提示 Info"}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="c1a">所有修改都必须经过 <code>Transaction</code>。</p>
+        </eh-slot>
+      </eh-callout>
+      <eh-callout data-eh="c2">
+        <script type="application/json">{"kind":"warn","title":"警告 Warning"}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="c2a">不要直接修改 DOM。</p>
+          <ul>
+            <li data-eh="c2b">DOM 不是数据源</li>
+            <li data-eh="c2c">以模型为准</li>
+          </ul>
+        </eh-slot>
+      </eh-callout>
+      <eh-callout data-eh="c3">
+        <script type="application/json">{"kind":"tip","title":""}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="c3a">没有标题的 tip。A tip without a title.</p>
+        </eh-slot>
+      </eh-callout>
+      <eh-toggle data-eh="g1">
+        <script type="application/json">{"title":"点击展开答案 Show answer","open":false}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="g1a">答案是 <strong>42</strong>。</p>
+          <pre data-eh="g1b" data-lang="js"><code>console.log(6 * 7);
+</code></pre>
+        </eh-slot>
+      </eh-toggle>
+      <eh-toggle data-eh="g2">
+        <script type="application/json">{"title":"默认展开 Open by default","open":true}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="g2a">这个折叠区默认是打开的。</p>
+        </eh-slot>
+      </eh-toggle>
+      <eh-toggle data-eh="g3">
+        <script type="application/json">{"title":"空折叠区 Empty toggle","open":false}</script>
+        <eh-slot data-eh-slot="0"></eh-slot>
+      </eh-toggle>
+    </main>
+  </body>
+</html>

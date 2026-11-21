@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>嵌入与脚本组件</title>
+    <script type="application/json" id="eh-meta">{"title":"嵌入与脚本组件","created":"2026-11-22","tags":["embed","script"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <eh-embed data-eh="e1">
+        <script type="application/json">{"url":"https://www.example.com/video/12345","height":360}</script>
+        <!--eh:fallback--><p><a href="https://www.example.com/video/12345">嵌入内容：https://www.example.com/video/12345</a></p><!--eh:fallback-->
+      </eh-embed>
+      <eh-embed data-eh="e2">
+        <script type="application/json">{"url":"https://example.org/page?x=1&y=2","height":200}</script>
+        <!--eh:fallback--><p><a href="https://example.org/page?x=1&amp;y=2">example.org/page</a></p><!--eh:fallback-->
+      </eh-embed>
+      <eh-script data-eh="s1">
+        <script type="application/json">{"html":"<button id=\"b\">点我 +1<\/button> <span id=\"n\">0<\/span>","css":"button{padding:4px 8px}","js":"let n=0;document.getElementById('b').onclick=()=>{document.getElementById('n').textContent=++n;};"}</script>
+        <!--eh:fallback--><p><button disabled>点我 +1</button> <span>0</span></p><!--eh:fallback-->
+      </eh-script>
+      <eh-script data-eh="s2">
+        <script type="application/json">{"html":"<div id=\"clock\"><\/div>","css":"","js":"const s=document.createElement('script');s.textContent='1<2';document.body.append(s);/* <\/script> must stay escaped */setInterval(()=>{clock.textContent=new Date().toLocaleTimeString('zh-CN')},1000);"}</script>
+        <!--eh:fallback--><div>（时钟组件 · 需运行时与“信任此文件”）</div><!--eh:fallback-->
+      </eh-script>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>容器嵌套</title>
+    <script type="application/json" id="eh-meta">{"title":"容器嵌套","created":"2026-11-22","tags":["nesting"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h2 data-eh="n0">深度 2：callout 内的 tabs</h2>
+      <eh-callout data-eh="n1">
+        <script type="application/json">{"kind":"tip","title":"两种写法"}</script>
+        <eh-slot data-eh-slot="0">
+          <eh-tabs data-eh="n2">
+            <script type="application/json">{"tabs":[{"title":"递归"},{"title":"迭代"}]}</script>
+            <eh-slot data-eh-slot="0">
+              <p data-eh="n3">递归版本更直观。</p>
+            </eh-slot>
+            <eh-slot data-eh-slot="1">
+              <p data-eh="n4">迭代版本不会爆栈。</p>
+            </eh-slot>
+          </eh-tabs>
+        </eh-slot>
+      </eh-callout>
+      <h2 data-eh="d0">深度 4：callout → tabs → columns → toggle</h2>
+      <eh-callout data-eh="d1">
+        <script type="application/json">{"kind":"info","title":"第 1 层 Level 1"}</script>
+        <eh-slot data-eh-slot="0">
+          <eh-tabs data-eh="d2">
+            <script type="application/json">{"tabs":[{"title":"第 2 层 Level 2"}]}</script>
+            <eh-slot data-eh-slot="0">
+              <eh-columns data-eh="d3">
+                <script type="application/json">{"ratio":[1,1]}</script>
+                <eh-slot data-eh-slot="0">
+                  <eh-toggle data-eh="d4">
+                    <script type="application/json">{"title":"第 4 层 Level 4","open":true}</script>
+                    <eh-slot data-eh-slot="0">
+                      <p data-eh="d5">最深处的段落（深度 4，建议上限）。</p>
+                      <eh-math data-eh="d6">
+                        <script type="application/json">{"tex":"a^2+b^2=c^2"}</script>
+                        <!--eh:fallback--><pre>a^2+b^2=c^2</pre><!--eh:fallback-->
+                      </eh-math>
+                    </eh-slot>
+                  </eh-toggle>
+                </eh-slot>
+                <eh-slot data-eh-slot="1">
+                  <p data-eh="d7">第 3 层右栏 Level 3 right column</p>
+                </eh-slot>
+              </eh-columns>
+            </eh-slot>
+          </eh-tabs>
+        </eh-slot>
+      </eh-callout>
+      <h2 data-eh="o0">深度 5：超过建议上限（open question #5）</h2>
+      <eh-toggle data-eh="o1">
+        <script type="application/json">{"title":"L1","open":true}</script>
+        <eh-slot data-eh-slot="0">
+          <eh-toggle data-eh="o2">
+            <script type="application/json">{"title":"L2","open":true}</script>
+            <eh-slot data-eh-slot="0">
+              <eh-toggle data-eh="o3">
+                <script type="application/json">{"title":"L3","open":true}</script>
+                <eh-slot data-eh-slot="0">
+                  <eh-toggle data-eh="o4">
+                    <script type="application/json">{"title":"L4","open":true}</script>
+                    <eh-slot data-eh-slot="0">
+                      <eh-callout data-eh="o5">
+                        <script type="application/json">{"kind":"warn","title":"L5"}</script>
+                        <eh-slot data-eh-slot="0">
+                          <p data-eh="o6">深度 5 —— 预期行为待定。</p>
+                        </eh-slot>
+                      </eh-callout>
+                    </eh-slot>
+                  </eh-toggle>
+                </eh-slot>
+              </eh-toggle>
+            </eh-slot>
+          </eh-toggle>
+        </eh-slot>
+      </eh-toggle>
+    </main>
+  </body>
+</html>

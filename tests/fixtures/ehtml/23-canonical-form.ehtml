@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>规范形式</title>
+    <script type="application/json" id="eh-meta">{"title":"规范形式","created":"2026-11-22","tags":["canonical"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h1 data-eh="c1">规范形式 Canonical form</h1>
+      <p data-eh="c2">本文件严格按 §6.1 规范形式书写：<code>serialize(parse(x)) === x</code>。</p>
+      <p data-eh="c3">文本只转义 &amp; &lt; &gt;，引号 " 与 ' 以及 U+00A0（a b）保持字面。</p>
+      <p data-eh="c4"><a href="https://example.com/?a=1&amp;b=%22q%22" title="属性中 &quot;引号&quot; 与 &lt;尖括号&gt; 被转义">链接</a> <a href="#c1"><strong>粗体<em>链接</em></strong></a><em>斜体</em></p>
+      <ol>
+        <li data-eh="c5">属性顺序：data-eh → data-eh-*（字典序）→ 其余（字典序）<ul>
+          <li data-eh="c5a" data-eh-task="done">子任务项</li>
+        </ul></li>
+        <li data-eh="c5b">第二项 <span data-eh-inline="tag">#tag</span></li>
+      </ol>
+      <table data-eh="c11">
+        <thead><tr><th>A</th><th data-eh-align="center">B</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td data-eh-align="center">2</td></tr>
+        </tbody>
+      </table>
+      <eh-foreign data-eh="c12"><div class="note" style="color:red">外来块原样保留 <u>foreign</u></div></eh-foreign>
+      <pre data-eh="c6" data-lang="ts"><code>const ok = a &lt; b &amp;&amp; b &gt; c;
+</code></pre>
+      <eh-chart data-eh="c7">
+        <script type="application/json">{"type":"bar","data":{"x":["A","B"],"y":[3,5]},"options":{}}</script>
+        <!--eh:fallback--><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 50" role="img" aria-label="柱状图：A=3, B=5"><rect height="30" width="20" x="5" y="20"/><rect height="50" width="20" x="35" y="0"/></svg><!--eh:fallback-->
+      </eh-chart>
+      <eh-tabs data-eh="c8">
+        <script type="application/json">{"tabs":[{"title":"概念"},{"title":"例子"}]}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="c8a">子块缩进 2 空格。</p>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <eh-callout data-eh="c8b">
+            <script type="application/json">{"kind":"tip","title":"嵌套"}</script>
+            <eh-slot data-eh-slot="0">
+              <p data-eh="c8c">再嵌套一层。</p>
+            </eh-slot>
+          </eh-callout>
+        </eh-slot>
+      </eh-tabs>
+      <hr data-eh="c9">
+      <eh-script data-eh="c10">
+        <script type="application/json">{"html":"<b>hi<\/b>","css":"","js":"console.log('<\/script>')"}</script>
+        <!--eh:fallback--><p><strong>hi</strong></p><!--eh:fallback-->
+      </eh-script>
+    </main>
+  </body>
+</html>

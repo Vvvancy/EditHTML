@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>非规范输入：块 ID</title>
+  <script type="application/json" id="eh-meta">{"title":"非规范输入：块 ID","created":"2026-11-22","tags":["non-canonical","ids"],"theme":"default"}</script>
+  <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+</head>
+<body>
+  <main id="eh-doc">
+    <h1>没有 data-eh 的标题 heading without id</h1>
+    <p>没有 data-eh 的段落，解析时应分配新 ID。</p>
+    <p data-eh="a1">正常 ID a1。</p>
+    <p data-eh="a1">重复 ID a1（第二次出现）—— 应保留第一个，为此块重新分配。</p>
+    <p data-eh="">空字符串 ID empty id</p>
+    <p data-eh>无值的 data-eh 属性 valueless attribute</p>
+    <p data-eh="B-1_x">非 base36 字符的 ID（大写、连字符、下划线）</p>
+    <p data-eh="  a2  ">带空白的 ID</p>
+    <p data-eh="中文">中文 ID</p>
+    <eh-callout>
+      <script type="application/json">{"kind":"info","title":"没有 ID 的组件"}</script>
+      <eh-slot data-eh-slot="0">
+        <p>没有 ID 的子块</p>
+        <p data-eh="a1">与顶层重复的子块 ID a1</p>
+      </eh-slot>
+    </eh-callout>
+    <eh-tabs data-eh="t1">
+      <script type="application/json">{"tabs":[{"title":"一"},{"title":"二"}]}</script>
+      <eh-slot data-eh-slot="1"><p data-eh="t1b">slot 顺序颠倒：1 在 0 之前</p></eh-slot>
+      <eh-slot data-eh-slot="0"><p data-eh="t1a">slot 0</p></eh-slot>
+      <eh-slot data-eh-slot="5"><p data-eh="t1c">超出 tabs 数量的 slot 5</p></eh-slot>
+      <eh-slot><p data-eh="t1d">缺少 data-eh-slot 的 slot</p></eh-slot>
+      <p data-eh="t1e">直接位于容器内、不在 eh-slot 中的子块</p>
+    </eh-tabs>
+    <ul data-eh="l1">
+      <li>旧写法：ID 在 ul 上、li 无 ID（li 才是块，应为每个 li 分配 ID）</li>
+      <li data-eh="a1">与顶层重复的 li ID</li>
+    </ul>
+    <p data-eh="t1">与组件 t1 重复的 ID</p>
+    <p data-eh="zz9" data-eh="zz8">同一元素上重复的 data-eh 属性（HTML 解析器取第一个）</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en" data-eh-version="0.0">
+<head>
+  <meta charset="utf-8">
+  <title>Legacy / missing meta</title>
+</head>
+<body>
+  <main id="eh-doc">
+    <p data-eh="b1">没有 #eh-meta、没有运行时脚本，版本号为 0.0（早于当前规范）。</p>
+    <p data-eh="b2">Expected: parse OK, synthesize meta from &lt;title&gt;, upgrade data-eh-version to 0.1 on save (§10).</p>
+  </main>
+</body>
+</html>

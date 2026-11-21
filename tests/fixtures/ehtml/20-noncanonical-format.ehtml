@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<HTML data-eh-version="0.1" LANG="zh-CN">
+<HEAD>
+<META CHARSET="utf-8">
+      <title>非规范输入：格式</title>
+<script id="eh-meta" type="application/json">
+  {
+    "theme": "default",
+    "tags": ["non-canonical"],
+    "title": "非规范输入：格式",
+    "created": "2026-11-22"
+  }
+</script>
+</HEAD>
+<BODY>
+<MAIN ID="eh-doc">
+<H1 data-eh="n1">大写标签名 Uppercase tag names</H1>
+        <P DATA-EH="n2">大写属性名 + 奇怪的缩进（8 空格）。</P>
+	<p data-eh="n3">制表符缩进 tab-indented.</p>
+<p class="lead" id="intro" data-eh="n4" title="属性乱序">属性乱序：class/id/title 在 data-eh 之前。</p>
+<ol start="3" data-eh="n5" reversed><li>布尔属性 reversed 与乱序</ol>
+<p data-eh=n6>无引号属性值 unquoted attribute value</p>
+<p data-eh='n7'>单引号属性值 single-quoted</p>
+<p   data-eh = "n8"   >属性等号周围有空格</p>
+<p data-eh="n9">省略结束标签 omitted end tag
+<p data-eh="n10">紧跟着另一个段落（隐式关闭上一个 p）
+<ul data-eh="n11">
+<li>省略 li 结束标签
+<li data-eh-task=done>无引号的任务状态
+<li data-eh-task="DONE">大写的任务状态值（非法值？）
+</ul>
+<hr data-eh="n12"/>
+<p data-eh="n13">自闭合 br<br/>和 <BR>大写 br</p>
+<p data-eh="n14"><B>b 标签</B>、<I>i 标签</I>、<STRIKE>strike</STRIKE>、<del>del</del>、<STRONG>大写 STRONG</STRONG> —— 是否映射为 strong/em/s 见 README。</p>
+<p data-eh="n15">未转义的 & 符号 AT&T、裸 > 号 a > b、以及 a < b 的裸小于号。</p>
+<pre data-eh="n16" data-lang="js"><code>if (a < b && b > c) { return "<div>"; }
+</code></pre>
+<pre data-lang="sh" data-eh="n17"><code>
+echo "pre 内首个换行会被 HTML 解析器吞掉 leading newline in pre"
+</code></pre>
+<eh-chart data-eh="n18"><script type="application/json">
+{ "options": {"title": "键乱序 + 多行 JSON"},
+  "data": {"y": [1, 2], "x": ["a", "b"]},
+  "type": "bar" }
+</script>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="5" height="10"/></svg>
+</eh-chart>
+<EH-CALLOUT DATA-EH="n19"><SCRIPT TYPE="application/json">{"title":"大写组件标签","kind":"info"}</SCRIPT>
+      <eh-slot data-eh-slot="0"><p data-eh="n20">缩进错乱的子块</p>
+<p data-eh="n21">同一行之后的子块</p></eh-slot>
+</EH-CALLOUT>
+<h2 data-eh="n22">一行</h2><p data-eh="n23">多个块</p><hr data-eh="n24">
+<blockquote data-eh="n26"><p>引用中的多个段落</p><p>（规范 quote 只含行内内容）</p><blockquote><p>以及嵌套引用</p></blockquote></blockquote>
+<p data-eh="n27">相邻同类标记 <strong>a</strong><strong>b</strong> 应合并为 <strong>ab</strong>；顺序错误的 <mark><s>x</s></mark> 应输出为 s 在外。</p>
+<ul data-eh="n28"><li>旧写法：data-eh 在 ul 上</li><li>li 上没有 ID<ul><li>嵌套列表前有空白</li></ul></li></ul>
+<p data-eh="n29">文本块中的 <script>alert(1)</script>脚本与 <style>p{}</style>样式应被丢弃。</p>
+<p data-eh="n30">未知命名实体 &foobar; 按字面保留（输出 &amp;foobar;），&nbsp; 输出为字面 U+00A0。</p>
+<p data-eh="n25">尾部多余空行与空白之后结束</p>
+
+
+</MAIN>
+</BODY>
+</HTML>

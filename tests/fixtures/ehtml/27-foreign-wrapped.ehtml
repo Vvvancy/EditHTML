@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>外来块（已包裹）</title>
+    <script type="application/json" id="eh-meta">{"title":"外来块（已包裹）","created":"2026-11-22","tags":["foreign","canonical"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <p data-eh="w0">16 号样本首次保存后的形态：外来内容包在 eh-foreign 中，ID 往返稳定。</p>
+      <eh-foreign data-eh="w1"><div class="card" style="border:1px solid #ccc"><h3>任意 div 里的标题</h3><p>Arbitrary <u>div</u> content.</p></div></eh-foreign>
+      <eh-foreign data-eh="w2"><script src="https://cdn.example.invalid/widget.js"></script></eh-foreign>
+      <eh-foreign data-eh="w3"><iframe height="315" src="https://www.example.com/embed/abc" title="外部 iframe" width="560"></iframe></eh-foreign>
+      <eh-foreign data-eh="w4"><details><summary>原生 details</summary><p>不是 eh-toggle。</p></details></eh-foreign>
+      <eh-foreign data-eh="w5"><dl>
+  <dt>术语 term</dt>
+  <dd>多行外来内容，内部换行与缩进原样保留</dd>
+</dl></eh-foreign>
+      <eh-callout data-eh="w6">
+        <script type="application/json">{"kind":"info","title":"容器内的外来块"}</script>
+        <eh-slot data-eh-slot="0">
+          <eh-foreign data-eh="w7"><video controls="" src="assets/clip.mp4"></video></eh-foreign>
+        </eh-slot>
+      </eh-callout>
+      <p data-eh="w8">外来块之后的正常段落。</p>
+    </main>
+  </body>
+</html>

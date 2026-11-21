@@ -1,0 +1,19 @@
+﻿<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOM 与 CRLF</title>
+  <script type="application/json" id="eh-meta">{"title":"BOM 与 CRLF","created":"2026-11-22","tags":["non-canonical"],"theme":"default"}</script>
+  <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+</head>
+<body>
+  <main id="eh-doc">
+    <p data-eh="b1">此文件以 UTF-8 BOM 开头，使用 Windows 换行 CRLF。</p>
+    <pre data-eh="b2" data-lang="txt"><code>代码块内的换行也是 CRLF
+line two
+</code></pre>
+    <p data-eh="b3">预期：保存后去掉 BOM，换行统一为 LF（待定）。</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>图表</title>
+    <script type="application/json" id="eh-meta">{"title":"图表","created":"2026-11-22","tags":["chart"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h2 data-eh="h1">月度支出 Monthly spending</h2>
+      <eh-chart data-eh="ch1">
+        <script type="application/json">{"type":"bar","data":{"x":["一月","二月","三月"],"y":[320,280,410]},"options":{"title":"支出（元）"}}</script>
+        <!--eh:fallback--><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 60" role="img" aria-label="柱状图：一月=320, 二月=280, 三月=410"><rect x="10" y="13" width="30" height="47"/><rect x="60" y="19" width="30" height="41"/><rect x="110" y="0" width="30" height="60"/></svg><!--eh:fallback-->
+      </eh-chart>
+      <eh-chart data-eh="ch2">
+        <script type="application/json">{"type":"line","data":{"x":[1,2,3,4],"y":[1.5,2.25,-0.5,3]},"options":{}}</script>
+        <!--eh:fallback--><img alt="折线图 line chart: 1.5, 2.25, -0.5, 3" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 40'%3E%3Cpolyline points='0,25 10,18 20,40 30,10' fill='none' stroke='black'/%3E%3C/svg%3E"><!--eh:fallback-->
+      </eh-chart>
+      <eh-chart data-eh="ch3">
+        <script type="application/json">{"type":"pie","data":{"labels":["阅读 Reading","编码 Coding","睡觉 Sleep"],"values":[2,6,8]}}</script>
+        <!--eh:fallback--><table><tbody><tr><td>阅读 Reading</td><td>2</td></tr><tr><td>编码 Coding</td><td>6</td></tr><tr><td>睡觉 Sleep</td><td>8</td></tr></tbody></table><!--eh:fallback-->
+      </eh-chart>
+      <eh-chart data-eh="ch4">
+        <script type="application/json">{"type":"scatter","data":{"points":[[0,0],[1,2.5],[2,1],[3,4]]},"options":{"xLabel":"x","yLabel":"y"}}</script>
+      </eh-chart>
+      <p data-eh="p1">上面最后一个图表没有降级内容（ch4），纯 parse→serialize 往返时保持无 fallback（省略该行）；带渲染器保存时才补生成。</p>
+    </main>
+  </body>
+</html>

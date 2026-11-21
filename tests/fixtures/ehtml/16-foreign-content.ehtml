@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>外来内容</title>
+  <script type="application/json" id="eh-meta">{"title":"外来内容","created":"2026-11-22","tags":["foreign"],"theme":"default"}</script>
+  <link rel="stylesheet" href="./custom.css">
+  <meta name="author" content="someone">
+  <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+</head>
+<body>
+  <main id="eh-doc">
+    <p data-eh="f0">下面每个元素都不在规范子集内，预期解析为 ForeignBlock（只读，原样保留）。</p>
+    <div class="card" style="border:1px solid #ccc">
+      <h3>任意 div 里的标题</h3>
+      <p>Arbitrary <u>div</u> content with <font color="red">legacy tags</font>.</p>
+    </div>
+    <script src="https://cdn.example.invalid/widget.js"></script>
+    <script>console.log("inline non-JSON script 内联脚本");</script>
+    <iframe src="https://www.example.com/embed/abc" width="560" height="315" title="外部 iframe"></iframe>
+    <details><summary>原生 details</summary><p>不是 eh-toggle。</p></details>
+    <form action="/submit"><input type="text" name="q"><button>提交</button></form>
+    <video controls src="assets/clip.mp4"></video>
+    <style>.card{border-radius:8px}</style>
+    <section data-eh="f1"><p>带 data-eh 的 section —— 标签本身不在子集内。</p></section>
+    <dl><dt>术语 term</dt><dd>定义 definition</dd></dl>
+    <table data-eh="f2"><caption>带 caption 和 tfoot 的表格</caption><thead><tr><th>a</th></tr></thead><tfoot><tr><td>sum</td></tr></tfoot></table>
+    <p data-eh="f3">段落里有非白名单行内元素：<u>下划线</u>、<img src="assets/icon.png" alt="icon">、<small>小字</small>、<abbr title="HyperText">HTML</abbr>。</p>
+    纯文本直接位于 main 下 bare text directly under main.
+    <!-- 一个普通 HTML 注释 a plain comment -->
+    <p data-eh="f4">外来块之后的正常段落。</p>
+  </main>
+  <footer>main 外部的内容 content outside main#eh-doc</footer>
+</body>
+</html>
