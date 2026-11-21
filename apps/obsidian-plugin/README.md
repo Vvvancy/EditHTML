@@ -1,5 +1,5 @@
 # apps/obsidian-plugin
 
-Obsidian 插件（M5）。
+Obsidian 插件（M6）。
 
-参见 任务 T5.1
+参见 任务 T6.1

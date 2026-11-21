@@ -6,6 +6,7 @@ EditHTML 是一种面向**个人笔记**的文档格式与编辑器：
 
 - 文件本身就是**合法的、自包含的 HTML**，双击即可在任意浏览器里阅读，支持图表、交互组件、自定义样式与脚本；
 - 打开后能**直接在渲染好的页面上编辑**（所见即所得），不需要回到源码里改；
+- **所有 HTML 和 Markdown 都是 EditHTML 的一部分**：任意 `.html` 直接打开就能改（只改动改过的地方），任意 `.md`（含 Obsidian 笔记库）无损导入；
 - 同时保留 Markdown 的输入手感（`#` 标题、`-` 列表、`` ` `` 代码、`/` 命令插入组件），渲染与保存都足够快。
 
 一句话：**Markdown 的编辑体验 + HTML 的表现力**。
@@ -20,6 +21,7 @@ EditHTML 是一种面向**个人笔记**的文档格式与编辑器：
 | [docs/03-algorithms.md](docs/03-algorithms.md) | 性能与算法优化方案 |
 | [docs/04-roadmap.md](docs/04-roadmap.md) | 里程碑与可分派给 Agent 的任务清单 |
 | [docs/05-open-questions.md](docs/05-open-questions.md) | 待决策问题 |
+| [docs/06-import.md](docs/06-import.md) | 导入与兼容：任意 HTML 保真编辑、HTML/MD 转换、批量导入 |
 | [AGENTS.md](AGENTS.md) | 给 Claude Code / 子 Agent 的工作约定 |
 
 ## 仓库结构（规划）
@@ -31,6 +33,7 @@ EditHTML/
 │   ├── core/                文档模型、解析器、序列化器、操作/事务、撤销重做
 │   ├── renderer/            只读渲染（增量 DOM 更新、懒加载、虚拟化）
 │   ├── editor/              就地编辑：选区、输入规则、斜杠菜单、工具栏
+│   ├── importer/            导入：任意 HTML 保真编辑（区间补丁）、HTML/MD → 原生块、批量导入
 │   ├── blocks/              富组件块：chart / mermaid / math / tabs / callout / embed / script
 │   ├── runtime/             嵌入到 .ehtml 文件中的轻量加载器（阅读→编辑切换、保存）
 │   └── cli/                 命令行：md ↔ ehtml 转换、格式校验、批量导出

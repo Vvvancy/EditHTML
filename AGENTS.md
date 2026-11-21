@@ -9,7 +9,9 @@
 ## 架构约束（不可违反）
 
 - `packages/core` **禁止**使用任何 DOM / 浏览器 API，必须能在 Node 和 Web Worker 中运行；
-- 依赖方向：`editor → renderer → blocks → core`，不得反向依赖；
+- 依赖方向：`editor → renderer → blocks → core`，`importer → core`（`importer/preserve` 可依赖 DOM），不得反向依赖；
+- **导入不丢内容**：任何导入/转换路径中，识别不了的内容必须原样保留为 `eh-html` 块或保真区间，禁止静默丢弃；
+- 保真模式下，未被编辑的字节必须与原文件**逐字节相同**；
 - 所有文档修改必须经过 `Transaction`，禁止直接修改 `Doc` 或把 DOM 当作数据源；
 - 每个 `Op` 必须实现 `invert`；
 - 序列化输出必须符合 `01-format-spec.md §6` 的规范形式且幂等。
