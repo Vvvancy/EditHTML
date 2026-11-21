@@ -1,0 +1,21 @@
+{
+  "name": "@edithtml/runtime",
+  "version": "0.0.0",
+  "description": "嵌入 .ehtml 文件的轻量运行时加载器",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/eh-runtime.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build"
+  }
+}

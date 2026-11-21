@@ -1,0 +1,22 @@
+{
+  "name": "@edithtml/renderer",
+  "version": "0.0.0",
+  "description": "Doc → DOM 增量渲染",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@edithtml/core": "workspace:*",
+    "@edithtml/blocks": "workspace:*"
+  }
+}

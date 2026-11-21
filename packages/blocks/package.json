@@ -1,0 +1,21 @@
+{
+  "name": "@edithtml/blocks",
+  "version": "0.0.0",
+  "description": "组件块插件",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@edithtml/core": "workspace:*"
+  }
+}

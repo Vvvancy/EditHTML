@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/blocks"
+    },
+    {
+      "path": "packages/renderer"
+    },
+    {
+      "path": "packages/editor"
+    },
+    {
+      "path": "packages/cli"
+    },
+    {
+      "path": "packages/runtime"
+    }
+  ]
+}

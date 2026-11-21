@@ -1,0 +1,23 @@
+{
+  "name": "@edithtml/editor",
+  "version": "0.0.0",
+  "description": "就地编辑器（ProseMirror 适配层）",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@edithtml/core": "workspace:*",
+    "@edithtml/blocks": "workspace:*",
+    "@edithtml/renderer": "workspace:*"
+  }
+}

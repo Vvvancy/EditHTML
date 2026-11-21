@@ -1,0 +1,24 @@
+{
+  "name": "@edithtml/cli",
+  "version": "0.0.0",
+  "description": "命令行 eh convert / check / fmt",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@edithtml/core": "workspace:*"
+  },
+  "bin": {
+    "eh": "./dist/bin.js"
+  }
+}
