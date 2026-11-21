@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>标签页与多栏</title>
+    <script type="application/json" id="eh-meta">{"title":"标签页与多栏","created":"2026-11-22","tags":["tabs","columns"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <eh-tabs data-eh="t1">
+        <script type="application/json">{"tabs":[{"title":"概念"},{"title":"例子"}]}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="t1a">二分查找在有序数组中每次排除一半。</p>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <pre data-eh="t1b" data-lang="ts"><code>while (lo &lt;= hi) { const mid = (lo + hi) &gt;&gt; 1; }
+</code></pre>
+        </eh-slot>
+      </eh-tabs>
+      <eh-tabs data-eh="t2">
+        <script type="application/json">{"tabs":[{"title":"macOS"},{"title":"Windows"},{"title":"Linux"}]}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="t2a">按 <kbd>Cmd</kbd> + <kbd>S</kbd> 保存。</p>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <p data-eh="t2b">按 <kbd>Ctrl</kbd> + <kbd>S</kbd> 保存。</p>
+        </eh-slot>
+        <eh-slot data-eh-slot="2"></eh-slot>
+      </eh-tabs>
+      <eh-columns data-eh="k1">
+        <script type="application/json">{"ratio":[1,2]}</script>
+        <eh-slot data-eh-slot="0">
+          <figure data-eh="k1a"><img alt="头像" src="assets/avatar.png"></figure>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <h3 data-eh="k1b">关于我 About me</h3>
+          <p data-eh="k1c">左栏占 1/3，右栏占 2/3。</p>
+        </eh-slot>
+      </eh-columns>
+      <eh-columns data-eh="k2">
+        <script type="application/json">{"ratio":[1,1,1]}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="k2a">一</p>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <p data-eh="k2b">二</p>
+        </eh-slot>
+        <eh-slot data-eh-slot="2">
+          <p data-eh="k2c">三</p>
+        </eh-slot>
+      </eh-columns>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>行内元素</title>
+    <script type="application/json" id="eh-meta">{"title":"行内元素","created":"2026-11-22","tags":["inline"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <p data-eh="i1"><strong>粗体 bold</strong>、<em>斜体 italic</em>、<code>code()</code>、<s>删除线 strike</s>、<mark>高亮 highlight</mark>。</p>
+      <p data-eh="i2">水的化学式 H<sub>2</sub>O，爱因斯坦 E = mc<sup>2</sup>，脚注<sup>[1]</sup>。</p>
+      <p data-eh="i3">按 <kbd>Ctrl</kbd> + <kbd>/</kbd> 切换源码模式，按 <kbd>E</kbd> 进入编辑。</p>
+      <p data-eh="i4">链接 <a href="https://example.com/docs?a=1&amp;b=2">外部链接 external</a>、<a href="other-note.ehtml#k9x">块级链接 block link</a>、<a href="#i1">页内锚点</a>、<a href="mailto:someone@example.com">邮件</a>。</p>
+      <p data-eh="i5">第一行 line one<br>第二行 line two<br>第三行 line three</p>
+      <p data-eh="i6">行内公式 <span data-eh-inline="math">e^{i\pi} + 1 = 0</span>，双链 <span data-eh-inline="wikilink">[[快速排序]]</span>，带别名 <span data-eh-inline="wikilink">[[algorithms/quicksort|快排]]</span>，标签 <span data-eh-inline="tag">#算法</span> <span data-eh-inline="tag">#todo/later</span>。</p>
+      <p data-eh="i7">嵌套标记 nested: <strong>粗体里有 <em>斜体和 <code>代码</code></em></strong>，<a href="https://example.com"><strong>粗体链接</strong></a>，<s><mark>删除+高亮（MARK_ORDER: s 在 mark 外）</mark></s>。</p>
+      <p data-eh="i8">共享外层前缀 shared prefix: <strong>a<em>b</em></strong><em>c</em> —— a=[strong]、b=[strong,em]、c=[em]，strong 对 a/b 保持打开。</p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>列表</title>
+    <script type="application/json" id="eh-meta">{"title":"列表","created":"2026-11-22","tags":["列表"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h2 data-eh="l0">购物清单 Shopping</h2>
+      <ul>
+        <li data-eh="l1a">苹果 apples</li>
+        <li data-eh="l1b">牛奶 <strong>全脂</strong></li>
+        <li data-eh="l1c">面包 bread</li>
+      </ul>
+      <p data-eh="p1">列表类型变化（ul → ol）时关闭当前列表、开启新列表：</p>
+      <ol>
+        <li data-eh="l2a">预热烤箱到 180°C</li>
+        <li data-eh="l2b">混合面粉和鸡蛋</li>
+        <li data-eh="l2c">烘烤 25 分钟</li>
+      </ol>
+      <ul>
+        <li data-eh="l3a">紧跟在 ol 之后的 ul（同层类型变化）</li>
+      </ul>
+      <p data-eh="p2">任务列表 Task list：</p>
+      <ul>
+        <li data-eh="l4a" data-eh-task="done">写规范草案 draft the spec</li>
+        <li data-eh="l4b" data-eh-task="todo">准备测试样本 prepare fixtures</li>
+        <li data-eh="l4c" data-eh-task="todo">实现解析器 <code>parse()</code></li>
+      </ul>
+      <h3 data-eh="l5">嵌套列表 Nested</h3>
+      <ul>
+        <li data-eh="l5a">前端 Frontend<ul>
+          <li data-eh="l5b">TypeScript</li>
+          <li data-eh="l5c">框架<ol>
+            <li data-eh="l5d">ProseMirror</li>
+            <li data-eh="l5e">Lexical</li>
+          </ol></li>
+        </ul></li>
+        <li data-eh="l5f">后端 Backend<ul>
+          <li data-eh="l5g" data-eh-task="done">Node fs</li>
+          <li data-eh="l5h" data-eh-task="todo">Web Worker</li>
+        </ul></li>
+        <li data-eh="l5i">回到第一层 back to level 0</li>
+      </ul>
+    </main>
+  </body>
+</html>

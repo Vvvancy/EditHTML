@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>空文档</title>
+    <script type="application/json" id="eh-meta">{"title":"空文档","created":"2026-11-22","tags":[],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+    </main>
+  </body>
+</html>

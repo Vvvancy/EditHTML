@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>表格</title>
+    <script type="application/json" id="eh-meta">{"title":"表格","created":"2026-11-22","tags":["表格"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <p data-eh="p1">排序算法对比 Sorting algorithms：</p>
+      <table data-eh="t1">
+        <thead><tr><th>算法 Algorithm</th><th data-eh-align="center">平均 Avg</th><th data-eh-align="right">最坏 Worst</th><th data-eh-align="left">稳定 Stable</th></tr></thead>
+        <tbody>
+          <tr><td>快速排序 Quicksort</td><td data-eh-align="center"><code>O(n log n)</code></td><td data-eh-align="right"><code>O(n²)</code></td><td data-eh-align="left">否</td></tr>
+          <tr><td>归并排序 Merge sort</td><td data-eh-align="center"><code>O(n log n)</code></td><td data-eh-align="right"><code>O(n log n)</code></td><td data-eh-align="left"><strong>是</strong></td></tr>
+          <tr><td>插入排序 <em>Insertion</em></td><td data-eh-align="center"><code>O(n²)</code></td><td data-eh-align="right"><code>O(n²)</code></td><td data-eh-align="left">是</td></tr>
+          <tr><td></td><td data-eh-align="center">空单元格 empty cell ←</td><td data-eh-align="right"></td><td data-eh-align="left">a | b</td></tr>
+        </tbody>
+      </table>
+      <table data-eh="t2">
+        <tbody>
+          <tr><td>无表头 no thead</td><td>只有 tbody</td></tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>

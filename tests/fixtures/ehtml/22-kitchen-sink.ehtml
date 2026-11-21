@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>算法学习笔记 · Kitchen Sink</title>
+    <script type="application/json" id="eh-meta">{"title":"算法学习笔记 · Kitchen Sink","created":"2026-11-21","tags":["学习","算法","kitchen-sink"],"theme":"default"}</script>
+    <style id="eh-theme">:root{--eh-fg:#1f2328;--eh-bg:#ffffff;--eh-accent:#0969da}</style>
+    <style id="eh-user-style">[data-eh="ksi"]{font-size:1.1em}</style>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h1 data-eh="ks1">算法学习笔记 Algorithm Notes</h1>
+      <p data-eh="ksi">本笔记整理了 <strong>排序</strong> 与 <em>查找</em> 的要点，参见 <span data-eh-inline="wikilink">[[数据结构]]</span> 和 <span data-eh-inline="tag">#算法</span>。复杂度用 <span data-eh-inline="math">O(n \log n)</span> 表示。</p>
+      <eh-callout data-eh="ks2">
+        <script type="application/json">{"kind":"info","title":"阅读指南 How to read"}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="ks2a">按 <kbd>E</kbd> 进入编辑模式；按 <kbd>Ctrl</kbd>+<kbd>/</kbd> 查看 EHMD 源码。</p>
+        </eh-slot>
+      </eh-callout>
+      <h2 data-eh="ks3">1. 学习计划 Plan</h2>
+      <ul>
+        <li data-eh="ks4a" data-eh-task="done">复习大 O 记号</li>
+        <li data-eh="ks4b" data-eh-task="done">实现 <code>quickSort</code></li>
+        <li data-eh="ks4c" data-eh-task="todo">实现 <code>mergeSort</code><ul>
+          <li data-eh="ks4d" data-eh-task="todo">自顶向下 top-down</li>
+          <li data-eh="ks4e" data-eh-task="todo">自底向上 bottom-up</li>
+        </ul></li>
+        <li data-eh="ks4f" data-eh-task="todo">刷题 20 道 <s>10 道</s></li>
+      </ul>
+      <h2 data-eh="ks5">2. 排序 Sorting</h2>
+      <eh-tabs data-eh="ks6">
+        <script type="application/json">{"tabs":[{"title":"思路"},{"title":"代码"},{"title":"复杂度"}]}</script>
+        <eh-slot data-eh-slot="0">
+          <ol>
+            <li data-eh="ks6a">选一个基准 pivot</li>
+            <li data-eh="ks6d">分区：小于 pivot 的放左边，其余放右边</li>
+            <li data-eh="ks6e">递归处理两侧</li>
+          </ol>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <pre data-eh="ks6b" data-lang="ts"><code>function quickSort(xs: number[]): number[] {
+  if (xs.length &lt;= 1) return xs;
+  const [p, ...rest] = xs;
+  return [...quickSort(rest.filter(x =&gt; x &lt; p)), p, ...quickSort(rest.filter(x =&gt; x &gt;= p))];
+}
+</code></pre>
+        </eh-slot>
+        <eh-slot data-eh-slot="2">
+          <table data-eh="ks6c">
+            <thead><tr><th>情况</th><th>时间</th><th>空间</th></tr></thead>
+            <tbody>
+              <tr><td>平均</td><td><code>O(n log n)</code></td><td><code>O(log n)</code></td></tr>
+              <tr><td>最坏</td><td><code>O(n²)</code></td><td><code>O(n)</code></td></tr>
+            </tbody>
+          </table>
+        </eh-slot>
+      </eh-tabs>
+      <eh-chart data-eh="ks7">
+        <script type="application/json">{"type":"line","data":{"x":["1k","10k","100k"],"y":[0.2,2.6,31]},"options":{"title":"quickSort 耗时 (ms)"}}</script>
+        <!--eh:fallback--><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40" role="img" aria-label="折线图：1k=0.2, 10k=2.6, 100k=31"><polyline fill="none" points="0,40 50,37 100,0" stroke="currentColor"/></svg><!--eh:fallback-->
+      </eh-chart>
+      <h2 data-eh="ks8">3. 查找 Searching</h2>
+      <eh-columns data-eh="ks9">
+        <script type="application/json">{"ratio":[1,1]}</script>
+        <eh-slot data-eh-slot="0">
+          <h3 data-eh="ks9a">二分查找</h3>
+          <p data-eh="ks9b">前提：数组<mark>有序</mark>。</p>
+          <eh-math data-eh="ks9c">
+            <script type="application/json">{"tex":"T(n) = T(n/2) + O(1) \\Rightarrow O(\\log n)"}</script>
+            <!--eh:fallback--><pre>T(n) = T(n/2) + O(1) \Rightarrow O(\log n)</pre><!--eh:fallback-->
+          </eh-math>
+        </eh-slot>
+        <eh-slot data-eh-slot="1">
+          <h3 data-eh="ks9d">哈希查找</h3>
+          <p data-eh="ks9e">平均 O(1)，最坏 O(n)；H<sub>2</sub>O 只是个下标示例，x<sup>2</sup> 是上标示例。</p>
+        </eh-slot>
+      </eh-columns>
+      <eh-mermaid data-eh="ks10">
+        <script type="application/json">{"source":"graph LR\n  Q[查询] --> S{有序?}\n  S -->|是| B[二分]\n  S -->|否| H[哈希]"}</script>
+        <!--eh:fallback--><pre>graph LR
+  Q[查询] --&gt; S{有序?}
+  S --&gt;|是| B[二分]
+  S --&gt;|否| H[哈希]</pre><!--eh:fallback-->
+      </eh-mermaid>
+      <h2 data-eh="ks11">4. 参考 References</h2>
+      <blockquote data-eh="ks12">Premature optimization is the root of all evil. —— Donald Knuth</blockquote>
+      <figure data-eh="ks13"><img alt="排序可视化" src="assets/sorting.gif"><figcaption>排序过程可视化 Sorting visualization</figcaption></figure>
+      <eh-embed data-eh="ks14">
+        <script type="application/json">{"url":"https://www.example.com/watch?v=sorting","height":315}</script>
+        <!--eh:fallback--><p><a href="https://www.example.com/watch?v=sorting">视频：排序算法讲解</a></p><!--eh:fallback-->
+      </eh-embed>
+      <eh-toggle data-eh="ks15">
+        <script type="application/json">{"title":"练习题答案 Answers","open":false}</script>
+        <eh-slot data-eh-slot="0">
+          <eh-callout data-eh="ks15a">
+            <script type="application/json">{"kind":"warn","title":"先自己做！"}</script>
+            <eh-slot data-eh-slot="0">
+              <p data-eh="ks15b">第 1 题：稳定排序有 <strong>归并</strong>、<strong>插入</strong>、<strong>冒泡</strong>。</p>
+            </eh-slot>
+          </eh-callout>
+        </eh-slot>
+      </eh-toggle>
+      <eh-script data-eh="ks16">
+        <script type="application/json">{"html":"<input id=\"n\" type=\"number\" value=\"8\"> <output id=\"o\"><\/output>","css":"output{font-weight:bold}","js":"const f=n=>n<2?n:f(n-1)+f(n-2);n.oninput=()=>o.textContent=f(+n.value);n.oninput();"}</script>
+        <!--eh:fallback--><p>斐波那契计算器：F(8) = <strong>21</strong></p><!--eh:fallback-->
+      </eh-script>
+      <eh-foreign data-eh="ks19"><details><summary>延伸阅读（原生 details，外来块）</summary><p>《算法导论》第 7 章</p></details></eh-foreign>
+      <hr data-eh="ks17">
+      <p data-eh="ks18">更新于 2026-11-21 · <a href="index.ehtml">返回目录</a><br>© 2026 &amp; 保留所有权利 😀</p>
+    </main>
+  </body>
+</html>

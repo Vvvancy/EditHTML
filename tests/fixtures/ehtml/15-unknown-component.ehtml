@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>未知组件</title>
+    <script type="application/json" id="eh-meta">{"title":"未知组件","created":"2026-11-22","tags":["unknown"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <p data-eh="u0">下面的组件类型不在 v1 内置列表中（可能来自第三方插件）。</p>
+      <eh-foo data-eh="u1" data-eh-variant="compact">
+        <script type="application/json">{"bar":1,"nested":{"list":[true,null,"文字"]}}</script>
+        <!--eh:fallback--><div class="foo-fallback"><p>foo 组件的静态降级内容 Static fallback for eh-foo</p></div><!--eh:fallback-->
+      </eh-foo>
+      <eh-kanban data-eh="u2">
+        <script type="application/json">{"columns":[{"title":"待办","cards":["写测试"]},{"title":"完成","cards":[]}]}</script>
+        <eh-slot data-eh-slot="0">
+          <p data-eh="u2a">未知容器里的子块 child of unknown container</p>
+        </eh-slot>
+        <!--eh:fallback--><table><tbody><tr><th>待办</th><th>完成</th></tr><tr><td>写测试</td><td></td></tr></tbody></table><!--eh:fallback-->
+      </eh-kanban>
+      <eh-bar data-eh="u3">
+        <!--eh:fallback--><p>没有 JSON 数据的未知组件 unknown component without JSON</p><!--eh:fallback-->
+      </eh-bar>
+      <p data-eh="u4">预期：u1/u2/u3 原样保留，只读显示降级内容，序列化后字节不变。</p>
+    </main>
+  </body>
+</html>

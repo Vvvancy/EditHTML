@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Unicode 与空白 🌏</title>
+    <script type="application/json" id="eh-meta">{"title":"Unicode 与空白 🌏","created":"2026-11-22","tags":["unicode","中文","😀"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h1 data-eh="u1">多语言 Multilingual：中文、日本語、한국어</h1>
+      <p data-eh="u2">简体：编辑器应正确处理中文输入法组合。繁體：編輯器應正確處理。日本語：ひらがな・カタカナ・漢字。한국어: 한글 입력.</p>
+      <p data-eh="u3">Emoji：😀 🚀 👍🏽 👨‍👩‍👧‍👦 🏳️‍🌈 🇨🇳🇺🇸 — ZWJ 序列、肤色修饰符、国旗（区域指示符）。</p>
+      <p data-eh="u4">辅助平面字符 astral plane：𝒳 𝔸 𝟘 𠀀 𪚥 🀄 —— UTF-16 代理对，偏移计算不能按 code unit 切断。</p>
+      <p data-eh="u5">组合字符 combining：é（e + U+0301）vs é（U+00E9），Zalgo z̴̢a̷l̸g̵o̶。零宽：a​b（U+200B）、a‌b（ZWNJ）、a‍b（ZWJ）。</p>
+      <p data-eh="u6">العربية: هذا نص من اليمين إلى اليسار. עברית: זהו טקסט מימין לשמאל.</p>
+      <p data-eh="u7">双向混排 bidi：English مرحبا 123 世界 שלום end.</p>
+      <p data-eh="u8"></p>
+      <p data-eh="u9">   </p>
+      <p data-eh="u10">	 	</p>
+      <p data-eh="u11"> </p>
+      <p data-eh="u12"><br></p>
+      <p data-eh="u13">  前导与尾随空格 leading and trailing spaces  </p>
+      <p data-eh="u14">连续    多个    空格 multiple   spaces</p>
+      <h2 data-eh="u15"></h2>
+      <p data-eh="u16">超长单行 very long single line（约 4600 字符）：这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks. 这是一行非常长的文字，不包含任何换行。This is a very long single line without any line breaks.</p>
+      <pre data-eh="u17" data-lang="text"><code>中文代码块 😀 𠀀
+  缩进保留
+</code></pre>
+      <p data-eh="u18">全角符号：，。！？「」『』（）【】——……　全角空格在这里↑</p>
+    </main>
+  </body>
+</html>

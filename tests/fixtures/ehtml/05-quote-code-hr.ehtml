@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>引用、代码与分割线</title>
+    <script type="application/json" id="eh-meta">{"title":"引用、代码与分割线","created":"2026-11-22","tags":["代码"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <blockquote data-eh="q1">学而不思则罔，思而不学则殆。<br>— 《论语》</blockquote>
+      <blockquote data-eh="q2">Simple things should be <em>simple</em>, complex things should be <strong>possible</strong>.</blockquote>
+      <hr data-eh="r1">
+      <pre data-eh="c1" data-lang="ts"><code>export function add(a: number, b: number): number {
+  return a + b;
+}
+</code></pre>
+      <pre data-eh="c2" data-lang="html"><code>&lt;p data-eh="b1"&gt;Hello &amp;amp; bye&lt;/p&gt;
+</code></pre>
+      <pre data-eh="c3"><code>没有语言标注的代码块
+    保留缩进 4 spaces
+	和制表符 tab
+</code></pre>
+      <pre data-eh="c4" data-lang="python"><code>def f(xs):
+    return [x for x in xs if x &lt; 10]  # 中文注释
+</code></pre>
+      <hr data-eh="r2">
+      <p data-eh="p1">代码块之后的段落。</p>
+    </main>
+  </body>
+</html>

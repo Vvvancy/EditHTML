@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>实体 &amp; 转义</title>
+  <script type="application/json" id="eh-meta">{"title":"实体 & 转义 <test>","created":"2026-11-22","tags":["entities","<\/script>"],"theme":"default"}</script>
+  <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+</head>
+<body>
+  <main id="eh-doc">
+    <p data-eh="e1">基本实体：&amp; &lt; &gt; &quot; —— 文本中 &quot; 规范化后应输出为字面 " 。</p>
+    <p data-eh="e2">不换行空格：a&nbsp;b&nbsp;&nbsp;c，以及字面 U+00A0：a b。</p>
+    <p data-eh="e3">数字实体：&#169; &#xA9; &#x4E2D;&#25991; &#128512; &#x1F680; —— 解析后为 © © 中文 😀 🚀。</p>
+    <p data-eh="e4">命名实体：&copy; &mdash; &hellip; &rarr; &times; &ensp; &apos;。</p>
+    <p data-eh="e5">不需要转义的字符：' " = / ` 以及单独的 &amp; 符号 AT&amp;T。</p>
+    <p data-eh="e6">属性中的引号：<a href="search?q=%22x%22&amp;lang=zh" title="他说 &quot;你好&quot; &amp; 'hi'">带引号的 title</a>。</p>
+    <pre data-eh="e7" data-lang="cpp"><code>#include &lt;vector&gt;
+template &lt;typename T&gt; bool lt(T a, T b) { return a &lt; b &amp;&amp; !(b &lt; a); }
+std::string s = "&lt;/script&gt;";
+</code></pre>
+    <pre data-eh="e8" data-lang="html"><code>&lt;!-- 注释 --&gt; &lt;script&gt;alert("x")&lt;/script&gt; &amp;amp; &amp;nbsp;
+</code></pre>
+    <eh-script data-eh="e9">
+      <script type="application/json">{"html":"<script>window.x=1<\/script><p>Tom &amp; Jerry</p>","css":"p::after{content:\"<\\/style>\"}","js":"document.write('<\/script>'); const s = \"\\u003c/script>\";"}</script>
+      <!--eh:fallback--><p>Tom &amp; Jerry</p><!--eh:fallback-->
+    </eh-script>
+    <eh-mermaid data-eh="e10">
+      <script type="application/json">{"source":"graph LR\n  A[\"a < b & c > d\"] --> B[\"<\/script>\"]\n  B --> C[\"<!-- not a comment -->\"]"}</script>
+      <!--eh:fallback--><pre>graph LR
+  A["a &lt; b &amp; c &gt; d"] --&gt; B["&lt;/script&gt;"]
+  B --&gt; C["&lt;!-- not a comment --&gt;"]</pre><!--eh:fallback-->
+    </eh-mermaid>
+    <p data-eh="e11">反斜杠 backslash \ 与 \n 字面量；Markdown 特殊字符 *not bold* _not em_ `not code` [not link](x) # not heading。</p>
+  </main>
+</body>
+</html>

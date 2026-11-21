@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>流程图与公式</title>
+    <script type="application/json" id="eh-meta">{"title":"流程图与公式","created":"2026-11-22","tags":["mermaid","math"],"theme":"default"}</script>
+    <script id="eh-runtime" src="./.ehtml/runtime.js" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      <h2 data-eh="h1">保存流程 Save flow</h2>
+      <eh-mermaid data-eh="m1">
+        <script type="application/json">{"source":"graph TD\n  A[用户输入] --> B{是否合并?}\n  B -->|是| C[history.push]\n  B -->|否| D[新事务]"}</script>
+        <!--eh:fallback--><pre>graph TD
+  A[用户输入] --&gt; B{是否合并?}
+  B --&gt;|是| C[history.push]
+  B --&gt;|否| D[新事务]</pre><!--eh:fallback-->
+      </eh-mermaid>
+      <eh-mermaid data-eh="m2">
+        <script type="application/json">{"source":"sequenceDiagram\n  Editor->>Core: apply(tx)\n  Core-->>Renderer: dirtySet"}</script>
+        <!--eh:fallback--><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" role="img" aria-label="时序图 Editor→Core→Renderer"><text x="0" y="20">Editor → Core → Renderer</text></svg><!--eh:fallback-->
+      </eh-mermaid>
+      <h2 data-eh="h2">公式 Math</h2>
+      <eh-math data-eh="x1">
+        <script type="application/json">{"tex":"\\int_0^1 x^2\\,dx = \\frac{1}{3}"}</script>
+        <!--eh:fallback--><math display="block"><mrow><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><msup><mi>x</mi><mn>2</mn></msup><mi>d</mi><mi>x</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac></mrow></math><!--eh:fallback-->
+      </eh-math>
+      <eh-math data-eh="x2">
+        <script type="application/json">{"tex":"\\begin{aligned} a &= b + c \\\\ d &< e \\end{aligned}"}</script>
+        <!--eh:fallback--><pre>\begin{aligned} a &amp;= b + c \\ d &amp;&lt; e \end{aligned}</pre><!--eh:fallback-->
+      </eh-math>
+    </main>
+  </body>
+</html>
