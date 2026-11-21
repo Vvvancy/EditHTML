@@ -222,6 +222,32 @@ export function arbDoc(opts: ArbDocOptions = {}): fc.Arbitrary<Doc> {
       return id;
     };
     const root = trees.map((t) => build(t, 0));
-    return createDoc(blocks, { root, meta: m });
+    const doc = createDoc(blocks, { root, meta: m });
+    return fixListIndents(doc);
   });
+}
+
+/**
+ * 强制列表不变量（01 §6.1）：同一列表组内第一个 `li` 的 indent 为 0，且每项 indent ≤ 前一项 + 1。
+ */
+function fixListIndents(doc: Doc): Doc {
+  const blocks = new Map(doc.blocks);
+  const fixSeq = (ids: readonly BlockId[]): void => {
+    let prev = -1;
+    for (const id of ids) {
+      const b = blocks.get(id);
+      if (!b) continue;
+      if (b.kind === 'text' && b.type === 'li') {
+        const want = Math.min(Number(b.attrs.indent ?? '0'), prev + 1);
+        if (String(want) !== b.attrs.indent)
+          blocks.set(id, textBlock(id, 'li', b.content, { ...b.attrs, indent: String(want) }));
+        prev = want;
+      } else {
+        prev = -1;
+        if (b.kind === 'component' && b.slots) b.slots.forEach(fixSeq);
+      }
+    }
+  };
+  fixSeq(doc.root);
+  return { ...doc, blocks };
 }

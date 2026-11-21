@@ -146,6 +146,103 @@ v1 内置组件（详见 `packages/blocks/`）：
 
 保证：`serialize(parse(serialize(doc))) === serialize(doc)`（幂等）。
 
+### 6.1 规范形式细则（v0.1，T1.2 解析器与 T1.3 序列化器共同遵守）
+
+以下 `␣` 表示空格。缩进一律 2 空格；行尾 `\n`，文件以 `\n` 结尾。
+
+**文件骨架**（可选部分不存在时整行省略）：
+
+```html
+<!doctype html>
+<html lang="{head.lang ?? 'zh-CN'}" data-eh-version="0.1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{head.title ?? meta.title ?? ''}</title>
+    <script type="application/json" id="eh-meta">{meta JSON}</script>
+    <style id="eh-theme">{head.themeCss}</style>
+    <style id="eh-user-style">{head.userCss}</style>
+    {head.extra}
+    <script id="eh-runtime" src="{head.runtimeSrc}" defer></script>
+  </head>
+  <body>
+    <main id="eh-doc">
+      {顶层块，每块从缩进 6 开始}
+    </main>
+  </body>
+</html>
+```
+
+- `meta` JSON：键顺序 `title, created, tags, theme`，其余键按字典序；单行紧凑输出。meta 为空对象时输出 `{}`。
+- `<style>`、`head.extra` 内容原样输出（不重排）。
+
+**JSON 嵌入**（meta 与组件数据）：`JSON.stringify` 单行输出后，把 `</` 替换为 `<\/`、`<!--` 替换为 `\u003c!--`，保证不会提前闭合 `<script>`。组件 props 键顺序保持模型中的插入顺序（schema 顺序待 T2.6 引入；超 120 字符换行规则暂不实施）。
+
+**属性**：`data-eh` → 其余 `data-eh-*`（字典序）→ 其他属性（字典序）。值用双引号，转义 `& < > "`。布尔属性输出为 `name=""`（`defer` 除外，固定写法见骨架）。
+
+**文本**：只转义 `& < >`；其他字符（含 `\u00a0`、emoji）原样输出。
+
+**行内内容**：marks 按 `MARK_ORDER`（`link strong em s mark sub sup kbd code`）从外到内嵌套；相邻节点共享的**最长外层 mark 前缀**保持同一个元素打开（与 ProseMirror DOMSerializer 相同）。`link` → `<a href="…"[ title="…"]>`；`br` → `<br>`；`atom` → `<span data-eh-inline="{kind}"[ data-eh-{k}="…"]>{text}</span>`。
+
+**文本块**（每块一行，代码块内容中的换行原样保留）：
+
+| 类型 | 规范输出 |
+| --- | --- |
+| p / h1–h6 / quote | `<p data-eh="id">…</p>`；quote → `<blockquote data-eh="id">…</blockquote>` |
+| hr | `<hr data-eh="id">` |
+| code | `<pre data-eh="id" data-lang="ts"><code>…</code></pre>`（无 lang 时省略 `data-lang`） |
+| figure | `<figure data-eh="id"><img alt="…" src="…"><figcaption>…</figcaption></figure>`（图注为空时省略 figcaption） |
+| table | 见下 |
+| li | 见下 |
+
+表格（无表头时省略 thead 行；对齐用 `data-eh-align`）：
+
+```html
+<table data-eh="id">
+  <thead><tr><th>A</th><th data-eh-align="center">B</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td data-eh-align="center">2</td></tr>
+  </tbody>
+</table>
+```
+
+列表：连续的 `li` 块归组；同一层级 `list` 类型变化时关闭当前列表、开启新列表。子列表紧跟父项内容开始（`…内容<ul>`），以 `</ul></li>` 收尾，**内容与 `<ul>` 之间不留空白**；标签之间的换行与缩进是格式空白，解析时忽略。
+
+```html
+<ul>
+  <li data-eh="a">父项<ul>
+    <li data-eh="b" data-eh-task="done">子项</li>
+  </ul></li>
+  <li data-eh="c">下一项</li>
+</ul>
+```
+
+模型不变量：同一列表组内第一个 `li` 的 `indent` 为 `0`，且每项 `indent ≤ 前一项 indent + 1`。
+
+**组件块**：
+
+```html
+<eh-chart data-eh="id">
+  <script type="application/json">{"type":"bar"}</script>
+  <!--eh:fallback-->{fallback 原样}<!--eh:fallback-->
+</eh-chart>
+```
+
+容器块的每个槽位：`<eh-slot data-eh-slot="i">` 独占一行，子块缩进 +2，`</eh-slot>` 独占一行；空槽位写成单行 `<eh-slot data-eh-slot="i"></eh-slot>`。槽位在 JSON 行之后、fallback 行之前。无 fallback 时省略该行。
+
+**外来块**：包一层 `<eh-foreign data-eh="id">{html 原样}</eh-foreign>`，使外来块的 ID 在往返中保持稳定。解析器遇到未包裹的规范外内容时生成外来块（首次保存后即被包裹）。
+
+**解析器的宽容规则**（非规范输入 → 规范模型）：
+- 标签名大小写不敏感；属性顺序、缩进、引号风格任意；
+- `b`→`strong`、`i`→`em`、`del`/`strike`→`s`；其他白名单外的行内元素去壳保留文本；文本块内的 `script`/`style` 丢弃；
+- `on*` 属性一律剔除；`javascript:`（忽略大小写与空白）链接去掉链接标记、保留文本；
+- 缺失或重复的块 ID 在扫描结束后按文档顺序用 `createIdGenerator` 重新分配（首次出现者保留原 ID）；
+- 没有 `main#eh-doc` 时解析 `body` 的子元素；
+- 实体：支持数字实体与常用命名实体，未知命名实体按字面保留；
+- 等于默认值的 head 字段不写入模型：`lang === 'zh-CN'` 时省略 `head.lang`，`<title>` 等于 `meta.title` 时省略 `head.title`。
+
+保证：对任意有效 `Doc`，`docEquals(parse(serialize(doc)), doc)`；对任意输入，`serialize(parse(serialize(parse(x)))) === serialize(parse(x))`。
+
 ## 7. EHMD 文本源码视图
 
 用于源码模式和 `.md` 互通。在 CommonMark + GFM 基础上加**指令块**：
