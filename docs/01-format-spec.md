@@ -239,6 +239,7 @@ v1 内置组件（详见 `packages/blocks/`）：
 - 缺失或重复的块 ID 在扫描结束后按文档顺序用 `createIdGenerator` 重新分配（首次出现者保留原 ID）；
 - 没有 `main#eh-doc` 时解析 `body` 的子元素；
 - 实体：支持数字实体与常用命名实体，未知命名实体按字面保留；
+- **原样保留的切片必须自包含**（外来块 html、降级内容、`head.extra`）：文件在原始文本（`script`/`style`…）或注释中途结束时先补上终止符再解析；外来块中被识别为标签的 `<eh-foreign>`/`</eh-foreign>` 改写为 `&lt;…`、末尾未写完的标签截掉；不自包含的降级内容直接丢弃（它只是可重建的缓存）。告警码 `unsafe-slice`。这保证了 `serialize ∘ parse` 对任意输入幂等；
 - 等于默认值的 head 字段不写入模型：`lang === 'zh-CN'` 时省略 `head.lang`，`<title>` 等于 `meta.title` 时省略 `head.title`。
 
 保证：对任意有效 `Doc`，`docEquals(parse(serialize(doc)), doc)`；对任意输入，`serialize(parse(serialize(parse(x)))) === serialize(parse(x))`。

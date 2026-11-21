@@ -77,7 +77,8 @@ export interface EofToken {
 export type Token = StartTagToken | EndTagToken | TextToken | CommentToken | DoctypeToken | EofToken;
 
 /** 内容为原始文本（不识别标签）的元素。 */
-const RAW_TEXT = new Set(['script', 'style', 'textarea', 'title', 'xmp', 'iframe', 'noembed', 'noframes']);
+/** 原始文本元素：内容只在匹配的结束标签处终止。 */
+export const RAW_TEXT = new Set(['script', 'style', 'textarea', 'title', 'xmp', 'iframe', 'noembed', 'noframes']);
 
 const isWs = (c: number): boolean => c === 0x20 || c === 0x0a || c === 0x09 || c === 0x0c || c === 0x0d;
 const isAlpha = (c: number): boolean => (c >= 0x41 && c <= 0x5a) || (c >= 0x61 && c <= 0x7a);

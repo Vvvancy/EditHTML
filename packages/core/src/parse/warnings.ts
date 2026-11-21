@@ -23,7 +23,8 @@
  * - `invalid-meta`：`#eh-meta` 不是合法的 JSON 对象（原样放入 `head.extra`）；
  * - `missing-props`：组件缺少 JSON 数据（`props` 取 `{}`）；
  * - `missing-fallback-end`：缺少结束的 `<!--eh:fallback-->` 标记；
- * - `depth-limit`：嵌套超过安全上限，按外来块/扁平化处理。
+ * - `depth-limit`：嵌套超过安全上限，按外来块/扁平化处理；
+ * - `unsafe-slice`：原样保留的外来块/降级内容会破坏外层边界（含 `</eh-foreign>`、`<!--eh:fallback-->` 或未终止的原始文本/注释），已修补（外来块）或丢弃（降级内容）。
  */
 export type ParseWarningCode =
   | 'stripped-event-handler'
@@ -47,7 +48,8 @@ export type ParseWarningCode =
   | 'invalid-meta'
   | 'missing-props'
   | 'missing-fallback-end'
-  | 'depth-limit';
+  | 'depth-limit'
+  | 'unsafe-slice';
 
 /** 一条解析告警。 */
 export interface ParseWarning {

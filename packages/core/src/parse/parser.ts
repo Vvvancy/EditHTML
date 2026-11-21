@@ -29,7 +29,7 @@ import {
 } from '../model.js';
 import { decodeEntities } from './entities.js';
 import { makeComponentBlock, makeForeignBlock, makeTextBlock, normalizeInlineFast } from './fast.js';
-import { isWhitespaceRange, Tokenizer, type Attr, type StartTagToken, type Token } from './tokenizer.js';
+import { isWhitespaceRange, RAW_TEXT, Tokenizer, type Attr, type StartTagToken, type Token } from './tokenizer.js';
 import type { ParseWarning, ParseWarningCode } from './warnings.js';
 
 /** 解析选项。 */
@@ -402,14 +402,26 @@ class Parser {
    * 从已消费的开始标签起，按标签栈匹配跳到元素结束。遇到祖先的结束标签或 EOF 时视为未闭合。
    * 返回内容结束偏移（结束标签起点）与元素结束偏移。
    */
-  private skipElement(tok: StartTagToken): { inner: number; end: number } {
-    if (VOID.has(tok.name) || tok.selfClosing) return { inner: tok.end, end: tok.end };
+  /**
+   * 跳过整个元素（已消费开始标签）。`closed` 为 false 表示元素在文件结束或祖先结束标签前未闭合；
+   * 此时 `innerClose` 是其内部仍未闭合的元素的闭合标签（由内到外），`close` 再加上元素自身的闭合标签。
+   * 原样保留切片时把它们补在后面，保证切片不会在下次解析时吞掉其后的内容。
+   */
+  private skipElement(tok: StartTagToken): {
+    inner: number;
+    end: number;
+    closed: boolean;
+    innerClose: string;
+    close: string;
+  } {
+    if (VOID.has(tok.name) || tok.selfClosing)
+      return { inner: tok.end, end: tok.end, closed: true, innerClose: '', close: '' };
     const stack: string[] = [tok.name];
     for (;;) {
       const t = this.peek();
       if (t.type === 'eof') {
         this.warn('unclosed-element', `unclosed <${tok.name}>`, tok.start);
-        return { inner: t.start, end: t.start };
+        return { inner: t.start, end: t.start, closed: false, ...closers(stack) };
       }
       if (t.type === 'start') {
         this.next();
@@ -419,10 +431,10 @@ class Parser {
         if (idx >= 0) {
           this.next();
           stack.length = idx;
-          if (idx === 0) return { inner: t.start, end: t.end };
+          if (idx === 0) return { inner: t.start, end: t.end, closed: true, innerClose: '', close: '' };
         } else if (this.isAncestor(t.name)) {
           this.warn('unclosed-element', `unclosed <${tok.name}>`, tok.start);
-          return { inner: t.start, end: t.start };
+          return { inner: t.start, end: t.start, closed: false, ...closers(stack) };
         } else this.next();
       } else this.next();
     }
@@ -430,13 +442,18 @@ class Parser {
 
   /** 把已消费开始标签的整个元素作为外来块。 */
   private foreignElement(tok: StartTagToken, seq: Pending[]): void {
-    const { end } = this.skipElement(tok);
-    this.addForeign(seq, tok.start, end, this.rawIdOf(tok));
+    const { end, close } = this.skipElement(tok);
+    this.addForeign(seq, tok.start, end, this.rawIdOf(tok), close);
   }
 
-  private addForeign(seq: Pending[], start: number, end: number, rawId?: string): void {
+  /**
+   * @param suffix 补在原文切片后的闭合标记（元素未闭合时），保证再次序列化/解析时
+   *   切片不会吞掉其后的内容（幂等）。
+   */
+  private addForeign(seq: Pending[], start: number, end: number, rawId?: string, suffix = ''): void {
     this.warn('foreign-content', 'out-of-spec content kept as a foreign block', start);
-    this.add<PendingForeign>(seq, { k: 'foreign', rawId, offset: start, id: '', html: this.src.slice(start, end) });
+    const html = this.src.slice(start, end) + suffix;
+    this.add<PendingForeign>(seq, { k: 'foreign', rawId, offset: start, id: '', html });
   }
 
   // ── 回滚 ──
@@ -529,7 +546,7 @@ class Parser {
       this.extra.add(t.start, t.end);
       return;
     }
-    const { inner, end } = this.skipElement(t);
+    const { inner, end, close } = this.skipElement(t);
     const content = this.src.slice(t.end, inner);
     if (t.name === 'title' && this.title === undefined) {
       this.title = decodeEntities(content, false, t.end, (c, m, o) => this.warn(c, m, o));
@@ -561,7 +578,7 @@ class Parser {
         return;
       }
     }
-    this.extra.add(t.start, end);
+    this.extra.add(t.start, end, close);
   }
 
   /** head 字段（省略默认值）。 */
@@ -671,13 +688,13 @@ class Parser {
         }
         break;
       case 'eh-foreign': {
-        const { inner } = this.skipElement(t);
+        const { inner, innerClose } = this.skipElement(t);
         this.add<PendingForeign>(seq, {
           k: 'foreign',
           rawId: this.rawIdOf(t),
           offset: t.start,
           id: '',
-          html: this.src.slice(t.end, Math.max(inner, t.end)),
+          html: this.src.slice(t.end, Math.max(inner, t.end)) + innerClose,
         });
         return;
       }
@@ -1418,18 +1435,27 @@ class Parser {
 
 /** 源区间收集器：相邻区间之间只有空白时合并（保留原始空白），否则以分隔符连接。 */
 class Slices {
-  private readonly ranges: [number, number][] = [];
+  /** `[start, end, suffix]`：原文区间及补在其后的闭合标记。 */
+  private readonly ranges: [number, number, string][] = [];
   constructor(private readonly src: string) {}
 
-  add(start: number, end: number): void {
+  add(start: number, end: number, suffix = ''): void {
     const last = this.ranges[this.ranges.length - 1];
-    if (last && isWhitespaceRange(this.src, last[1], start)) last[1] = end;
-    else this.ranges.push([start, end]);
+    if (last && last[2] === '' && isWhitespaceRange(this.src, last[1], start)) {
+      last[1] = end;
+      last[2] = suffix;
+    } else this.ranges.push([start, end, suffix]);
   }
 
   join(sep: string): string {
-    return this.ranges.map(([s, e]) => this.src.slice(s, e)).join(sep);
+    return this.ranges.map(([s, e, suffix]) => this.src.slice(s, e) + suffix).join(sep);
   }
+}
+
+/** 由未闭合元素栈（`stack[0]` 为被跳过的元素本身）生成闭合标签。 */
+function closers(stack: readonly string[]): { innerClose: string; close: string } {
+  const tags = stack.map((n) => `</${n}>`).reverse();
+  return { innerClose: tags.slice(0, -1).join(''), close: tags.join('') };
 }
 
 // ───────────────────────────── 第 2/3 步：ID 与构造 ─────────────────────────────
@@ -1468,6 +1494,67 @@ function fixIndents(seq: readonly Pending[]): void {
   }
 }
 
+const FALLBACK_MARK_RE = /<!--\s*eh:fallback/i;
+
+/**
+ * 原样保留的切片是否"自包含"：不含外层分隔符，不会在标签、原始文本（script/style…）或注释中途结束。
+ * 否则序列化后再解析时，切片会吞掉其后的内容，破坏幂等。
+ */
+function isSelfContained(html: string, delimiter: RegExp): boolean {
+  if (delimiter.test(html)) return false;
+  const { cutAt, terminator } = sliceEnding(html);
+  return cutAt < 0 && terminator === '';
+}
+
+/**
+ * 分析切片结尾：`cutAt` ≥ 0 表示从该偏移起是一个未写完的标签（应截掉）；
+ * `terminator` 为未终止的原始文本/注释需要补上的终止符。
+ */
+function sliceEnding(html: string): { cutAt: number; terminator: string } {
+  const warns: ParseWarning[] = [];
+  const tz = new Tokenizer(html, (code, message, offset) => warns.push({ code, message, offset }));
+  let last: Token | null = null;
+  for (let t = tz.next(); t.type !== 'eof'; t = tz.next()) last = t;
+  const partial = warns.find((w) => w.code === 'eof-in-tag');
+  if (partial) return { cutAt: partial.offset, terminator: '' };
+  // 零长度的未终止原始文本（切片恰好以 `<script>` 结尾）不产生 eof 告警，单独判断。
+  if (last?.type === 'start' && RAW_TEXT.has(last.name) && !last.selfClosing)
+    return { cutAt: -1, terminator: `</${last.name}>` };
+  return { cutAt: -1, terminator: eofTerminator(warns) };
+}
+
+/**
+ * 把切片中被分词器识别为 `<name>` / `</name>` 标签的 `<` 改为 `&lt;`。
+ * 原始文本（如 script 字符串里的 `"</eh-foreign>"`）与注释中的同名文本不受影响。
+ */
+function neutralizeTags(html: string, name: string): string {
+  const tz = new Tokenizer(html);
+  const at: number[] = [];
+  for (let t = tz.next(); t.type !== 'eof'; t = tz.next())
+    if ((t.type === 'start' || t.type === 'end') && t.name === name) at.push(t.start);
+  if (at.length === 0) return html;
+  let out = '';
+  let prev = 0;
+  for (const i of at) {
+    out += html.slice(prev, i) + '&lt;';
+    prev = i + 1;
+  }
+  return out + html.slice(prev);
+}
+
+/** 修补外来块切片：中和字面量 `<eh-foreign` / `</eh-foreign`，截掉未写完的标签，补上未终止的原始文本/注释。 */
+function safeForeignHtml(p: Parser, html: string, offset: number): string {
+  let out = neutralizeTags(html, 'eh-foreign');
+  for (let guard = 0; guard < 4; guard++) {
+    const { cutAt, terminator } = sliceEnding(out);
+    if (cutAt >= 0) out = out.slice(0, cutAt);
+    else if (terminator !== '') out += terminator;
+    else break;
+  }
+  if (out !== html) p.warn('unsafe-slice', 'foreign content would break its <eh-foreign> wrapper; patched', offset);
+  return out;
+}
+
 function build(p: Parser): Block[] {
   const blocks: Block[] = [];
   const ids = (seq: readonly Pending[]): BlockId[] => seq.map((r) => r.id);
@@ -1475,10 +1562,19 @@ function build(p: Parser): Block[] {
   for (const rec of p.all) {
     if (rec.k === 'text')
       blocks.push(makeTextBlock(rec.id, rec.type, normalizeInlineFast(rec.content), rec.attrs, rec.table));
-    else if (rec.k === 'foreign') blocks.push(makeForeignBlock(rec.id, rec.html));
+    else if (rec.k === 'foreign') blocks.push(makeForeignBlock(rec.id, safeForeignHtml(p, rec.html, rec.offset)));
     else {
       rec.slots?.forEach(fixIndents);
-      blocks.push(makeComponentBlock(rec.id, rec.type, rec.props, rec.attrs, rec.slots?.map(ids), rec.fallback));
+      let fallback = rec.fallback;
+      if (fallback !== undefined && !isSelfContained(fallback, FALLBACK_MARK_RE)) {
+        p.warn(
+          'unsafe-slice',
+          `fallback of <eh-${rec.type}> is not self-contained; dropped (it is a regenerable cache)`,
+          rec.offset,
+        );
+        fallback = undefined;
+      }
+      blocks.push(makeComponentBlock(rec.id, rec.type, rec.props, rec.attrs, rec.slots?.map(ids), fallback));
     }
   }
   return blocks;
@@ -1501,6 +1597,30 @@ function build(p: Parser): Block[] {
  * @returns 文档与告警。
  */
 export function parse(html: string, opts: ParseOptions = {}): ParseResult {
+  const first = parseOnce(html, opts);
+  // 原始文本（script/style/textarea…）与注释只会在文件末尾"吞掉"其后的内容：
+  // 遇到这种情况时补上缺失的终止符再解析一次，保证 serialize ∘ parse 幂等。原告警保留。
+  const suffix = eofTerminator(first.warnings);
+  if (suffix === '') return first;
+  const second = parseOnce(html + suffix, opts);
+  const eof = first.warnings.filter((w) => w.code === 'eof-in-raw-text' || w.code === 'eof-in-comment');
+  return { doc: second.doc, warnings: [...second.warnings, ...eof] };
+}
+
+/** 文件在原始文本或注释中途结束时需要补上的终止符。 */
+function eofTerminator(warnings: readonly ParseWarning[]): string {
+  for (let i = warnings.length - 1; i >= 0; i--) {
+    const w = warnings[i] as ParseWarning;
+    if (w.code === 'eof-in-comment') return '-->';
+    if (w.code === 'eof-in-raw-text') {
+      const name = /<([a-z][a-z0-9-]*)>/.exec(w.message)?.[1];
+      if (name) return `</${name}>`;
+    }
+  }
+  return '';
+}
+
+function parseOnce(html: string, opts: ParseOptions): ParseResult {
   const p = new Parser(html, opts);
   p.parseDocument();
   assignIds(p, opts.idPrefix ?? 'b');
