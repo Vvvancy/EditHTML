@@ -13,3 +13,4 @@ export const SPEC_VERSION = '0.1';
 export * from './model.js';
 export * from './ids.js';
 export * from './serialize/index.js';
+export * from './tx/index.js';
