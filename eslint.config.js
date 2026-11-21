@@ -18,7 +18,7 @@ const forbid = (/** @type {string[]} */ pkgs) => ({
 });
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', 'tests/fixtures/**'] },
+  { ignores: ['.claude/**', '**/dist/**', '**/node_modules/**', '**/coverage/**', 'tests/fixtures/**'] },
   js.configs.recommended,
   ...tseslint.configs.strict,
   {
