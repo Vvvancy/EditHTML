@@ -9,3 +9,6 @@
 
 /** 当前实现的 `.ehtml` 规范版本（见 docs/01-format-spec.md §10）。 */
 export const SPEC_VERSION = '0.1';
+
+export * from './model.js';
+export * from './ids.js';

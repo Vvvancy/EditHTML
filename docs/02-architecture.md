@@ -59,6 +59,15 @@ interface ComponentBlock {
 interface ForeignBlock { id: BlockId; kind: 'foreign'; html: string; hash: number }
 ```
 
+> **实现说明（T1.1）**：完整定义见 `packages/core/src/model.ts`，以代码为准。相对上面的草图有以下细化：
+> - **列表项是独立块**：`type: 'li'`，`attrs.list = 'ul'|'ol'`、`attrs.indent`（嵌套层级）、`attrs.task = 'done'|'todo'`；连续 `li` 序列化时归组为 `<ul>`/`<ol>`，`data-eh` 写在 `<li>` 上。这样所有文本编辑都是"块 + 偏移"，与 ProseMirror/Notion 的扁平列表一致。
+> - **表格**：`type: 'table'`，结构放在 `TextBlock.table`（`head` / `body` / `align`），`content` 为空。
+> - **引用** `quote` 为单段行内内容（多行用 `br`）；需要多段/嵌套内容时用 `callout`。
+> - **行内节点** = `text`（带 marks）| `br` | `atom`（`span[data-eh-inline]`，偏移长度 1）。偏移以 UTF-16 码元计；marks 按 `MARK_ORDER` 排序，行内内容始终规范化（`normalizeInline`）。
+> - `Doc` 增加 `head`（lang / title / 主题与用户样式 / 运行时 src / 其他 head 内容），用于文件往返；`ComponentBlock` 增加 `attrs`。
+> - 哈希：FNV-1a 32 位，覆盖除 `hash` 外的所有字段（`computeBlockHash`）；容器块只覆盖自身 `slots` 的 ID 列表。
+> - 模型对象不可变；`docEquals` / `validateDoc` 用于测试；`src/testing/arbitraries.ts` 提供 fast-check 随机文档生成器。
+
 **一切修改都通过 `Transaction`**：
 
 ```ts
