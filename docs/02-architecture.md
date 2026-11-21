@@ -72,17 +72,26 @@ interface ForeignBlock { id: BlockId; kind: 'foreign'; html: string; hash: numbe
 
 ```ts
 type Op =
-  | { t: 'insertText'; block; offset; text; marks? }
-  | { t: 'deleteText'; block; from; to }
-  | { t: 'setMark';    block; from; to; mark; value }
-  | { t: 'insertBlock'; parent; index; block }
-  | { t: 'removeBlock'; id }
-  | { t: 'moveBlock';  id; parent; index }
-  | { t: 'setType';    id; type }
-  | { t: 'setProps';   id; patch }        // JSON Patch 子集
+  // 文本（偏移 = UTF-16 码元，br/atom 计 1）
+  | { t: 'insertText';    block; offset; text; marks? }
+  | { t: 'insertContent'; block; offset; content }      // br / atom / 粘贴；也是 deleteText 的逆
+  | { t: 'deleteText';    block; from; to }
+  | { t: 'setMark';       block; from; to; mark; value }
+  // 块
+  | { t: 'insertBlock'; parent; slot; index; block; descendants? }  // parent null = 顶层
+  | { t: 'removeBlock'; id }                            // 连同子树
+  | { t: 'moveBlock';   id; parent; slot; index }
+  | { t: 'setType';     id; type }
+  | { t: 'setProps';    id; patch }                     // JSON Patch 子集（add/remove/replace）
+  | { t: 'setAttrs';    id; attrs }                     // 值为 null 表示删除
+  | { t: 'setTable';    id; table } | { t: 'setCell'; id; section; row; col; content }
+  | { t: 'setFallback'; id; fallback }
+  | { t: 'insertSlot';  id; slot } | { t: 'removeSlot'; id; slot }
+  // 文档级
+  | { t: 'setMeta'; patch } | { t: 'setHead'; head }
 ```
 
-每个 Op 必须可逆（`invert(op)`），这是撤销重做与将来协作的基础。
+每个 Op 必须可逆，这是撤销重做与将来协作的基础。**实现（T1.4）**：`apply` 时把被删除/被覆盖的数据捕获进 Op（如 `deleteText.deleted`、`removeBlock.removed`），因此 `invert(op): Op[]` 不需要文档；`apply(doc, tx)` 返回新文档、`dirty`（新旧文档中对象不同的块 ID，含被删除块与 slots 变化的父容器）、`rootChanged` 与 `Mapping`。外来块只读，只能插入/删除/移动。完整定义见 `packages/core/src/tx/`。
 
 ## 3. 数据流
 
