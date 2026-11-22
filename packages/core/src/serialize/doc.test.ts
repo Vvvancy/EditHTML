@@ -16,6 +16,9 @@ import { arbDoc } from '../testing/arbitraries.js';
 import { segmentBlocks, serializeSegment, TOP_LEVEL_DEPTH } from './block.js';
 import { serialize, serializeSkeleton } from './doc.js';
 
+/** 本地整套测试并行跑时机器负载高，只做量级检查；CI 上用严格阈值。 */
+const SLACK = process.env['CI'] ? 1 : 3;
+
 const lines = (...ls: string[]): string => ls.map((l) => `${l}\n`).join('');
 
 const HEAD_START = (lang = 'zh-CN', title = '', meta = '{}'): string[] => [
@@ -252,7 +255,7 @@ describe('serialize: performance', () => {
       `serialize 10k blocks: median ${median.toFixed(1)}ms, min ${(times[0] as number).toFixed(1)}ms, ` +
         `max ${(times[4] as number).toFixed(1)}ms, cold ${cold.toFixed(1)}ms, output ${(size / 1024).toFixed(0)} KiB`,
     );
-    expect(median).toBeLessThan(200);
-    expect(cold).toBeLessThan(400);
+    expect(median).toBeLessThan(200 * SLACK);
+    expect(cold).toBeLessThan(400 * SLACK);
   }, 60_000); // 机器负载高时防止超过默认 5s 超时
 });

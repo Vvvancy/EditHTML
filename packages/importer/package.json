@@ -18,6 +18,7 @@
   "dependencies": {
     "@edithtml/core": "workspace:*",
     "@types/mdast": "^4.0.4",
+    "entities": "^7.0.1",
     "mdast-util-from-markdown": "^2.1.0",
     "micromark-util-types": "^2.0.3",
     "parse5": "^7.3.0"

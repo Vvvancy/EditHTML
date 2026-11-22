@@ -195,6 +195,13 @@ export interface PreserveMount {
   flush(): void;
   /** 把 `from` 的区间转给 `to`（打开器重建 `<script>` 以激活脚本时使用）。 */
   transfer(from: Node, to: Node): void;
+  /**
+   * 把用户（编辑器）新建的元素登记为可编辑容器，例如新增段落（T2.4）。须在 {@link userEdit} 中插入 DOM 后调用；
+   * 已在容器内、不在文档中或属于禁用集的元素会被忽略。返回是否登记成功。
+   */
+  adopt(el: HTMLElement): boolean;
+  /** 属性 `name` 是否由挂载层添加或改写（`contenteditable`、标灰用的属性与提示）。序列化时应忽略这些属性。 */
+  owns(el: Element, name: string): boolean;
   /** 断开观察者、移除监听、还原全部属性并删除注入的样式；DOM 回到挂载前（脚本自己的改动除外）。 */
   unmount(): void;
 }
@@ -589,6 +596,15 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
     flush() {
       if (mounted) flush();
     },
+    adopt(el) {
+      if (!mounted || !el.isConnected || containerOf(el) || el.namespaceURI !== HTML_NS) return false;
+      if (FORBIDDEN.has(nameOf(el)) || STRUCTURAL.has(nameOf(el))) return false;
+      for (const c of [...containers]) if (el.contains(c)) containers.delete(c);
+      setAttr(el, 'contenteditable', 'true');
+      containers.add(el);
+      return true;
+    },
+    owns: (el, name) => original.get(el)?.has(name) ?? false,
     transfer(from, to) {
       const s = toSpan.get(from);
       if (!s) return;

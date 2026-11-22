@@ -54,7 +54,7 @@ describe('parse ∘ serialize round-trip', () => {
       }),
       { numRuns: 500 },
     );
-  });
+  }, 30_000); // 整套测试并行、机器负载高时 500 次往返会超过默认 5s
 
   it('serialize ∘ parse is idempotent on random tag soup', () => {
     const soup = fc

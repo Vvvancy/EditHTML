@@ -18,6 +18,9 @@ import { TxError, type TxErrorCode } from './errors.js';
 import { invertOps } from './invert.js';
 import type { Op } from './ops.js';
 
+/** 本地整套测试并行跑时机器负载高，只做量级检查；CI 上用严格阈值。 */
+const SLACK = process.env['CI'] ? 1 : 3;
+
 /**
  * root: p1 "hello", c1 callout { slot0: [p2 "inner"], slot1: [] }, f1 html, t1 table
  */
@@ -462,7 +465,7 @@ describe('performance', () => {
       `[tx perf] 10k blocks: insertText ${per.toFixed(3)} ms/tx, Map copy ${mapCopy.toFixed(3)} ms, moveBlock ${perMove.toFixed(3)} ms/tx`,
     );
     expect(validateDoc(doc)).toEqual([]);
-    expect(per).toBeLessThan(20);
-    expect(perMove).toBeLessThan(20);
+    expect(per).toBeLessThan(20 * SLACK);
+    expect(perMove).toBeLessThan(20 * SLACK);
   });
 });
