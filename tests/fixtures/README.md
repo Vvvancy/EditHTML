@@ -43,12 +43,12 @@
 | `ehtml/19-unicode-whitespace.ehtml` | canonical | 简体/繁体中文、日文、韩文；emoji（ZWJ 序列、肤色修饰、国旗）、辅助平面字符、组合字符（NFD）、零宽字符；阿拉伯语/希伯来语 RTL、双向混排；空段落、只含空格或制表符的段落、只含 U+00A0 的段落、只含 `<br>` 的段落、首尾空格、连续空格、空标题；约 4600 字符的超长单行；全角空格 | §3.2, §6.1 | 文本不重排，也不做 Unicode 规范化（NFD 保持 NFD）。TBD：空段落和只含空白的段落是否保留、首尾空白是否修剪 |
 | `ehtml/20-noncanonical-format.ehtml` | **non-canonical input** | 大写 `<!DOCTYPE HTML>`、大写标签和属性名；乱序属性；8 空格与 tab 缩进；无引号、单引号属性值，`=` 两侧有空格；省略 `</p>` `</li>`；自闭合 `<hr/>` `<br/>`；`b i strike del`；未转义的 `&` `<` `>`；pre 开头的换行；多行且键乱序的组件 JSON（含 meta）；没有 `<!--eh:fallback-->` 标记的降级内容；大写组件标签；一行多个块；`ol[start][reversed]`；多段引用和嵌套引用；相邻的同类标记；顺序不对的 `<mark><s>`；旧写法 `<ul data-eh>`；文本块中的 `script`/`style`；未知命名实体 `&foobar;`；非法任务状态值 `DONE` | §6.1 | 按 §6.1 宽容规则处理：`b→strong`、`i→em`、`del/strike→s`，相邻标记合并，文本块中的 script/style 丢弃，未知实体按字面保留。TBD：`ol[start]`、多段/嵌套引用（模型中的 quote 只有行内内容）、没有标记的 fallback、`DONE` |
 | `ehtml/21-noncanonical-ids.ehtml` | **non-canonical input** | 缺少 `data-eh`；重复 ID（顶层之间、顶层与子块之间、文本块与组件之间、`li` 与顶层之间）；空 ID、无值属性、非 base36 字符、带空白的 ID、中文 ID；没有 ID 的组件；槽位乱序、超出范围、缺 `data-eh-slot`、容器中不在槽位里的子块；同一元素上重复的属性 | §3.1, §3.4, §6.1 | 缺失或重复的 ID 按文档顺序重新分配，首次出现者保留原 ID。TBD：非 base36 ID 是否合法；乱序、越界、缺失槽位的处理 |
-| `ehtml/22-kitchen-sink.ehtml` | canonical | 大型综合笔记：几乎所有块类型和组件、多层嵌套、所有行内扩展、一个 `eh-foreign` | 全部 | 配对 md（md 中的外来块是没有 ID 的原始 HTML，TBD）；也可以用作渲染和性能的冒烟样本 |
-| `ehtml/23-canonical-form.ehtml` | canonical | §6.1 各条规则的集中样本：骨架缩进、属性顺序与转义、只做最小转义、字面 U+00A0、MARK_ORDER 与共享前缀、嵌套列表、带对齐的表格、`eh-foreign`、槽位、JSON 中的 `<\/` | §6.1 | 序列化器的首要回归样本 |
+| `ehtml/22-kitchen-sink.ehtml` | canonical | 大型综合笔记：几乎所有块类型和组件、多层嵌套、所有行内扩展、一个 `eh-html` 块 | 全部 | 配对 md（md 中的外来块是没有 ID 的原始 HTML，TBD）；也可以用作渲染和性能的冒烟样本 |
+| `ehtml/23-canonical-form.ehtml` | canonical | §6.1 各条规则的集中样本：骨架缩进、属性顺序与转义、只做最小转义、字面 U+00A0、MARK_ORDER 与共享前缀、嵌套列表、带对齐的表格、`eh-html` 块、槽位、JSON 中的 `<\/` | §6.1 | 序列化器的首要回归样本 |
 | `ehtml/24-bom-crlf.ehtml` | **non-canonical input** | UTF-8 BOM 加 CRLF 换行（代码块内也是 CRLF） | §6.1 | 输出 `\n` 换行。TBD：是否去掉 BOM；代码块内的 CRLF 是否也转成 LF |
 | `ehtml/25-legacy-no-meta.ehtml` | **non-canonical input** | `data-eh-version="0.0"`，没有 `#eh-meta`，没有运行时脚本 | §2, §10 | 可以解析；保存时升级到 0.1。TBD：meta 是 `{}` 还是从 `<title>` 推出 |
 | `ehtml/26-plain-html.ehtml` | **non-canonical input** | 普通 HTML 页面：没有 `data-eh-version`、没有 `main#eh-doc`、没有块 ID | §6.1, §10 | 按 §6.1 规则解析 `body` 的子元素并分配 ID；`div.sidebar` 变成外来块 |
-| `ehtml/27-foreign-wrapped.ehtml` | canonical | 16 号首次保存后的形态：`<eh-foreign data-eh>` 包住 div、外部 script、iframe、details、多行 `dl`，容器槽位中也有一个外来块 | §6.1, §10 | 外来块 HTML 原样保存（包括内部的换行） |
+| `ehtml/27-html-block.ehtml` | canonical | 16 号首次保存后的形态：`<eh-html data-eh>`（HTML 块，06 §4；旧名 `eh-foreign` 仍可读取）包住 div、外部 script、iframe、details、多行 `dl`，容器槽位中也有一个外来块 | §6.1, §10 | 外来块 HTML 原样保存（包括内部的换行） |
 
 ## `.md` 样本
 

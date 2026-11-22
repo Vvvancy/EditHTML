@@ -234,7 +234,7 @@ v1 内置组件（详见 `packages/blocks/`）：
 
 容器块的每个槽位：`<eh-slot data-eh-slot="i">` 独占一行，子块缩进 +2，`</eh-slot>` 独占一行；空槽位写成单行 `<eh-slot data-eh-slot="i"></eh-slot>`。槽位在 JSON 行之后、fallback 行之前。无 fallback 时省略该行。
 
-**外来块**（实现中的名称，待迁移为 §3.5 的 `eh-html` 块，见 05 #21）：包一层 `<eh-foreign data-eh="id">{html 原样}</eh-foreign>`，使外来块的 ID 在往返中保持稳定。解析器遇到未包裹的规范外内容时生成外来块（首次保存后即被包裹）。
+**HTML 块**（§3.5）：`<eh-html data-eh="id">{html 原样}</eh-html>`，单行包裹，使块 ID 在往返中保持稳定。解析器遇到未包裹的规范外内容时生成 HTML 块（首次保存后即被包裹）；旧名 `<eh-foreign>` 仍按 §10 读取，保存时升级为 `eh-html`。
 
 **解析器的宽容规则**（非规范输入 → 规范模型）：
 - 标签名大小写不敏感；属性顺序、缩进、引号风格任意；
@@ -243,7 +243,7 @@ v1 内置组件（详见 `packages/blocks/`）：
 - 缺失或重复的块 ID 在扫描结束后按文档顺序用 `createIdGenerator` 重新分配（首次出现者保留原 ID）；
 - 没有 `main#eh-doc` 时解析 `body` 的子元素；
 - 实体：支持数字实体与常用命名实体，未知命名实体按字面保留；
-- **原样保留的切片必须自包含**（外来块 html、降级内容、`head.extra`）：文件在原始文本（`script`/`style`…）或注释中途结束时先补上终止符再解析；外来块中被识别为标签的 `<eh-foreign>`/`</eh-foreign>` 改写为 `&lt;…`、末尾未写完的标签截掉；不自包含的降级内容直接丢弃（它只是可重建的缓存）。告警码 `unsafe-slice`。这保证了 `serialize ∘ parse` 对任意输入幂等；
+- **原样保留的切片必须自包含**（HTML 块的 html、降级内容、`head.extra`）：文件在原始文本（`script`/`style`…）或注释中途结束时先补上终止符再解析；HTML 块中被识别为标签的 `<eh-html>`/`</eh-html>`（及旧名 `eh-foreign`）改写为 `&lt;…`、末尾未写完的标签截掉；不自包含的降级内容直接丢弃（它只是可重建的缓存）。告警码 `unsafe-slice`。这保证了 `serialize ∘ parse` 对任意输入幂等；
 - 等于默认值的 head 字段不写入模型：`lang === 'zh-CN'` 时省略 `head.lang`，`<title>` 等于 `meta.title` 时省略 `head.title`。
 
 保证：对任意有效 `Doc`，`docEquals(parse(serialize(doc)), doc)`；对任意输入，`serialize(parse(serialize(parse(x)))) === serialize(parse(x))`。

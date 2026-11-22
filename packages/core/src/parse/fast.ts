@@ -12,7 +12,7 @@ import {
   MARK_ORDER,
   type BlockData,
   type ComponentBlock,
-  type ForeignBlock,
+  type HtmlBlock,
   type InlineNode,
   type Mark,
   type MarkType,
@@ -191,8 +191,8 @@ export function makeComponentBlock(
   return { ...data, hash: fastBlockHash(data) };
 }
 
-/** 与 `foreignBlock` 结果等价的快速构造。 */
-export function makeForeignBlock(id: string, html: string): ForeignBlock {
-  const data: BlockData<ForeignBlock> = { id, kind: 'foreign', html };
+/** 与 `htmlBlock` 结果等价的快速构造。 */
+export function makeHtmlBlock(id: string, html: string): HtmlBlock {
+  const data: BlockData<HtmlBlock> = { id, kind: 'html', html };
   return { ...data, hash: fastBlockHash(data) };
 }

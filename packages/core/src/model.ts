@@ -140,17 +140,21 @@ export interface ComponentBlock {
   readonly hash: number;
 }
 
-/** 规范外内容（未知元素、外部脚本……），原文切片保留，只读（01 §10）。 */
-export interface ForeignBlock {
+/**
+ * HTML 块（`<eh-html>`，01 §3.5、06 §4）：无法映射为原生块的任意 HTML，原文切片保留。
+ * 可编辑：通过 `setHtml` 替换整段 HTML（M2/M3 的区间补丁编辑最终归结为它）。
+ * 06 中的源码区间索引 `spans` 属于运行期数据，随 M2（T2.1）引入，不进入序列化结果。
+ */
+export interface HtmlBlock {
   readonly id: BlockId;
-  readonly kind: 'foreign';
+  readonly kind: 'html';
   /** 原始 HTML 切片，序列化时原样输出。 */
   readonly html: string;
   readonly hash: number;
 }
 
 /** 块。 */
-export type Block = TextBlock | ComponentBlock | ForeignBlock;
+export type Block = TextBlock | ComponentBlock | HtmlBlock;
 
 // ───────────────────────────── 文档 ─────────────────────────────
 
@@ -332,9 +336,9 @@ export function componentBlock(
   });
 }
 
-/** 构造外来块。 */
-export function foreignBlock(id: BlockId, html: string): ForeignBlock {
-  return withHash<ForeignBlock>({ id, kind: 'foreign', html });
+/** 构造HTML 块。 */
+export function htmlBlock(id: BlockId, html: string): HtmlBlock {
+  return withHash<HtmlBlock>({ id, kind: 'html', html });
 }
 
 /** 由顶层块（及容器块的子块）构造文档。`blocks` 中需包含所有被引用的块。 */

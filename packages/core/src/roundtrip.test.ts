@@ -80,8 +80,8 @@ describe('parse ∘ serialize round-trip', () => {
             '<style>',
             '<!--',
             '-->',
-            '<eh-foreign>',
-            '</eh-foreign>',
+            '<eh-html>',
+            '</eh-html>',
             '<main id="eh-doc">',
           ),
           fc.constantFrom(
@@ -113,7 +113,7 @@ describe('unclosed raw-text and comments do not swallow following content', () =
     '<head><style>p{',
     '<head><!-- open comment',
     '<body><script>let x = 1',
-    '<eh-foreign data-eh="f1"><script>x',
+    '<eh-html data-eh="f1"><script>x',
     '<div><style>a{}',
   ])('%s', (src) => {
     const once = fmt(src);

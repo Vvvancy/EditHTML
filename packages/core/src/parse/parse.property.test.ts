@@ -132,7 +132,7 @@ function seqHtml(doc: Doc, ids: readonly BlockId[], pad: string): string[] {
 
 function blockHtml(doc: Doc, b: Block, pad: string): string {
   if (b.kind === 'text') return textBlockHtml(b, pad);
-  if (b.kind === 'foreign') return `${pad}<eh-foreign data-eh="${b.id}">${b.html}</eh-foreign>`;
+  if (b.kind === 'html') return `${pad}<eh-html data-eh="${b.id}">${b.html}</eh-html>`;
   const attrs = Object.entries(b.attrs)
     .map(([k, v]) => ` ${k}="${escAttr(v)}"`)
     .join('');
@@ -248,8 +248,8 @@ describe('parse: property tests', () => {
       '</eh-slot>',
       '<eh-tabs>',
       '</eh-tabs>',
-      '<eh-foreign>',
-      '</eh-foreign>',
+      '<eh-html>',
+      '</eh-html>',
       '<div onclick="x">',
       '</div>',
       '<main id="eh-doc">',

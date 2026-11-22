@@ -32,7 +32,7 @@
 
 | ID | 任务 | 产出 | 验收 | 依赖 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| T1.1 | 文档模型与类型定义（含 `HtmlBlock`） | `core/src/model.ts` | 与 02 §2 一致 | T0.1 | 🟨 |
+| T1.1 | 文档模型与类型定义（含 `HtmlBlock`） | `core/src/model.ts` | 与 02 §2 一致 | T0.1 | ✅ |
 | T1.2 | 流式分词器 + 解析器（受限子集；规范外内容 → `HtmlBlock` 切片保留） | `core/src/parse/` | fixtures/ehtml 全部解析；10k 块 < 100ms（Node） | T1.1 | ✅ |
 | T1.3 | 确定性序列化器 | `core/src/serialize/` | 往返 + 幂等属性测试 | T1.1 | ✅ |
 | T1.4 | Op / Transaction / invert / Mapping | `core/src/tx/` | 随机 Op 序列 apply+invert 回到原文档 | T1.1 | ✅ |

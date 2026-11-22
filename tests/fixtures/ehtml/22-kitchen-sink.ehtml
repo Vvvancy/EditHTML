@@ -106,7 +106,7 @@
         <script type="application/json">{"html":"<input id=\"n\" type=\"number\" value=\"8\"> <output id=\"o\"><\/output>","css":"output{font-weight:bold}","js":"const f=n=>n<2?n:f(n-1)+f(n-2);n.oninput=()=>o.textContent=f(+n.value);n.oninput();"}</script>
         <!--eh:fallback--><p>斐波那契计算器：F(8) = <strong>21</strong></p><!--eh:fallback-->
       </eh-script>
-      <eh-foreign data-eh="ks19"><details><summary>延伸阅读（原生 details，外来块）</summary><p>《算法导论》第 7 章</p></details></eh-foreign>
+      <eh-html data-eh="ks19"><details><summary>延伸阅读（原生 details，外来块）</summary><p>《算法导论》第 7 章</p></details></eh-html>
       <hr data-eh="ks17">
       <p data-eh="ks18">更新于 2026-11-21 · <a href="index.ehtml">返回目录</a><br>© 2026 &amp; 保留所有权利 😀</p>
     </main>

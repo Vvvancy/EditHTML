@@ -10,7 +10,7 @@
  * - `stripped-event-handler`：剔除了 `on*` 事件属性；
  * - `stripped-javascript-url`：`javascript:`（或 `vbscript:`）链接被去掉链接标记，保留文本；
  * - `missing-id` / `duplicate-id` / `invalid-id`：块 ID 缺失、重复或不合法，已在扫描结束后重新分配；
- * - `foreign-content`：规范外内容被保留为外来块（原文切片）；
+ * - `html-block`：规范外内容被保留为 HTML 块（原文切片）；
  * - `content-outside-main`：存在 `main#eh-doc` 时，其外部的 body 内容被并入顶层块；
  * - `unknown-entity`：未知命名实体，按字面保留；
  * - `unwrapped-element`：白名单外的行内元素被去壳（保留文本）；
@@ -19,12 +19,12 @@
  * - `dropped-content`：无法放入模型的内容（如列表中的裸文本）被丢弃；
  * - `unclosed-element` / `stray-end-tag`：未闭合元素、多余的结束标签；
  * - `eof-in-tag` / `eof-in-comment` / `eof-in-raw-text`：文件在标签/注释/原始文本中途结束；
- * - `invalid-json`：组件 JSON 无法解析（整个组件改为外来块）；
+ * - `invalid-json`：组件 JSON 无法解析（整个组件改为 HTML 块）；
  * - `invalid-meta`：`#eh-meta` 不是合法的 JSON 对象（原样放入 `head.extra`）；
  * - `missing-props`：组件缺少 JSON 数据（`props` 取 `{}`）；
  * - `missing-fallback-end`：缺少结束的 `<!--eh:fallback-->` 标记；
- * - `depth-limit`：嵌套超过安全上限，按外来块/扁平化处理；
- * - `unsafe-slice`：原样保留的外来块/降级内容会破坏外层边界（含 `</eh-foreign>`、`<!--eh:fallback-->` 或未终止的原始文本/注释），已修补（外来块）或丢弃（降级内容）。
+ * - `depth-limit`：嵌套超过安全上限，按HTML 块/扁平化处理；
+ * - `unsafe-slice`：原样保留的HTML 块/降级内容会破坏外层边界（含 `</eh-html>`、`<!--eh:fallback-->` 或未终止的原始文本/注释），已修补（HTML 块）或丢弃（降级内容）。
  */
 export type ParseWarningCode =
   | 'stripped-event-handler'
@@ -32,7 +32,7 @@ export type ParseWarningCode =
   | 'missing-id'
   | 'duplicate-id'
   | 'invalid-id'
-  | 'foreign-content'
+  | 'html-block'
   | 'content-outside-main'
   | 'unknown-entity'
   | 'unwrapped-element'

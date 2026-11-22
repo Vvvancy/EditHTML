@@ -10,7 +10,7 @@ import fc from 'fast-check';
 import {
   componentBlock,
   createDoc,
-  foreignBlock,
+  htmlBlock,
   normalizeInline,
   textBlock,
   type Block,
@@ -153,8 +153,8 @@ export interface ArbDocOptions {
   maxBlocks?: number;
   /** 容器嵌套深度上限，默认 2（规范建议上限 4）。 */
   maxDepth?: number;
-  /** 是否包含外来块，默认 true。 */
-  foreign?: boolean;
+  /** 是否包含HTML 块，默认 true。 */
+  html?: boolean;
 }
 
 /**
@@ -162,7 +162,7 @@ export interface ArbDocOptions {
  * `validateDoc` 返回空数组。
  */
 export function arbDoc(opts: ArbDocOptions = {}): fc.Arbitrary<Doc> {
-  const { maxBlocks = 12, maxDepth = 2, foreign = true } = opts;
+  const { maxBlocks = 12, maxDepth = 2, html = true } = opts;
 
   type Tree = { leaf: BlockSpec } | { container: string; props: unknown; slots: Tree[][] };
 
@@ -176,10 +176,10 @@ export function arbDoc(opts: ArbDocOptions = {}): fc.Arbitrary<Doc> {
         })),
       },
       {
-        weight: foreign ? 1 : 0,
+        weight: html ? 1 : 0,
         arbitrary: fc
           .constantFrom('<div class="x">自定义 <b>HTML</b></div>', '<script src="https://cdn.example/x.js"></script>')
-          .map((html): Tree => ({ leaf: (id) => foreignBlock(id, html) })),
+          .map((html): Tree => ({ leaf: (id) => htmlBlock(id, html) })),
       },
     ),
     tree: fc.oneof(

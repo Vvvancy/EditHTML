@@ -72,6 +72,8 @@ export function invert(op: Op): Op[] {
       ];
     case 'setFallback':
       return [{ t: 'setFallback', id: op.id, fallback: need(op.prev, op, 'prev') }];
+    case 'setHtml':
+      return [{ t: 'setHtml', id: op.id, html: need(op.prev, op, 'prev') }];
     case 'insertSlot':
       return [{ t: 'removeSlot', id: op.id, slot: op.slot, unset: need(op.created, op, 'created') }];
     case 'removeSlot':

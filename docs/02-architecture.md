@@ -90,12 +90,13 @@ type Op =
   | { t: 'setAttrs';    id; attrs }                     // 值为 null 表示删除
   | { t: 'setTable';    id; table } | { t: 'setCell'; id; section; row; col; content }
   | { t: 'setFallback'; id; fallback }
+  | { t: 'setHtml';     id; html }                     // HTML 块（eh-html）
   | { t: 'insertSlot';  id; slot } | { t: 'removeSlot'; id; slot }
   // 文档级
   | { t: 'setMeta'; patch } | { t: 'setHead'; head }
 ```
 
-每个 Op 必须可逆，这是撤销重做与将来协作的基础。**实现（T1.4）**：`apply` 时把被删除/被覆盖的数据捕获进 Op（如 `deleteText.deleted`、`removeBlock.removed`），因此 `invert(op): Op[]` 不需要文档；`apply(doc, tx)` 返回新文档、`dirty`（新旧文档中对象不同的块 ID，含被删除块与 slots 变化的父容器）、`rootChanged` 与 `Mapping`。外来块只读，只能插入/删除/移动。完整定义见 `packages/core/src/tx/`。
+每个 Op 必须可逆，这是撤销重做与将来协作的基础。**实现（T1.4）**：`apply` 时把被删除/被覆盖的数据捕获进 Op（如 `deleteText.deleted`、`removeBlock.removed`），因此 `invert(op): Op[]` 不需要文档；`apply(doc, tx)` 返回新文档、`dirty`（新旧文档中对象不同的块 ID，含被删除块与 slots 变化的父容器）、`rootChanged` 与 `Mapping`。HTML 块用 `setHtml` 编辑（它没有 type/attrs）。完整定义见 `packages/core/src/tx/`。
 
 ## 3. 数据流
 
@@ -166,5 +167,5 @@ interface BlockPlugin<P> {
 
 - TypeScript（strict），pnpm workspace monorepo，Vite 构建；
 - 测试：Vitest（单元/属性测试，fast-check）+ Playwright（E2E、性能基准）；
-- 解析：`core` 自带一个针对受限子集的流式 HTML 分词器（不依赖 DOM，见 03 §1），外来块再交给 `parse5`；
+- 解析：`core` 自带一个针对受限子集的流式 HTML 分词器（不依赖 DOM，见 03 §1），HTML 块原文切片保留（M2 的保真模式另用 `parse5` 建立源码区间索引）；
 - 图表：ECharts 或 Vega-Lite 【待定】；Mermaid；KaTeX。

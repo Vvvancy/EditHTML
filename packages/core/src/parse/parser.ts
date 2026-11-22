@@ -1,6 +1,6 @@
 /**
  * `.ehtml` 解析器（01 §6.1，03 §1）：单遍扫描 {@link Tokenizer} 的 token 流，**直接产出块**，
- * 不构建中间 DOM 树；规范外内容记录源区间 `[start, end)`，作为外来块原文切片保留。
+ * 不构建中间 DOM 树；规范外内容记录源区间 `[start, end)`，作为HTML 块原文切片保留。
  *
  * 流程：
  * 1. 扫描：识别文件骨架 / head，按块产出"待定块"（{@link Pending}，此时尚未分配最终 ID）；
@@ -28,7 +28,7 @@ import {
   type TextBlockType,
 } from '../model.js';
 import { decodeEntities } from './entities.js';
-import { makeComponentBlock, makeForeignBlock, makeTextBlock, normalizeInlineFast } from './fast.js';
+import { makeComponentBlock, makeHtmlBlock, makeTextBlock, normalizeInlineFast } from './fast.js';
 import { isWhitespaceRange, RAW_TEXT, Tokenizer, type Attr, type StartTagToken, type Token } from './tokenizer.js';
 import type { ParseWarning, ParseWarningCode } from './warnings.js';
 
@@ -37,7 +37,7 @@ export interface ParseOptions {
   /** 重新分配块 ID 时使用的前缀，默认 `'b'`（见 `createIdGenerator`）。 */
   readonly idPrefix?: string;
   /**
-   * 结构嵌套（容器块、嵌套列表）的安全上限，默认 64。超过时容器块改为外来块、嵌套列表扁平化，
+   * 结构嵌套（容器块、嵌套列表）的安全上限，默认 64。超过时容器块改为HTML 块、嵌套列表扁平化，
    * 并告警 `depth-limit`。这只是防止恶意输入导致栈溢出的保护，不是规范的嵌套上限（见 05 #5）。
    */
   readonly maxDepth?: number;
@@ -79,15 +79,15 @@ interface PendingComponent extends PendingBase {
   fallback?: string;
 }
 
-interface PendingForeign extends PendingBase {
-  k: 'foreign';
+interface PendingHtml extends PendingBase {
+  k: 'html';
   html: string;
 }
 
-type Pending = PendingText | PendingComponent | PendingForeign;
+type Pending = PendingText | PendingComponent | PendingHtml;
 
-/** 内部控制流：当前结构无法映射为规范块，回滚并改为外来块。 */
-class AbortToForeign extends Error {
+/** 内部控制流：当前结构无法映射为规范块，回滚并改为HTML 块。 */
+class AbortToHtml extends Error {
   /** 回滚后补发的告警（回滚会丢弃尝试期间产生的告警）。 */
   constructor(readonly warning?: ParseWarning) {
     super('abort');
@@ -396,7 +396,7 @@ class Parser {
     return getAttr(tok.attrs, 'data-eh')?.trim();
   }
 
-  // ── 通用跳过：找到元素结束位置（外来块切片） ──
+  // ── 通用跳过：找到元素结束位置（HTML 块切片） ──
 
   /**
    * 从已消费的开始标签起，按标签栈匹配跳到元素结束。遇到祖先的结束标签或 EOF 时视为未闭合。
@@ -440,20 +440,20 @@ class Parser {
     }
   }
 
-  /** 把已消费开始标签的整个元素作为外来块。 */
-  private foreignElement(tok: StartTagToken, seq: Pending[]): void {
+  /** 把已消费开始标签的整个元素作为HTML 块。 */
+  private htmlElement(tok: StartTagToken, seq: Pending[]): void {
     const { end, close } = this.skipElement(tok);
-    this.addForeign(seq, tok.start, end, this.rawIdOf(tok), close);
+    this.addHtml(seq, tok.start, end, this.rawIdOf(tok), close);
   }
 
   /**
    * @param suffix 补在原文切片后的闭合标记（元素未闭合时），保证再次序列化/解析时
    *   切片不会吞掉其后的内容（幂等）。
    */
-  private addForeign(seq: Pending[], start: number, end: number, rawId?: string, suffix = ''): void {
-    this.warn('foreign-content', 'out-of-spec content kept as a foreign block', start);
+  private addHtml(seq: Pending[], start: number, end: number, rawId?: string, suffix = ''): void {
+    this.warn('html-block', 'out-of-spec content kept as an HTML block', start);
     const html = this.src.slice(start, end) + suffix;
-    this.add<PendingForeign>(seq, { k: 'foreign', rawId, offset: start, id: '', html });
+    this.add<PendingHtml>(seq, { k: 'html', rawId, offset: start, id: '', html });
   }
 
   // ── 回滚 ──
@@ -475,17 +475,17 @@ class Parser {
     };
   }
 
-  /** 尝试按规范结构解析；失败时回滚并把整个元素作为外来块。 */
+  /** 尝试按规范结构解析；失败时回滚并把整个元素作为HTML 块。 */
   private attempt(tok: StartTagToken, seq: Pending[], fn: () => void): void {
     const restore = this.save(seq);
     try {
       fn();
     } catch (e) {
-      if (!(e instanceof AbortToForeign)) throw e;
+      if (!(e instanceof AbortToHtml)) throw e;
       restore();
       if (e.warning) this.warnings.push(e.warning);
       this.resetTo(tok.end);
-      this.foreignElement(tok, seq);
+      this.htmlElement(tok, seq);
     }
   }
 
@@ -625,7 +625,7 @@ class Parser {
           break;
         case 'comment':
           this.next();
-          this.addForeign(seq, t.start, t.end);
+          this.addHtml(seq, t.start, t.end);
           break;
         case 'doctype':
           this.next();
@@ -687,10 +687,12 @@ class Parser {
           return;
         }
         break;
+      case 'eh-html':
       case 'eh-foreign': {
+        // v0.1 草案早期的名称，按 01 §10 继续读取，保存时升级为 eh-html
         const { inner, innerClose } = this.skipElement(t);
-        this.add<PendingForeign>(seq, {
-          k: 'foreign',
+        this.add<PendingHtml>(seq, {
+          k: 'html',
           rawId: this.rawIdOf(t),
           offset: t.start,
           id: '',
@@ -704,14 +706,14 @@ class Parser {
     }
     if (name.startsWith('eh-') && name.length > 3) {
       if (this.depth >= this.maxDepth) {
-        this.warn('depth-limit', `nesting deeper than ${this.maxDepth}; kept as foreign`, t.start);
-        this.foreignElement(t, seq);
+        this.warn('depth-limit', `nesting deeper than ${this.maxDepth}; kept as an HTML block`, t.start);
+        this.htmlElement(t, seq);
         return;
       }
       this.attempt(t, seq, () => this.component(t, seq));
       return;
     }
-    this.foreignElement(t, seq);
+    this.htmlElement(t, seq);
   }
 
   private text(t: StartTagToken | null, type: TextBlockType, attrs: Record<string, string>): PendingText {
@@ -759,7 +761,7 @@ class Parser {
     this.open.push('blockquote');
     const r = this.inline({ closers: ['blockquote'], unwrapP: true });
     this.open.pop();
-    if (r.stop === 'block' || r.stop === 'list') throw new AbortToForeign();
+    if (r.stop === 'block' || r.stop === 'list') throw new AbortToHtml();
     rec.content = r.nodes;
   }
 
@@ -934,7 +936,7 @@ class Parser {
         continue;
       }
       if (tok.type === 'text') {
-        if (!isWhitespaceRange(this.src, tok.start, tok.end)) throw new AbortToForeign();
+        if (!isWhitespaceRange(this.src, tok.start, tok.end)) throw new AbortToHtml();
         this.next();
         continue;
       }
@@ -954,7 +956,7 @@ class Parser {
         rows.push({ cells: this.tableRow(), head: section === 'thead' });
         continue;
       }
-      throw new AbortToForeign();
+      throw new AbortToHtml();
     }
     if (section !== null) this.open.pop();
     this.open.pop();
@@ -1003,7 +1005,7 @@ class Parser {
         continue;
       }
       if (tok.type === 'text') {
-        if (!isWhitespaceRange(this.src, tok.start, tok.end)) throw new AbortToForeign();
+        if (!isWhitespaceRange(this.src, tok.start, tok.end)) throw new AbortToHtml();
         this.next();
         continue;
       }
@@ -1012,20 +1014,19 @@ class Parser {
         continue;
       }
       if (tok.name === 'tr' || tok.name === 'thead' || tok.name === 'tbody') break; // 未闭合的 tr
-      if (tok.name !== 'td' && tok.name !== 'th') throw new AbortToForeign();
+      if (tok.name !== 'td' && tok.name !== 'th') throw new AbortToHtml();
       this.next();
       const attrs = this.safeAttrs(tok);
-      if (getAttr(attrs, 'rowspan') !== undefined || getAttr(attrs, 'colspan') !== undefined)
-        throw new AbortToForeign();
+      if (getAttr(attrs, 'rowspan') !== undefined || getAttr(attrs, 'colspan') !== undefined) throw new AbortToHtml();
       for (const a of attrs)
         if (a.name !== 'data-eh-align' && a.name !== 'align' && a.name !== 'style')
           this.warn('dropped-attribute', `dropped attribute ${a.name} on <${tok.name}>`, tok.start);
       this.open.push(tok.name);
       const r = this.inline({ closers: [tok.name], unwrapP: true });
       this.open.pop();
-      if (r.stop === 'list') throw new AbortToForeign();
+      if (r.stop === 'list') throw new AbortToHtml();
       if (r.stop === 'block' && r.tok?.type === 'start' && !['td', 'th', 'tr', 'thead', 'tbody'].includes(r.tok.name))
-        throw new AbortToForeign();
+        throw new AbortToHtml();
       cells.push({ content: r.nodes, align: cellAlign(attrs), th: tok.name === 'th' });
     }
     this.open.pop();
@@ -1060,7 +1061,7 @@ class Parser {
         continue;
       }
       if (tok.type === 'text') {
-        if (!isWhitespaceRange(this.src, tok.start, tok.end)) throw new AbortToForeign();
+        if (!isWhitespaceRange(this.src, tok.start, tok.end)) throw new AbortToHtml();
         this.next();
         continue;
       }
@@ -1078,12 +1079,12 @@ class Parser {
         this.open.push('figcaption');
         const r = this.inline({ closers: ['figcaption'], unwrapP: true });
         this.open.pop();
-        if (r.stop === 'block' || r.stop === 'list') throw new AbortToForeign();
+        if (r.stop === 'block' || r.stop === 'list') throw new AbortToHtml();
         caption = caption.concat(r.nodes);
-      } else throw new AbortToForeign();
+      } else throw new AbortToHtml();
     }
     this.open.pop();
-    if (img === null) throw new AbortToForeign();
+    if (img === null) throw new AbortToHtml();
     const attrs: Record<string, string> = {};
     const src = getAttr(img, 'src');
     const alt = getAttr(img, 'alt');
@@ -1158,9 +1159,9 @@ class Parser {
         try {
           rec.props = JSON.parse(this.src.slice(tok.end, inner));
         } catch {
-          throw new AbortToForeign({
+          throw new AbortToHtml({
             code: 'invalid-json',
-            message: `invalid JSON in <${t.name}>; kept as foreign`,
+            message: `invalid JSON in <${t.name}>; kept as an HTML block`,
             offset: tok.start,
           });
         }
@@ -1525,7 +1526,7 @@ function sliceEnding(html: string): { cutAt: number; terminator: string } {
 
 /**
  * 把切片中被分词器识别为 `<name>` / `</name>` 标签的 `<` 改为 `&lt;`。
- * 原始文本（如 script 字符串里的 `"</eh-foreign>"`）与注释中的同名文本不受影响。
+ * 原始文本（如 script 字符串里的 `"</eh-html>"`）与注释中的同名文本不受影响。
  */
 function neutralizeTags(html: string, name: string): string {
   const tz = new Tokenizer(html);
@@ -1542,16 +1543,16 @@ function neutralizeTags(html: string, name: string): string {
   return out + html.slice(prev);
 }
 
-/** 修补外来块切片：中和字面量 `<eh-foreign` / `</eh-foreign`，截掉未写完的标签，补上未终止的原始文本/注释。 */
-function safeForeignHtml(p: Parser, html: string, offset: number): string {
-  let out = neutralizeTags(html, 'eh-foreign');
+/** 修补HTML 块切片：中和字面量 `<eh-html` / `</eh-html`，截掉未写完的标签，补上未终止的原始文本/注释。 */
+function safeHtmlSlice(p: Parser, html: string, offset: number): string {
+  let out = neutralizeTags(neutralizeTags(html, 'eh-html'), 'eh-foreign');
   for (let guard = 0; guard < 4; guard++) {
     const { cutAt, terminator } = sliceEnding(out);
     if (cutAt >= 0) out = out.slice(0, cutAt);
     else if (terminator !== '') out += terminator;
     else break;
   }
-  if (out !== html) p.warn('unsafe-slice', 'foreign content would break its <eh-foreign> wrapper; patched', offset);
+  if (out !== html) p.warn('unsafe-slice', 'HTML block content would break its <eh-html> wrapper; patched', offset);
   return out;
 }
 
@@ -1562,7 +1563,7 @@ function build(p: Parser): Block[] {
   for (const rec of p.all) {
     if (rec.k === 'text')
       blocks.push(makeTextBlock(rec.id, rec.type, normalizeInlineFast(rec.content), rec.attrs, rec.table));
-    else if (rec.k === 'foreign') blocks.push(makeForeignBlock(rec.id, safeForeignHtml(p, rec.html, rec.offset)));
+    else if (rec.k === 'html') blocks.push(makeHtmlBlock(rec.id, safeHtmlSlice(p, rec.html, rec.offset)));
     else {
       rec.slots?.forEach(fixIndents);
       let fallback = rec.fallback;
@@ -1587,7 +1588,7 @@ function build(p: Parser): Block[] {
  * 标签名大小写不敏感，`b`/`i`/`del`/`strike` 映射为对应标记，白名单外的行内元素去壳，
  * 文本块中的 `script`/`style` 丢弃，`on*` 属性与 `javascript:` 链接剔除，
  * 缺失/重复的块 ID 在扫描结束后按文档顺序重新分配，没有 `main#eh-doc` 时解析 `body`，
- * 规范外内容作为外来块保留原文切片。
+ * 规范外内容作为HTML 块保留原文切片。
  *
  * **从不抛错**：任何输入都返回一个通过 `validateDoc` 的文档，问题记录在 `warnings` 中。
  * 不依赖 DOM，可在 Node 与 Web Worker 中运行；时间复杂度 O(n)。

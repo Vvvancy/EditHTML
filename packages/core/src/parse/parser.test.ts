@@ -3,7 +3,7 @@ import {
   componentBlock,
   createDoc,
   docToComparable,
-  foreignBlock,
+  htmlBlock,
   text,
   textBlock,
   validateDoc,
@@ -12,9 +12,10 @@ import {
   type Doc,
   type DocHead,
   type DocMeta,
-  type ForeignBlock,
+  type HtmlBlock,
   type TextBlock,
 } from '../model.js';
+import { serialize } from '../serialize/index.js';
 import { parse } from './parser.js';
 import type { ParseWarningCode } from './warnings.js';
 
@@ -219,9 +220,9 @@ describe('text blocks', () => {
     );
   });
 
-  it('blockquote containing other blocks becomes foreign', () => {
+  it('blockquote containing other blocks becomes an HTML block', () => {
     const src = '<blockquote data-eh="q"><ul><li>x</li></ul></blockquote>';
-    expect(only(src)).toEqual(foreignBlock('q', src));
+    expect(only(src)).toEqual(htmlBlock('q', src));
   });
 
   it('hr', () => {
@@ -260,9 +261,9 @@ describe('text blocks', () => {
     );
   });
 
-  it('figure without img becomes foreign', () => {
+  it('figure without img becomes an HTML block', () => {
     const src = '<figure data-eh="f"><div>x</div></figure>';
-    expect(only(src)).toEqual(foreignBlock('f', src));
+    expect(only(src)).toEqual(htmlBlock('f', src));
   });
 });
 
@@ -313,7 +314,7 @@ describe('tables', () => {
       '<table data-eh="t"><caption>c</caption><tr><td>x</td></tr></table>',
       '<table data-eh="t"><tr><td><ul><li>x</li></ul></td></tr></table>',
     ])
-      expect(only(src)).toEqual(foreignBlock('t', src));
+      expect(only(src)).toEqual(htmlBlock('t', src));
   });
 });
 
@@ -443,10 +444,10 @@ describe('components', () => {
     expect(codes(html)).toContain('missing-props');
   });
 
-  it('invalid JSON makes the component foreign', () => {
+  it('invalid JSON makes the component an HTML block', () => {
     const src =
       '<eh-chart data-eh="c"><script type="application/json">{nope</script><eh-slot><p>x</p></eh-slot></eh-chart>';
-    expect(only(src)).toEqual(foreignBlock('c', src));
+    expect(only(src)).toEqual(htmlBlock('c', src));
     expect(codes(src)).toContain('invalid-json');
   });
 
@@ -457,29 +458,29 @@ describe('components', () => {
   });
 });
 
-describe('foreign blocks', () => {
-  it('eh-foreign wrapper keeps the inner slice verbatim', () => {
+describe('HTML blocks', () => {
+  it('eh-html wrapper keeps the inner slice verbatim', () => {
     const inner = '<div class="x">自定义 <b>HTML</b></div>\n<script src="https://cdn.example/x.js"></script>';
-    expect(only(page(`<eh-foreign data-eh="f1">${inner}</eh-foreign>`))).toEqual(foreignBlock('f1', inner));
+    expect(only(page(`<eh-html data-eh="f1">${inner}</eh-html>`))).toEqual(htmlBlock('f1', inner));
   });
 
-  it('eh-foreign with tricky inner content', () => {
-    const inner = '<script>if (a</b) document.write("</eh-foreign>")</script><div><p>unclosed</div>';
-    expect(only(`<eh-foreign data-eh="f">${inner}</eh-foreign>`)).toEqual(foreignBlock('f', inner));
+  it('eh-html with tricky inner content', () => {
+    const inner = '<script>if (a</b) document.write("</eh-html>")</script><div><p>unclosed</div>';
+    expect(only(`<eh-html data-eh="f">${inner}</eh-html>`)).toEqual(htmlBlock('f', inner));
   });
 
-  it('unwrapped out-of-spec content becomes foreign with the original slice', () => {
+  it('unwrapped out-of-spec content becomes an HTML block with the original slice', () => {
     const html = page(
       '<div class="X" onclick="y()"><P>a</P>\n<span>b</span></div>\n<!-- note -->\n<script>x<y</script>\n<p data-eh="p">z</p>',
     );
     const bs = blocksOf(html);
-    expect(bs.map((b) => (b.kind === 'foreign' ? b.html : b.kind))).toEqual([
+    expect(bs.map((b) => (b.kind === 'html' ? b.html : b.kind))).toEqual([
       '<div class="X" onclick="y()"><P>a</P>\n<span>b</span></div>',
       '<!-- note -->',
       '<script>x<y</script>',
       'text',
     ]);
-    expect((bs[0] as ForeignBlock).id).toMatch(/^b\d/);
+    expect((bs[0] as HtmlBlock).id).toMatch(/^b\d/);
   });
 });
 
@@ -573,7 +574,7 @@ describe('malformed input never throws', () => {
     '<pre><code>x',
     '<b><i>x</b></i>',
     '<a href="x"><a href="y">z</a></a>',
-    '<eh-foreign data-eh="f"><div>',
+    '<eh-html data-eh="f"><div>',
     '<span data-eh-inline="math">x',
     '<html><head><title>x',
     '<main id="eh-doc"><p>x</main></main>',
@@ -662,5 +663,15 @@ describe('T1.3 serializer conventions', () => {
     expect(t).toEqual(
       textBlock('t', 'table', [], {}, { head: [[text('A')], [text('B')]], body: [], align: [null, null] }),
     );
+  });
+});
+
+describe('legacy <eh-foreign> (v0.1 draft name, 01 §10)', () => {
+  it('is read as an HTML block and saved as <eh-html>', () => {
+    const { doc } = parse(
+      '<html data-eh-version="0.1"><body><main id="eh-doc"><eh-foreign data-eh="f1"><div class="x">hi</div></eh-foreign></main></body></html>',
+    );
+    expect(doc.blocks.get('f1')).toEqual(htmlBlock('f1', '<div class="x">hi</div>'));
+    expect(serialize(doc)).toContain('<eh-html data-eh="f1"><div class="x">hi</div></eh-html>');
   });
 });

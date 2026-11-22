@@ -370,7 +370,7 @@ class TxState {
       }
       case 'setType': {
         const b = this.must(op.id);
-        if (b.kind === 'foreign') fail('wrongKind', `foreign block ${op.id} is read-only`);
+        if (b.kind === 'html') fail('wrongKind', `HTML block ${op.id} has no type; use setHtml`);
         if (b.kind === 'text' && !TEXT_BLOCK_TYPES.has(op.type as TextBlockType))
           fail('invalid', `unknown text block type ${op.type}`);
         if (b.kind === 'component' && !COMPONENT_TYPE_RE.test(op.type))
@@ -386,7 +386,7 @@ class TxState {
       }
       case 'setAttrs': {
         const b = this.must(op.id);
-        if (b.kind === 'foreign') fail('wrongKind', `foreign block ${op.id} is read-only`);
+        if (b.kind === 'html') fail('wrongKind', `HTML block ${op.id} has no attrs; use setHtml`);
         const attrs = new Map(Object.entries(b.attrs));
         const prev: Record<string, string | null> = {};
         for (const [k, v] of Object.entries(op.attrs)) {
@@ -439,6 +439,13 @@ class TxState {
           this.put(rest);
         } else this.put({ ...b, fallback: op.fallback });
         return { ...op, prev };
+      }
+      case 'setHtml': {
+        const b = this.must(op.id);
+        if (b.kind !== 'html') fail('wrongKind', `setHtml: ${op.id} is not an HTML block`);
+        if (typeof op.html !== 'string') fail('invalid', 'setHtml: html must be a string');
+        if (b.html !== op.html) this.put({ ...b, html: op.html });
+        return { ...op, prev: b.html };
       }
       case 'insertSlot': {
         const b = this.component(op.id);
@@ -526,7 +533,7 @@ class TxState {
         checkInline(b.content, 'insertBlock');
       } else if (b.kind === 'component') {
         if (!COMPONENT_TYPE_RE.test(b.type)) fail('invalid', `insertBlock: invalid component type ${b.type}`);
-      } else if (b.kind !== 'foreign') fail('invalid', `insertBlock: unknown block kind`);
+      } else if (b.kind !== 'html') fail('invalid', `insertBlock: unknown block kind`);
       given.set(b.id, b);
     }
     const order: Block[] = [];
@@ -739,6 +746,11 @@ export class TxBuilder {
   }
   setFallback(id: BlockId, fallback: string | null): this {
     return this.step({ t: 'setFallback', id, fallback });
+  }
+
+  /** 替换 HTML 块的原始 HTML。 */
+  setHtml(id: BlockId, html: string): this {
+    return this.step({ t: 'setHtml', id, html });
   }
   insertSlot(id: BlockId, slot: number): this {
     return this.step({ t: 'insertSlot', id, slot });

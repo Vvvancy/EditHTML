@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   componentBlock,
   createDoc,
-  foreignBlock,
+  htmlBlock,
   text,
   textBlock,
   type Block,
@@ -239,7 +239,7 @@ describe('lists', () => {
   });
 });
 
-describe('component, container and foreign blocks', () => {
+describe('component, container and HTML blocks', () => {
   it('leaf component with attrs, JSON and fallback', () => {
     const c = componentBlock(
       'c',
@@ -326,9 +326,9 @@ describe('component, container and foreign blocks', () => {
     );
   });
 
-  it('foreign block is wrapped verbatim', () => {
-    expect(body([foreignBlock('f', '<div class="x">自定义\n<b>HTML</b></div>')])).toBe(
-      '<eh-foreign data-eh="f"><div class="x">自定义\n<b>HTML</b></div></eh-foreign>\n',
+  it('HTML block is wrapped verbatim', () => {
+    expect(body([htmlBlock('f', '<div class="x">自定义\n<b>HTML</b></div>')])).toBe(
+      '<eh-html data-eh="f"><div class="x">自定义\n<b>HTML</b></div></eh-html>\n',
     );
   });
 

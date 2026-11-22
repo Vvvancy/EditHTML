@@ -75,5 +75,5 @@ describe('parse performance', () => {
     expect(validateDoc(result.doc)).toEqual([]);
     // 断言取最快一次：并行跑属性测试或机器负载高时中位数波动大（目标 < 100ms，见 03 §0）。
     expect(best).toBeLessThan(300);
-  });
+  }, 60_000); // 构造 1.3MB 文档 + 5 次解析：机器负载高时会超过默认 5s 超时
 });

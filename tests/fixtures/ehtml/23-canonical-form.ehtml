@@ -25,7 +25,7 @@
           <tr><td>1</td><td data-eh-align="center">2</td></tr>
         </tbody>
       </table>
-      <eh-foreign data-eh="c12"><div class="note" style="color:red">外来块原样保留 <u>foreign</u></div></eh-foreign>
+      <eh-html data-eh="c12"><div class="note" style="color:red">外来块原样保留 <u>foreign</u></div></eh-html>
       <pre data-eh="c6" data-lang="ts"><code>const ok = a &lt; b &amp;&amp; b &gt; c;
 </code></pre>
       <eh-chart data-eh="c7">

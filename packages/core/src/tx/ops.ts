@@ -126,7 +126,7 @@ export interface MoveBlockOp {
   readonly from?: BlockPlace;
 }
 
-/** 改块类型：文本块须为合法 `TextBlockType`；组件块为组件类型名；外来块不支持。 */
+/** 改块类型：文本块须为合法 `TextBlockType`；组件块为组件类型名；HTML 块不支持。 */
 export interface SetTypeOp {
   readonly t: 'setType';
   readonly id: BlockId;
@@ -184,6 +184,17 @@ export interface SetFallbackOp {
 }
 
 /**
+ * 替换 HTML 块（`eh-html`）的原始 HTML。M2/M3 的区间补丁编辑最终都归结为本操作。
+ */
+export interface SetHtmlOp {
+  readonly t: 'setHtml';
+  readonly id: BlockId;
+  readonly html: string;
+  /** 捕获：原值。 */
+  readonly prev?: string;
+}
+
+/**
  * 在组件块的 `slot` 处插入一个空槽位（如 tabs 新增一页）。
  * 对没有 `slots` 的组件块，`slot` 必须为 0，结果为 `[[]]`。
  */
@@ -220,7 +231,7 @@ export interface SetHeadOp {
 }
 
 /**
- * 全部操作。外来块（`ForeignBlock`）按 01 §10 只读：只能整体插入/移除/移动。
+ * 全部操作。HTML 块（`HtmlBlock`，06 §4）可编辑：用 `setHtml` 替换其原始 HTML；它没有 type/attrs。
  */
 export type Op =
   | InsertTextOp
@@ -236,6 +247,7 @@ export type Op =
   | SetTableOp
   | SetCellOp
   | SetFallbackOp
+  | SetHtmlOp
   | InsertSlotOp
   | RemoveSlotOp
   | SetMetaOp

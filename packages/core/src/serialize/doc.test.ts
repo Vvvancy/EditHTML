@@ -254,5 +254,5 @@ describe('serialize: performance', () => {
     );
     expect(median).toBeLessThan(200);
     expect(cold).toBeLessThan(400);
-  });
+  }, 60_000); // 机器负载高时防止超过默认 5s 超时
 });

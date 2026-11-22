@@ -1,5 +1,5 @@
 /**
- * 块级规范输出（01 §6.1「文本块」「列表」「组件块」「外来块」）。
+ * 块级规范输出（01 §6.1「文本块」「列表」「组件块」「HTML 块」）。
  *
  * 输出单位是**段（segment）**：一个块序列（`doc.root` 或某个槽位）被切分为若干段，
  * 每段要么是一个非 `li` 块，要么是一组连续的 `li` 块（列表组）。一个块序列的输出
@@ -7,7 +7,7 @@
  * 这使得按段缓存（T3.6 增量序列化）天然正确。
  *
  * 所有函数返回若干完整的行：每行以 `depth * 2` 个空格开头、以 `\n` 结尾
- * （代码块、fallback、外来块等内容中的换行原样保留，不额外缩进）。
+ * （代码块、fallback、HTML 块等内容中的换行原样保留，不额外缩进）。
  *
  * @module
  */
@@ -94,7 +94,7 @@ function serializeBlockAt(doc: Doc, b: Block, depth: number): string {
     return b.type === 'li' ? serializeListGroup(doc, [b.id], depth) : serializeTextBlock(b, depth);
   }
   if (b.kind === 'component') return serializeComponent(doc, b, depth);
-  return `${indent(depth)}<eh-foreign data-eh="${escapeAttr(b.id)}">${b.html}</eh-foreign>\n`;
+  return `${indent(depth)}<eh-html data-eh="${escapeAttr(b.id)}">${b.html}</eh-html>\n`;
 }
 
 /** 从 `attrs` 中去掉已被映射为专门输出的键。 */

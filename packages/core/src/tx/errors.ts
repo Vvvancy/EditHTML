@@ -7,7 +7,7 @@
 /**
  * {@link TxError} 的错误码：
  * - `unknownBlock`：引用的块不存在；
- * - `wrongKind`：块种类不支持该操作（如对组件块 `insertText`、对外来块 `setAttrs`）；
+ * - `wrongKind`：块种类不支持该操作（如对组件块 `insertText`、对HTML 块 `setAttrs`）；
  * - `range`：偏移 / 下标 / 槽位越界，或 `from > to`；
  * - `boundary`：偏移落在 UTF-16 代理对中间；
  * - `duplicateId`：插入的块 ID 已存在（或子树内重复）；

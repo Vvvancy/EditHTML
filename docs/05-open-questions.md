@@ -25,6 +25,6 @@
 18. **EHMD 细节**：容器块语法（fixtures 中暂用 `:::callout 标题 {#id kind=info}`）、列表/表格/hr 的 ID 位置、Obsidian `> [!note]` / mermaid 代码块 / `$$` 是否自动转组件。
 19. **链接协议白名单**：除 `javascript:` 外，`vbscript:`、`data:` 链接是否也剔除（建议：是）。
 20. **其他边界**：Unicode 规范化、CRLF 是否统一为 LF、空段落是否保留、块 ID 字符集是否放宽、`#eh-meta` 缺失时 meta 的默认值。
-21. **`ForeignBlock` → `HtmlBlock` 迁移**（实现跟进，不是待决问题）：M1 代码（T1.1–T1.4，2026-11-22 合入）仍使用只读的 `ForeignBlock` / `<eh-foreign>`；06 §4 与 01 §3.5 已改为可编辑的 `HtmlBlock` / `<eh-html>`。需要一个任务把 `kind: 'foreign'` → `'html'`、`eh-foreign` → `eh-html`，并开放块内编辑的 Op；01 §6.1 中"外来块"细则同步改名。
+21. ✅ **`ForeignBlock` → `HtmlBlock` 迁移**（2026-11-22 完成：`kind: 'html'`、`<eh-html>`、新增可逆的 `setHtml` Op，旧名 `eh-foreign` 仍可读取）。原记录：M1 代码（T1.1–T1.4，2026-11-22 合入）仍使用只读的 `ForeignBlock` / `<eh-foreign>`；06 §4 与 01 §3.5 已改为可编辑的 `HtmlBlock` / `<eh-html>`。需要一个任务把 `kind: 'foreign'` → `'html'`、`eh-foreign` → `eh-html`，并开放块内编辑的 Op；01 §6.1 中"外来块"细则同步改名。
 
 > 13–20 来自 T0.3 / T1.2 / T1.3 实现过程中发现的规范空白，详见 `tests/fixtures/README.md`。

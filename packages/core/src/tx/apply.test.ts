@@ -3,7 +3,7 @@ import {
   componentBlock,
   createDoc,
   docEquals,
-  foreignBlock,
+  htmlBlock,
   inlineText,
   text,
   textBlock,
@@ -19,7 +19,7 @@ import { invertOps } from './invert.js';
 import type { Op } from './ops.js';
 
 /**
- * root: p1 "hello", c1 callout { slot0: [p2 "inner"], slot1: [] }, f1 foreign, t1 table
+ * root: p1 "hello", c1 callout { slot0: [p2 "inner"], slot1: [] }, f1 html, t1 table
  */
 function sample(): Doc {
   return createDoc(
@@ -27,7 +27,7 @@ function sample(): Doc {
       textBlock('p1', 'p', [text('hello')]),
       textBlock('p2', 'p', [text('inner')]),
       componentBlock('c1', 'callout', { kind: 'info', title: 'T' }, { slots: [['p2'], []], fallback: '<p>x</p>' }),
-      foreignBlock('f1', '<div>x</div>'),
+      htmlBlock('f1', '<div>x</div>'),
       textBlock('t1', 'table', [], {}, { head: [[text('A')], [text('B')]], body: [[[text('1')], [text('2')]]] }),
     ],
     { root: ['p1', 'c1', 'f1', 't1'], meta: { title: 'Doc' } },

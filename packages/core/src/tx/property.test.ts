@@ -134,7 +134,7 @@ function arbOp(doc: Doc): fc.Arbitrary<Op> {
   const texts = all.filter((b): b is TextBlock => b.kind === 'text');
   const comps = all.filter((b): b is ComponentBlock => b.kind === 'component');
   const tables = texts.filter((b) => b.table);
-  const editable = all.filter((b) => b.kind !== 'foreign');
+  const editable = all.filter((b) => b.kind !== 'html');
   const seqs = sequences(doc);
   const ids = idGeneratorFor(doc);
   const freshId = ids.next();
@@ -234,6 +234,14 @@ function arbOp(doc: Doc): fc.Arbitrary<Op> {
           ),
         )
         .map(([b, attrs]): Op => ({ t: 'setAttrs', id: b.id, attrs })),
+    );
+  const htmls = all.filter((b) => b.kind === 'html');
+  if (htmls.length)
+    add(
+      2,
+      fc
+        .tuple(fc.constantFrom(...htmls), fc.constantFrom('<div class="card">改过</div>', '', '<p>新<b>内容</b></p>'))
+        .map(([b, html]): Op => ({ t: 'setHtml', id: b.id, html })),
     );
   if (comps.length) {
     const cb = fc.constantFrom(...comps);
@@ -513,6 +521,7 @@ describe('op generator', () => {
       'setCell',
       'setFallback',
       'setHead',
+      'setHtml',
       'setMark',
       'setMeta',
       'setProps',
