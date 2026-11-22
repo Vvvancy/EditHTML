@@ -15,3 +15,4 @@ export * from './ids.js';
 export * from './serialize/index.js';
 export * from './tx/index.js';
 export * from './parse/index.js';
+export * from './history/index.js';
