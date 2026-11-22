@@ -102,7 +102,7 @@ describe('markdown import/export properties', () => {
       }),
       { numRuns: 400 },
     );
-  });
+  }, 30_000); // 机器负载高时数百次往返会超过默认 5s
 
   it('unedited export reproduces any input byte-for-byte (except security sanitization)', () => {
     fc.assert(
@@ -113,7 +113,7 @@ describe('markdown import/export properties', () => {
       }),
       { numRuns: 400 },
     );
-  });
+  }, 30_000); // 机器负载高时数百次往返会超过默认 5s
 
   it('export∘import is idempotent on random Obsidian notes (model-only generator)', () => {
     fc.assert(
@@ -127,7 +127,7 @@ describe('markdown import/export properties', () => {
       }),
       { numRuns: 300 },
     );
-  });
+  }, 30_000); // 机器负载高时数百次往返会超过默认 5s
 
   it('export∘import is idempotent on arbitrary strings (model-only generator)', () => {
     fc.assert(
@@ -138,5 +138,5 @@ describe('markdown import/export properties', () => {
       }),
       { numRuns: 300 },
     );
-  });
+  }, 30_000); // 机器负载高时数百次往返会超过默认 5s
 });

@@ -9,3 +9,4 @@ import { SPEC_VERSION } from '@edithtml/core';
 export const IMPORTER_SPEC_VERSION: string = SPEC_VERSION;
 
 export * from './markdown/index.js';
+export * from './preserve/index.js';
