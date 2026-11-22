@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="EditHTML 编辑器设计预览：在渲染好的网页上直接编辑，斜杠菜单插入图表，选中文字浮出工具栏">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/><stop offset="0.5" stop-color="#a855f7"/><stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="hl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#fbcfe8"/></linearGradient>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#1e1b4b" flood-opacity="0.35"/></filter>
+    <filter id="sh2" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.25"/></filter>
+    <clipPath id="win"><rect x="70" y="56" width="1060" height="660" rx="16"/></clipPath>
+    <style>
+      .t{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+      .m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+      .pop{animation:pop 7s ease-in-out infinite;transform-origin:760px 470px}
+      @keyframes pop{0%,8%{opacity:0;transform:translateY(8px) scale(.97)}14%,78%{opacity:1;transform:none}86%,100%{opacity:0;transform:translateY(8px) scale(.97)}}
+      .sel{animation:sel 7s ease-in-out infinite}
+      @keyframes sel{0%,20%{opacity:.0}28%,90%{opacity:1}100%{opacity:0}}
+      .tb{animation:tb 7s ease-in-out infinite}
+      @keyframes tb{0%,26%{opacity:0;transform:translateY(6px)}32%,90%{opacity:1;transform:none}100%{opacity:0}}
+      .caret{animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+      .bar{transform-box:fill-box;transform-origin:bottom;animation:grow 7s ease-out infinite}
+      @keyframes grow{0%{transform:scaleY(.1)}18%,100%{transform:scaleY(1)}}
+      .b2{animation-delay:.15s}.b3{animation-delay:.3s}.b4{animation-delay:.45s}.b5{animation-delay:.6s}
+    </style>
+  </defs>
+
+  <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+  <circle cx="1080" cy="80" r="220" fill="#fff" fill-opacity="0.08"/>
+  <circle cx="120" cy="700" r="260" fill="#fff" fill-opacity="0.06"/>
+
+  <!-- window -->
+  <g filter="url(#sh)">
+    <rect x="70" y="56" width="1060" height="660" rx="16" fill="#ffffff"/>
+  </g>
+  <g clip-path="url(#win)">
+    <rect x="70" y="56" width="1060" height="48" fill="#f1f5f9"/>
+    <circle cx="98" cy="80" r="7" fill="#ff5f57"/><circle cx="120" cy="80" r="7" fill="#febc2e"/><circle cx="142" cy="80" r="7" fill="#28c840"/>
+    <rect x="300" y="66" width="600" height="28" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+    <text x="320" y="85" class="t" font-size="13" fill="#64748b">🔒 file:///笔记/算法/二分查找.eh.html</text>
+    <g transform="translate(1022 66)">
+      <rect width="92" height="28" rx="8" fill="#6366f1"/>
+      <text x="46" y="19" text-anchor="middle" class="t" font-size="13" font-weight="600" fill="#fff">✎ 编辑中</text>
+    </g>
+
+    <!-- sidebar outline -->
+    <rect x="70" y="104" width="210" height="612" fill="#f8fafc"/>
+    <text x="96" y="140" class="t" font-size="12" font-weight="700" fill="#94a3b8" letter-spacing="1">大纲</text>
+    <rect x="88" y="154" width="176" height="30" rx="7" fill="#eef2ff"/>
+    <text x="102" y="174" class="t" font-size="14" font-weight="600" fill="#4f46e5">二分查找</text>
+    <text x="116" y="206" class="t" font-size="13" fill="#64748b">复杂度对比</text>
+    <text x="116" y="234" class="t" font-size="13" fill="#64748b">循环不变量</text>
+    <text x="116" y="262" class="t" font-size="13" fill="#64748b">练习清单</text>
+    <text x="96" y="318" class="t" font-size="12" font-weight="700" fill="#94a3b8" letter-spacing="1">标签</text>
+    <rect x="96" y="330" width="52" height="24" rx="12" fill="#fce7f3"/><text x="122" y="347" text-anchor="middle" class="t" font-size="12" fill="#db2777">#算法</text>
+    <rect x="156" y="330" width="52" height="24" rx="12" fill="#e0f2fe"/><text x="182" y="347" text-anchor="middle" class="t" font-size="12" fill="#0284c7">#学习</text>
+
+    <!-- document -->
+    <g transform="translate(330 0)">
+      <text x="0" y="168" class="t" font-size="34" font-weight="800" fill="#0f172a">二分查找</text>
+      <text x="0" y="196" class="t" font-size="13" fill="#94a3b8">2026-11-21 · 3 分钟阅读</text>
+
+      <!-- paragraph with selection -->
+      <rect class="sel" x="102" y="222" width="76" height="28" rx="4" fill="#c7d2fe" fill-opacity="0.8"/>
+      <text x="0" y="242" class="t" font-size="17" fill="#334155">时间复杂度为 <tspan font-weight="700" fill="#0f172a">O(log n)</tspan>，前提是数组<tspan fill="#0f172a">有序</tspan>。双击任意位置即可修改。</text>
+      <rect x="271" y="227" width="36" height="22" rx="3" fill="url(#hl)" fill-opacity="0.7"/>
+
+      <!-- floating toolbar -->
+      <g transform="translate(-112 0)"><g class="tb" filter="url(#sh2)">
+        <rect x="116" y="176" width="246" height="38" rx="10" fill="#0f172a"/>
+        <text x="138" y="201" class="t" font-size="15" font-weight="800" fill="#fff">B</text>
+        <text x="170" y="201" class="t" font-size="15" font-style="italic" fill="#fff">I</text>
+        <text x="196" y="201" class="t" font-size="15" fill="#fff" text-decoration="line-through">S</text>
+        <text x="224" y="201" class="m" font-size="14" fill="#fff">&lt;/&gt;</text>
+        <rect x="262" y="188" width="18" height="14" rx="3" fill="#fde68a"/>
+        <text x="294" y="201" class="t" font-size="15" fill="#fff">🔗</text>
+        <text x="326" y="201" class="t" font-size="15" fill="#a5b4fc">∑</text>
+      </g></g>
+
+      <!-- callout -->
+      <rect x="0" y="272" width="740" height="62" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
+      <rect x="0" y="272" width="5" height="62" rx="2" fill="#3b82f6"/>
+      <text x="24" y="300" class="t" font-size="15" font-weight="700" fill="#1d4ed8">💡 提示</text>
+      <text x="24" y="322" class="t" font-size="14" fill="#1e3a8a">维护 [lo, hi) 左闭右开区间，循环条件写 lo &lt; hi，就不会死循环。</text>
+
+      <!-- chart card -->
+      <rect x="0" y="356" width="360" height="232" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+      <text x="20" y="386" class="t" font-size="15" font-weight="700" fill="#0f172a">查找 100 万个元素需要的比较次数</text>
+      <line x1="40" y1="556" x2="340" y2="556" stroke="#e2e8f0"/>
+      <rect class="bar" x="64" y="410" width="44" height="146" rx="6" fill="#f472b6"/>
+      <rect class="bar b2" x="134" y="520" width="44" height="36" rx="6" fill="#818cf8"/>
+      <rect class="bar b3" x="204" y="540" width="44" height="16" rx="6" fill="#22d3ee"/>
+      <rect class="bar b4" x="274" y="548" width="44" height="8" rx="6" fill="#a78bfa"/>
+      <text x="86" y="576" text-anchor="middle" class="t" font-size="12" fill="#64748b">线性</text>
+      <text x="156" y="576" text-anchor="middle" class="t" font-size="12" fill="#64748b">跳表</text>
+      <text x="226" y="576" text-anchor="middle" class="t" font-size="12" fill="#64748b">二分</text>
+      <text x="296" y="576" text-anchor="middle" class="t" font-size="12" fill="#64748b">哈希</text>
+
+      <!-- tabs card -->
+      <rect x="380" y="356" width="360" height="232" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+      <rect x="396" y="372" width="70" height="30" rx="8" fill="#0f172a"/>
+      <text x="431" y="392" text-anchor="middle" class="t" font-size="13" font-weight="600" fill="#fff">概念</text>
+      <text x="500" y="392" text-anchor="middle" class="t" font-size="13" fill="#64748b">代码</text>
+      <text x="560" y="392" text-anchor="middle" class="t" font-size="13" fill="#64748b">例题</text>
+      <rect x="396" y="416" width="328" height="156" rx="10" fill="#0f172a"/>
+      <text x="412" y="442" class="m" font-size="13" fill="#c084fc">while</text><text x="460" y="442" class="m" font-size="13" fill="#e2e8f0">lo &lt; hi:</text>
+      <text x="428" y="466" class="m" font-size="13" fill="#e2e8f0">mid = (lo + hi) // 2</text>
+      <text x="428" y="490" class="m" font-size="13" fill="#c084fc">if</text><text x="450" y="490" class="m" font-size="13" fill="#e2e8f0">a[mid] &lt; x:</text>
+      <text x="444" y="514" class="m" font-size="13" fill="#e2e8f0">lo = mid + 1</text>
+      <text x="428" y="538" class="m" font-size="13" fill="#c084fc">else</text><text x="466" y="538" class="m" font-size="13" fill="#e2e8f0">: hi = mid</text>
+
+      <!-- slash command line -->
+      <text x="0" y="634" class="m" font-size="17" fill="#6366f1">/图表</text>
+      <rect class="caret" x="48" y="618" width="2" height="22" fill="#6366f1"/>
+      <text x="64" y="634" class="t" font-size="15" fill="#cbd5e1">输入 / 插入任意组件</text>
+    </g>
+
+    <!-- slash menu -->
+    <g class="pop" filter="url(#sh2)">
+      <rect x="330" y="380" width="300" height="236" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+      <g transform="translate(330 380)">
+        <text x="16" y="26" class="t" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1">插入组件</text>
+        <g><rect x="8" y="38" width="284" height="38" rx="9" fill="#eef2ff"/></g>
+        <text x="24" y="63" font-size="17">📊</text><text x="54" y="63" class="t" font-size="14" fill="#0f172a"><tspan font-weight="700" fill="#4f46e5">图表</tspan>  chart</text>
+        <text x="24" y="103" font-size="17">🔀</text><text x="54" y="103" class="t" font-size="14" fill="#0f172a">流程图  mermaid</text>
+        <text x="24" y="143" font-size="17">∑</text><text x="54" y="143" class="t" font-size="14" fill="#0f172a">公式  math</text>
+        <text x="24" y="183" font-size="17">🗂️</text><text x="54" y="183" class="t" font-size="14" fill="#0f172a">标签页  tabs</text>
+        <text x="24" y="223" font-size="17">💡</text><text x="54" y="223" class="t" font-size="14" fill="#0f172a">提示框  callout</text>
+        <text x="284" y="63" text-anchor="end" class="m" font-size="11" fill="#94a3b8">↵</text>
+      </g>
+    </g>
+  </g>
+
+  <text x="600" y="746" text-anchor="middle" class="t" font-size="13" fill="#ffffff" fill-opacity="0.85">设计预览 · Design preview（编辑器为 M2 里程碑）</text>
+</svg>

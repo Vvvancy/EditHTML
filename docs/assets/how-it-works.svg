@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-label="工作原理：Markdown 与 .ehtml 文件双向无损转换，浏览器直接阅读，运行时切换到就地编辑">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#1a1036"/></linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#a5b4fc"/></marker>
+    <style>
+      .t{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+      .m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+      .flow{stroke-dasharray:6 8;animation:dash 1.2s linear infinite}
+      @keyframes dash{to{stroke-dashoffset:-28}}
+      .pulse{animation:pulse 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+      @keyframes pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.75;transform:scale(1.04)}}
+    </style>
+  </defs>
+  <rect width="1200" height="300" rx="24" fill="url(#bg)"/>
+
+  <!-- markdown -->
+  <g transform="translate(48 70)">
+    <rect width="220" height="160" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="20" y="34" class="t" font-size="15" font-weight="700" fill="#e2e8f0">📝 Markdown / EHMD</text>
+    <text x="20" y="66" class="m" font-size="13" fill="#94a3b8"># 二分查找</text>
+    <text x="20" y="90" class="m" font-size="13" fill="#94a3b8">- [x] 不变量</text>
+    <text x="20" y="114" class="m" font-size="13" fill="#f9a8d4">:::chart {#b3}</text>
+    <text x="20" y="138" class="m" font-size="13" fill="#94a3b8">type: bar  …</text>
+  </g>
+
+  <path class="flow" d="M276 136H392" stroke="#a5b4fc" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+  <path class="flow" d="M392 166H276" stroke="#a5b4fc" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+  <text x="334" y="122" text-anchor="middle" class="t" font-size="12" fill="#94a3b8">无损导入</text>
+  <text x="334" y="190" text-anchor="middle" class="t" font-size="12" fill="#94a3b8">导出</text>
+
+  <!-- core -->
+  <g transform="translate(400 40)">
+    <rect class="pulse" x="-8" y="-8" width="396" height="236" rx="24" fill="url(#core)" opacity="0.4"/>
+    <rect width="380" height="220" rx="20" fill="#0f172a" stroke="url(#core)" stroke-width="2"/>
+    <text x="190" y="38" text-anchor="middle" class="t" font-size="18" font-weight="800" fill="#ffffff">.eh.html  ·  @edithtml/core</text>
+    <g class="t" font-size="13">
+      <rect x="22" y="58" width="104" height="58" rx="10" fill="#1e293b"/><text x="74" y="83" text-anchor="middle" fill="#c7d2fe">流式解析</text><text x="74" y="103" text-anchor="middle" class="m" font-size="11" fill="#64748b">10k 块 ≈ 90ms</text>
+      <rect x="138" y="58" width="104" height="58" rx="10" fill="#1e293b"/><text x="190" y="83" text-anchor="middle" fill="#c7d2fe">块模型</text><text x="190" y="103" text-anchor="middle" class="m" font-size="11" fill="#64748b">FNV-1a 哈希</text>
+      <rect x="254" y="58" width="104" height="58" rx="10" fill="#1e293b"/><text x="306" y="83" text-anchor="middle" fill="#c7d2fe">规范序列化</text><text x="306" y="103" text-anchor="middle" class="m" font-size="11" fill="#64748b">幂等 · diff 干净</text>
+      <rect x="22" y="130" width="336" height="58" rx="10" fill="#1e293b"/><text x="190" y="155" text-anchor="middle" fill="#fbcfe8">Transaction · invert · Mapping</text><text x="190" y="175" text-anchor="middle" class="m" font-size="11" fill="#64748b">17 种可逆操作 · 撤销无需快照</text>
+    </g>
+  </g>
+
+  <path class="flow" d="M788 150H904" stroke="#a5b4fc" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+  <text x="846" y="136" text-anchor="middle" class="t" font-size="12" fill="#94a3b8">双击打开</text>
+
+  <!-- browser -->
+  <g transform="translate(912 60)">
+    <rect width="240" height="180" rx="16" fill="#f8fafc"/>
+    <rect width="240" height="30" rx="16" fill="#e2e8f0"/><rect y="16" width="240" height="14" fill="#e2e8f0"/>
+    <circle cx="18" cy="15" r="5" fill="#ff5f57"/><circle cx="34" cy="15" r="5" fill="#febc2e"/><circle cx="50" cy="15" r="5" fill="#28c840"/>
+    <text x="20" y="62" class="t" font-size="17" font-weight="800" fill="#0f172a">二分查找</text>
+    <rect x="20" y="74" width="150" height="8" rx="4" fill="#cbd5e1"/>
+    <rect x="20" y="90" width="110" height="8" rx="4" fill="#cbd5e1"/>
+    <rect x="20" y="138" width="22" height="26" rx="3" fill="#f472b6"/>
+    <rect x="48" y="122" width="22" height="42" rx="3" fill="#818cf8"/>
+    <rect x="76" y="146" width="22" height="18" rx="3" fill="#22d3ee"/>
+    <rect x="148" y="132" width="76" height="30" rx="9" fill="#6366f1"/>
+    <text x="186" y="152" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">✎ 编辑</text>
+  </g>
+  <text x="1032" y="266" text-anchor="middle" class="t" font-size="12" fill="#94a3b8">无编辑器也能完整阅读</text>
+</svg>

@@ -1,151 +1,236 @@
 <div align="center">
 
-# ✍️ EditHTML
+<img src="docs/assets/banner.svg" alt="EditHTML — 像 Markdown 一样随手编辑，像网站一样好看" width="100%">
 
-**像 Markdown 一样随手编辑，像网站一样好看。**
+<br>
 
-一种面向个人笔记的文档格式与编辑器 —— 文件本身就是网页，打开就能直接在页面上改。
+[![CI](https://img.shields.io/github/actions/workflow/status/Vvvancy/EditHTML/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Vvvancy/EditHTML/actions/workflows/ci.yml)
+![Status](https://img.shields.io/badge/status-M1_核心读写-8b5cf6?style=for-the-badge)
+![Spec](https://img.shields.io/badge/spec-v0.1-ec4899?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-284_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
 
-[![CI](https://github.com/Vvvancy/EditHTML/actions/workflows/ci.yml/badge.svg)](https://github.com/Vvvancy/EditHTML/actions/workflows/ci.yml)
-![status](https://img.shields.io/badge/status-M1%20开发中-orange)
-![spec](https://img.shields.io/badge/spec-v0.1%20草案-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
-![pnpm](https://img.shields.io/badge/pnpm-workspace-f69220?logo=pnpm&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646cff?style=flat-square&logo=vite&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-+_fast--check-6e9f18?style=flat-square&logo=vitest&logoColor=white)
+![ProseMirror](https://img.shields.io/badge/editor-ProseMirror-1f2937?style=flat-square)
+![pnpm](https://img.shields.io/badge/pnpm-workspace-f69220?style=flat-square&logo=pnpm&logoColor=white)
+![Zero DOM core](https://img.shields.io/badge/core-zero_DOM-0ea5e9?style=flat-square)
 
-[设计文档](docs/) · [格式规范](docs/01-format-spec.md) · [路线图](docs/04-roadmap.md) · [参与开发](AGENTS.md)
+**[✨ 特性](#-特性)** · **[👀 预览](#-预览)** · **[🧩 组件](#-组件块)** · **[⚙️ 原理](#️-工作原理)** · **[🚀 开发](#-本地开发)** · **[🗺️ 路线图](#️-路线图)** · **[📚 文档](#-文档)**
 
 </div>
 
----
+<br>
 
-## 为什么
+> [!NOTE]
+> **EditHTML** 是一种面向个人笔记的文档格式与编辑器：**文件本身就是网页**，双击即可在任意浏览器阅读；打开后能**直接在渲染好的页面上编辑**，同时保留 Markdown 的输入手感。
+> 一句话 —— **Markdown 的编辑体验 + HTML 的表现力**。
 
-在 Obsidian 里记笔记，表现力只有标题、列表、代码和图片；想要图表、标签页、折叠区、交互演示，只能靠各家插件的私有语法。
-换成 HTML 网站，表现力无上限，可改一个字都得回源码里翻。
+## 👀 预览
 
-**EditHTML 想要两边的好处：**
+<div align="center">
+<img src="docs/assets/editor-preview.svg" alt="EditHTML 编辑器设计预览" width="100%">
+<sub>设计预览：选中文字浮出工具栏 · 输入 <code>/</code> 插入组件 · 图表 / 标签页 / 提示框就地可编辑（编辑器在 M2 实现）</sub>
+</div>
 
-| 来自 Markdown | 来自 HTML / 网站 |
-| :-- | :-- |
-| ⚡ 随时修改、即时生效 | 🎨 展示效果好、样式自由 |
-| ⌨️ `#` `-` `` ` `` `/` 快捷输入 | 📊 图表、交互组件、自定义脚本 |
-| 🗂️ 纯文本友好、git diff 干净 | 🌐 任何浏览器双击即开 |
+## ✨ 特性
 
-> 打开一个笔记 = 打开一个漂亮的网页；在这个网页上直接点、直接改、直接存。
+<table>
+<tr>
+<td width="33%" valign="top">
 
-## ✨ 核心特性
+### 🌐 文件即网页
+`.eh.html` 是合法、自包含的 HTML5。没有编辑器、没有网络，双击照样完整阅读。
 
-- **文件即网页** —— `.ehtml` 是合法、自包含的 HTML5，没有编辑器也能完整阅读
-- **就地编辑** —— 在渲染好的页面上所见即所得地修改，包括图表数据和组件配置
-- **Markdown 手感** —— 输入规则兼容 Markdown 习惯；`.md` 可无损导入、导出
-- **块是一等公民** —— 文本块 + 可扩展的组件块：`chart` `mermaid` `math` `callout` `tabs` `columns` `toggle` `embed` `script`
-- **稳定的序列化** —— 同样的内容永远保存成同样的字节，改一个字 git diff 只动一行
-- **快** —— 目标：万块长文档按键响应 p95 < 16ms，打开 < 500ms
-- **安全** —— 自定义脚本运行在 `iframe sandbox` 中，来源不明的文件默认不执行脚本
+</td>
+<td width="33%" valign="top">
 
-## 👀 长什么样
+### ✍️ 就地编辑
+在渲染好的页面上所见即所得地改 —— 包括图表数据、组件配置。不用回"后台"翻源码。
 
-一个 `.ehtml` 文件就是普通 HTML，加了几个 `data-eh` 属性和 `<eh-*>` 组件：
+</td>
+<td width="33%" valign="top">
+
+### ⌨️ Markdown 手感
+`#` `-` `>` `` ` `` `**` 输入规则 + `/` 斜杠菜单；`.md` 无损导入，随时导出回去。
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🧩 富组件块
+图表、流程图、公式、标签页、多栏、折叠、嵌入、沙箱脚本 —— 统一的插件接口，可自定义。
+
+</td>
+<td valign="top">
+
+### 🧬 稳定序列化
+同样的内容永远保存成同样的字节；改一个字，`git diff` 只动一行。由属性测试保证幂等。
+
+</td>
+<td valign="top">
+
+### ⚡ 快且安全
+零 DOM 内核可跑在 Worker；块级哈希增量渲染。脚本在 `iframe sandbox` 中运行，陌生文件默认不执行。
+
+</td>
+</tr>
+</table>
+
+### 和常见做法比一比
+
+| | Markdown 笔记 | 手写 HTML 页面 | **EditHTML** |
+| :-- | :-: | :-: | :-: |
+| 随手编辑、即时生效 | ✅ | ❌ 回源码改 | ✅ 就地编辑 |
+| 图表 / 交互组件 | ⚠️ 依赖插件私有语法 | ✅ | ✅ 内置 + 可扩展 |
+| 任意浏览器直接打开 | ❌ 需要渲染器 | ✅ | ✅ |
+| 纯文本友好、git diff 干净 | ✅ | ⚠️ 噪音大 | ✅ 规范序列化 |
+| 换工具不丢格式 | ⚠️ 扩展语法不通用 | ✅ | ✅ 标准 HTML + 降级内容 |
+
+## 🧩 组件块
+
+组件块统一形态：**JSON 是真相，降级内容是缓存** —— 有运行时就是可交互组件，没有运行时也能看到静态 HTML/SVG。
 
 ```html
-<main id="eh-doc">
-  <h1 data-eh="b1">二分查找</h1>
-  <p data-eh="b2">时间复杂度 <strong>O(log n)</strong>，前提是数组<mark>有序</mark>。</p>
-  <ul>
-    <li data-eh="b3" data-eh-task="done">理解循环不变量</li>
-    <li data-eh="b4" data-eh-task="todo">刷 10 道变体题</li>
-  </ul>
-  <eh-chart data-eh="b5">
-    <script type="application/json">{"type":"bar","data":{"x":["线性","二分"],"y":[1000,10]}}</script>
-    <!--eh:fallback--><img src="data:image/svg+xml;..." alt="柱状图"><!--eh:fallback-->
-  </eh-chart>
-</main>
+<eh-chart data-eh="b3">
+  <script type="application/json">{"type":"bar","data":{"x":["线性","二分"],"y":[1000000,20]}}</script>
+  <!--eh:fallback--><img src="data:image/svg+xml;…" alt="柱状图"><!--eh:fallback-->
+</eh-chart>
 ```
 
-- **JSON 是真相，降级内容是缓存**：没有运行时也能看到静态 SVG；有运行时则是可交互的图表
-- 喜欢敲源码？还有等价的 **EHMD** 文本视图（Markdown + `:::chart` 指令块），双向无损转换
+| | 组件 | 用途 | 数据 |
+| :-: | :-- | :-- | :-- |
+| 📊 | `chart` | 柱 / 折线 / 饼 / 散点图，双击直接改数据 | `{type, data, options}` |
+| 🔀 | `mermaid` | 流程图、时序图 | `{source}` |
+| ∑ | `math` | 块级公式（KaTeX） | `{tex}` |
+| 💡 | `callout` | 提示框 info / warn / tip | `{kind, title}` + 子块 |
+| 🗂️ | `tabs` | 标签页 | `{tabs:[{title}]}` + 子块 |
+| ▥ | `columns` | 多栏布局 | `{ratio:[1,2]}` + 子块 |
+| ▸ | `toggle` | 折叠区 | `{title, open}` + 子块 |
+| 🎬 | `embed` | 嵌入网页 / 视频（沙箱） | `{url, height}` |
+| 🧪 | `script` | 自定义 HTML/CSS/JS 小组件（沙箱） | `{html, css, js}` |
 
-详见 [格式规范](docs/01-format-spec.md)。
+喜欢敲源码？还有等价的 **EHMD** 文本视图，与 `.eh.html` 双向无损转换：
 
-## 🏗️ 架构
+````markdown
+# 二分查找
+
+时间复杂度 **O(log n)**。^b2
+
+:::chart {#b3}
+type: bar
+data: { x: [线性, 二分], y: [1000000, 20] }
+:::
+````
+
+## ⚙️ 工作原理
+
+<div align="center">
+<img src="docs/assets/how-it-works.svg" alt="工作原理" width="100%">
+</div>
+
+<details>
+<summary><b>分层架构</b>（点击展开）</summary>
 
 ```
- 宿主   apps/web · obsidian-plugin · runtime（文件内嵌加载器）
-          │  HostAdapter
- editor   选区 · 输入规则 · 斜杠菜单 · 工具栏     ← ProseMirror 适配层
- renderer Doc → DOM 增量更新 · 懒加载 · 虚拟化
- blocks   组件块注册表（schema + render + fallback）
- core     文档模型 · 解析器 · 序列化器 · 事务/撤销  ← 零 DOM 依赖，可跑在 Node / Worker
+ 宿主     apps/web · obsidian-plugin · runtime（文件内嵌加载器 < 8KB）
+            │  HostAdapter
+ editor   选区 · 输入规则 · 斜杠菜单 · 工具栏        ← ProseMirror 适配层
+ renderer Doc → DOM 增量更新（块哈希 + LIS diff）· 懒加载 · 虚拟化
+ blocks   组件块注册表（schema + render + fallback + EHMD）
+ core     文档模型 · 流式解析 · 规范序列化 · 事务/撤销  ← 零 DOM，Node / Worker 可跑
 ```
 
-依赖只能自上而下；DOM 不是数据源，一切修改都经过 `Transaction`。详见 [架构](docs/02-architecture.md) 与 [算法](docs/03-algorithms.md)。
+- 依赖只能自上而下：`editor → renderer → blocks → core`（ESLint 强制）
+- **DOM 不是数据源**：一切修改经过 `Transaction`，每个 Op 都可逆
+- 详见 [架构](docs/02-architecture.md) 与 [算法](docs/03-algorithms.md)
 
-## 🗺️ 进度
+</details>
 
-| 里程碑 | 内容 | 状态 |
-| :-- | :-- | :-: |
-| **M0** 工程脚手架 | monorepo、CI、测试样本 | ✅ |
-| **M1** 核心读写 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销 · EHMD · CLI | 🚧 |
-| **M2** 阅读与编辑 MVP | 增量渲染、编辑器、输入规则、斜杠菜单、组件、运行时、主题 | ⏳ |
-| **M3** 富组件与性能 | 图表、容器块、沙箱脚本、懒渲染、虚拟化、增量保存 | ⏳ |
-| **M4** 笔记库体验 | Web 应用、全库搜索、双链、外部修改合并、源码模式、导出 | ⏳ |
-| **M5** 生态 | Obsidian 插件、自定义组件、模板库 | ⏳ |
+### 已实现的内核指标
 
-任务拆分与验收标准见 [路线图](docs/04-roadmap.md)。
+| 指标 | 目标 | 当前 |
+| :-- | :-: | :-: |
+| 解析 10,000 块（1.3 MB） | < 100 ms | **≈ 90 ms** |
+| 序列化 10,000 块 | < 50 ms | **≈ 18–40 ms** |
+| 单次文本编辑事务（10,000 块文档） | < 16 ms | **≈ 0.8 ms** |
+| `parse ∘ serialize` 往返 | 无损 + 幂等 | ✅ 随机文档 + 9 万次乱序标签模糊测试 |
 
 ## 🚀 本地开发
 
-需要 Node ≥ 22.12 与 pnpm。
-
 ```bash
-git clone https://github.com/Vvvancy/EditHTML.git
-cd EditHTML
+git clone https://github.com/Vvvancy/EditHTML.git && cd EditHTML
 pnpm install
 
-pnpm test       # Vitest 单元 + fast-check 属性测试
-pnpm lint       # 类型检查 + ESLint + Prettier
-pnpm build      # tsc 项目引用 + Vite
+pnpm test      # Vitest 单元测试 + fast-check 属性测试
+pnpm lint      # 类型检查 + ESLint + Prettier
+pnpm build     # tsc 项目引用 + Vite
 pnpm --filter @edithtml/web dev   # Web 应用开发服务器
 ```
+
+需要 Node ≥ 22.12 与 pnpm。在代码里直接使用内核：
+
+```ts
+import { parse, serialize, tr } from '@edithtml/core';
+
+const { doc } = parse(html); // .eh.html → Doc
+const { doc: next } = tr(doc).insertText('b2', 0, '✨ ').apply(); // 可逆事务
+await writeFile(path, serialize(next)); // 规范形式，diff 干净
+```
+
+## 🗺️ 路线图
+
+| 里程碑 | 内容 | 进度 |
+| :-- | :-- | :-- |
+| **M0** 工程脚手架 | monorepo · CI · 48 个测试样本 | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
+| **M1** 核心读写 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销 · EHMD · CLI | ![](https://img.shields.io/badge/-57%25-8b5cf6?style=flat-square) |
+| **M2** 阅读与编辑 MVP | 增量渲染 · 编辑器 · 输入规则 · 斜杠菜单 · 组件 · 运行时 · 主题 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M3** 富组件与性能 | 图表 · 容器块 · 沙箱脚本 · 懒渲染 · 虚拟化 · 增量保存 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M4** 笔记库体验 | Web 应用 · 全库搜索 · 双链 · 三方合并 · 源码模式 · 导出 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M5** 生态 | Obsidian 插件 · 自定义组件 · 模板库 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+
+每个任务都可以独立交给一个 Agent 完成，见 [路线图](docs/04-roadmap.md)。
 
 ## 📁 仓库结构
 
 ```
 EditHTML/
 ├── packages/
-│   ├── core/        文档模型、解析器、序列化器、事务、撤销重做、EHMD 转换
-│   ├── renderer/    只读渲染（增量 DOM 更新、懒加载、虚拟化）
-│   ├── editor/      就地编辑：选区、输入规则、斜杠菜单、工具栏
-│   ├── blocks/      富组件块：chart / mermaid / math / tabs / callout / embed / script
-│   ├── runtime/     嵌入 .ehtml 的轻量加载器（< 8KB gzip）
+│   ├── core/        文档模型 · 解析器 · 序列化器 · 事务 · 撤销 · EHMD
+│   ├── renderer/    Doc → DOM 增量渲染 · 懒加载 · 虚拟化 · 主题
+│   ├── editor/      就地编辑：选区 · 输入规则 · 斜杠菜单 · 工具栏
+│   ├── blocks/      组件块：chart · mermaid · math · tabs · callout · embed · script
+│   ├── runtime/     嵌入 .eh.html 的轻量加载器
 │   └── cli/         eh convert / check / fmt
 ├── apps/
 │   ├── web/              独立 Web 编辑器
 │   └── obsidian-plugin/  Obsidian 插件（M5）
 ├── docs/            设计文档
-├── examples/        示例笔记
-└── tests/
-    ├── fixtures/    48 个解析/序列化往返样本
-    ├── e2e/         Playwright 端到端测试
-    └── bench/       性能基准
+└── tests/           fixtures（48 个往返样本）· e2e · bench
 ```
 
 ## 📚 文档
 
-| 文档 | 内容 |
-| :-- | :-- |
-| [00 · 愿景](docs/00-vision.md) | 动机、目标用户、设计原则、非目标 |
-| [01 · 格式规范](docs/01-format-spec.md) | `.ehtml` 文件格式（草案 v0.1），含规范序列化细则 |
-| [02 · 架构](docs/02-architecture.md) | 分层、数据模型、数据流、插件接口 |
-| [03 · 算法](docs/03-algorithms.md) | 流式解析、增量渲染、虚拟化、增量保存、合并 |
-| [04 · 路线图](docs/04-roadmap.md) | 里程碑与可分派任务 |
-| [05 · 待决问题](docs/05-open-questions.md) | 尚未拍板的设计选择 |
+| | 文档 | 内容 |
+| :-: | :-- | :-- |
+| 🎯 | [00 · 愿景](docs/00-vision.md) | 动机、目标用户、设计原则、非目标 |
+| 📐 | [01 · 格式规范](docs/01-format-spec.md) | `.ehtml` 文件格式（草案 v0.1）与规范序列化细则 |
+| 🏛️ | [02 · 架构](docs/02-architecture.md) | 分层、数据模型、数据流、插件接口 |
+| ⚡ | [03 · 算法](docs/03-algorithms.md) | 流式解析、增量渲染、虚拟化、增量保存、合并 |
+| 🗺️ | [04 · 路线图](docs/04-roadmap.md) | 里程碑与可分派任务 |
+| ❓ | [05 · 待决问题](docs/05-open-questions.md) | 尚未拍板的设计选择 |
 
 ## 🤝 参与开发
 
-项目按 [路线图](docs/04-roadmap.md) 中的任务编号推进，每个任务一个分支、一个 PR。开工前请阅读 [AGENTS.md](AGENTS.md)：
+开工前请阅读 [AGENTS.md](AGENTS.md)。每个任务一个分支 `feat/T1.2-parser`、一个 PR：
 
-- `core` 禁止使用 DOM API；依赖方向 `editor → renderer → blocks → core`
+- `core` 禁止 DOM API；依赖方向不可反转
 - TypeScript strict，不用 `any`；公共 API 写 TSDoc
 - 解析 / 序列化 / 事务改动必须附 fast-check 属性测试
 - 合并前 `pnpm lint && pnpm test && pnpm build` 全部通过
+
+<div align="center">
+<br>
+<sub>用 ❤️ 和大量属性测试构建 · <a href="https://github.com/Vvvancy">@Vvvancy</a></sub>
+</div>
