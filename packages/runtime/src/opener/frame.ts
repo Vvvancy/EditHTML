@@ -89,6 +89,8 @@ export interface PreserveSessionLike {
 /** 打开会话时的回调。 */
 export interface SessionHooks {
   onUserEdit?: (container: HTMLElement) => void;
+  /** 页面脚本已在该 DOM 上运行过：未配对的节点都是脚本生成的，保存时不写进文件（importer 的同名挂载选项）。 */
+  unpairedMadeByScript?: boolean;
 }
 
 /** 在文档上开启保真会话的函数（即 importer 的 `openPreserve`）。 */

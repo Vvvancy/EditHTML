@@ -46,9 +46,13 @@
  * 其余一律视为**脚本改动**：落在容器内则该容器收回可编辑并标灰；新增的、无区间（或被挪离原位）的元素标灰。
  * 标灰 = `data-eh-generated` 属性 + `title` 提示「由脚本生成，请编辑其数据/源码」+ 一条 `<style data-eh-preserve>` 规则。
  *
+ * 脚本的改动不是源码：挂载层还记下脚本新增的节点（{@link PreserveMount.scriptMade}）、脚本改写过的配对文本
+ * （{@link PreserveMount.scriptText}）与脚本改过的属性（{@link PreserveMount.scripted}），补丁层序列化时
+ * 跳过前者、对后两者沿用原文，于是父元素被重新输出时也不会把图表库生成的 DOM、`_echarts_instance_` 之类写进文件。
+ *
  * @module
  */
-import type { ElementSpan, SpanIndex, SpanNode } from './span-index.js';
+import type { DocumentSpan, ElementSpan, SpanIndex, SpanNode } from './span-index.js';
 
 /** 标灰属性名。 */
 export const GENERATED_ATTR = 'data-eh-generated';
@@ -177,6 +181,11 @@ export interface MountOptions {
   /** 挂载时把未配对的元素标灰，默认 `true`。 */
   markUnpaired?: boolean;
   /**
+   * 挂载在**页面脚本已经运行过**的 DOM 上（打开器保存后就地重挂）：未配对的节点都是脚本的产物，
+   * 记为 {@link PreserveMount.scriptMade}，序列化时跳过。默认 `false`：未配对的节点照常输出，不丢内容。
+   */
+  unpairedMadeByScript?: boolean;
+  /**
    * 一批被判定为**用户编辑**的变动记录（按发生顺序；含属性记录，已排除挂载层自己写的属性）。
    * 在 {@link MountOptions.onUserEdit} 之前同步回调。补丁层撤销重做（T2.6）据此记录可逆操作。
    * 观察时开启了 `characterDataOldValue` / `attributeOldValue`。
@@ -203,6 +212,20 @@ export interface PreserveMount {
   flush(): void;
   /** 把 `from` 的区间转给 `to`（打开器重建 `<script>` 以激活脚本时使用）。 */
   transfer(from: Node, to: Node): void;
+  /**
+   * 把一组新建的节点与另一份原文（HTML 片段，见 `buildFragmentIndex`）的区间树 `root` 配对，
+   * 并对其中的元素做可编辑判定（`parent` 位于容器内时不判定）。`parent` 是这些节点将要（或已经）插入的父节点，
+   * 记为 `root` 对应的 DOM 节点。区域源码编辑（T2.5）在替换前调用；节点可以尚未插入文档。
+   */
+  graft(nodes: readonly Node[], root: DocumentSpan, parent: Node): void;
+  /** 节点是否由脚本新增（未配对、在用户编辑之外插入）。只报告最外层，序列化时整棵跳过。 */
+  scriptMade(node: Node): boolean;
+  /** 已配对的文本/注释是否被脚本改写过（之后用户又改过则为 `false`）。序列化时应沿用原文。 */
+  scriptText(node: Node): boolean;
+  /** 元素的属性 `name`（限定名）是否被脚本改过（之后用户又改过则为 `false`）。序列化时应沿用原文。 */
+  scripted(el: Element, name: string): boolean;
+  /** 把属性记为「脚本改过」（会话在已运行过脚本的 DOM 上重新挂载时，据原文比对后补记）。 */
+  markScripted(el: Element, name: string): void;
   /**
    * 把用户（编辑器）新建的元素登记为可编辑容器，例如新增段落（T2.4）。须在 {@link userEdit} 中插入 DOM 后调用；
    * 已在容器内、不在文档中或属于禁用集的元素会被忽略。返回是否登记成功。
@@ -286,6 +309,19 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
   const unpaired: Element[] = [];
   /** 挂载层写过的属性名（只增不减）：这些属性上的变动记录不是用户编辑。 */
   const ownedNames = new WeakMap<Element, Set<string>>();
+  /** 脚本新增的节点、脚本改写过的配对文本、脚本改过的属性（见模块说明）。 */
+  const madeByScript = new WeakSet<Node>();
+  const textByScript = new WeakSet<Node>();
+  const attrsByScript = new WeakMap<Element, Set<string>>();
+  const attrName = (el: Element, r: MutationRecord): string =>
+    r.attributeNamespace === null
+      ? (r.attributeName ?? '')
+      : (el.getAttributeNodeNS(r.attributeNamespace, r.attributeName ?? '')?.name ?? r.attributeName ?? '');
+  const markScripted = (el: Element, name: string): void => {
+    let set = attrsByScript.get(el);
+    if (!set) attrsByScript.set(el, (set = new Set()));
+    set.add(name);
+  };
 
   // ---- 1. 并行结构遍历配对 ----
   const domHash = new WeakMap<Node, number>();
@@ -333,7 +369,10 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
   };
 
   const leave = (ds: readonly Node[]): void => {
-    for (const d of ds) if (d.nodeType === ELEMENT) unpaired.push(d as Element);
+    for (const d of ds) {
+      if (d.nodeType === ELEMENT) unpaired.push(d as Element);
+      if (options.unpairedMadeByScript) madeByScript.add(d);
+    }
   };
 
   /** 间隙内：同形则按位置配对；否则只配两边都唯一出现的键（有序），其余留空。 */
@@ -503,6 +542,11 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
     markGenerated(c);
   };
 
+  const insideMade = (n: Node): boolean => {
+    for (let p = n.parentNode; p; p = p.parentNode) if (madeByScript.has(p)) return true;
+    return false;
+  };
+
   const insideGenerated = (n: Node): boolean => {
     for (let p = n.parentNode; p; p = p.parentNode)
       if (p.nodeType === ELEMENT && original.get(p as Element)?.has(GENERATED_ATTR)) return true;
@@ -510,12 +554,13 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
   };
 
   const considerAdded = (n: Node): void => {
+    if (n === style) return;
+    const s = toSpan.get(n);
+    const placed = s?.parent ? toNode.get(s.parent) === n.parentNode : false;
+    if (placed) return;
+    if (!s && n.isConnected && !insideMade(n)) madeByScript.add(n);
     if (n.nodeType !== ELEMENT) return;
     const el = n as Element;
-    if (el === style) return;
-    const s = toSpan.get(el);
-    const placed = s?.parent ? toNode.get(s.parent) === el.parentNode : false;
-    if (placed) return;
     for (const c of [...containers]) if (el.contains(c)) revoke(c);
     if (!insideGenerated(el)) markGenerated(el);
   };
@@ -535,9 +580,15 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
       if (user) {
         if (c) touched.add(c);
         userRecords.push(r);
+        if (r.type === 'attributes') attrsByScript.get(r.target as Element)?.delete(attrName(r.target as Element, r));
+        else if (r.type === 'characterData') textByScript.delete(r.target);
         continue;
       }
-      if (r.type === 'attributes') continue; // 脚本改属性：不收回、不标灰
+      if (r.type === 'attributes') {
+        markScripted(r.target as Element, attrName(r.target as Element, r)); // 脚本改属性：不收回、不标灰
+        continue;
+      }
+      if (r.type === 'characterData' && toSpan.has(r.target)) textByScript.add(r.target);
       if (c) revoke(c);
       if (r.type === 'childList') r.addedNodes.forEach(considerAdded);
     }
@@ -630,6 +681,18 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
       return true;
     },
     owns: (el, name) => original.get(el)?.has(name) ?? false,
+    graft(nodes, root, parent) {
+      const before = unpaired.length;
+      const list = nodes.filter((n) => n.nodeType !== DOCTYPE);
+      pairChildren(list, root.children);
+      toNode.set(root, parent);
+      if (options.markUnpaired !== false) for (const el of unpaired.splice(before)) markGenerated(el);
+      if (!containerOf(parent)) for (const n of list) if (n.nodeType === ELEMENT) decide(n as Element);
+    },
+    scriptMade: (node) => madeByScript.has(node),
+    scriptText: (node) => textByScript.has(node),
+    scripted: (el, name) => attrsByScript.get(el)?.has(name) ?? false,
+    markScripted,
     transfer(from, to) {
       const s = toSpan.get(from);
       if (!s) return;

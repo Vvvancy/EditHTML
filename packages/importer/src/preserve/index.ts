@@ -9,3 +9,4 @@ export * from './mount.js';
 export * from './edit.js';
 export * from './history.js';
 export * from './toolbar-host.js';
+export * from './source-popover.js';
