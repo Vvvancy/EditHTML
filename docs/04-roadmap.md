@@ -15,8 +15,11 @@
 | M4 | HTML 转换 + 富组件 + 性能 | 任意 HTML 一键转原生；图表、标签页等；长文档流畅 |
 | M5 | 笔记库体验 + 批量导入 | 整个 Obsidian 库导入，搜索、双链 |
 | M6 | 生态 | Obsidian 插件、自定义组件 |
+| **MA** | **AI agent 友好**（贯穿式，与 M2–M5 并行） | agent 通过文件 / CLI / MCP / 浏览器 API 精确读写笔记 |
 
 > 把"保真模式"放在原生编辑器之前：它实现相对简单（不需要完整文档模型），却能立刻让现有的 HTML 笔记变得可编辑。
+>
+> MA 的前半部分（TA.1–TA.6）只依赖已完成的 M1，**现在就可以开工**。
 
 ---
 
@@ -105,7 +108,26 @@
 - T6.3 组件模板库（时间线、对比表、知识卡片、闪卡……）
 - T6.4 （可选）基于 CRDT 的多端同步/协作
 
+## MA · AI agent 友好
+
+实现 [07-agent-friendly.md](07-agent-friendly.md)。
+
+| ID | 任务 | 产出 | 验收 | 依赖 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| TA.1 | **宽容解析 + 规范化修复**：缺 `data-eh` 自动分配 ID；缺 JSON 用 schema 默认值；props 与 fallback 哈希不符时标 `data-eh-stale`；`eh fmt` 把"差不多对"的输入规范化（07 §1） | `core/src/parse/lenient.ts`、`eh fmt` | 一组"agent 手写风格"fixtures（缺 ID、乱缩进、无 fallback）全部被接受，`fmt` 后幂等 | T1.2, T1.3 | ⬜ |
+| TA.2 | **分层视图与范围读取**：`outline` / `ehmd` / `json` / `html(--no-fallback)`；按块 ID、标题小节、ID 区间、类型/文本/标签查询；返回文档哈希 | `core/src/views/`、`eh outline` `eh get` `eh query` | 10k 块文档 outline < 原文 5% 字节；范围读取结果可直接被 TA.3 引用 | T1.6 | ⬜ |
+| TA.3 | **agent 操作批**：`replaceBlock / insertAfter / insertBefore / setProps(JSON Patch) / moveBlock / removeBlock / replaceText`，新内容用 EHMD 片段；原子、`ifMatch` 乐观并发、`dryRun` 返回 diff；编译为 core Op 并作为一个撤销单元 | `core/src/agent-ops/`、`eh apply ops.json` | 属性测试：随机操作批 apply 后再 invert = 原文档；`ifMatch` 不符时拒绝且文件不变 | T1.4, T1.6 | ⬜ |
+| TA.4 | **机器可读诊断**：`eh check --json`，稳定错误码、块/行列定位、`fix`（合法的 TA.3 操作）；`eh fmt --fix`；错误码文档 | `core/src/diagnostics/`、`docs/diagnostics.md` | 每个错误码至少一个触发 fixture 和一个修复测试 | T1.8 | ⬜ |
+| TA.5 | **自描述**：`eh schema [type]`（JSON Schema + EHMD 示例）、`eh guide`（< 2000 token 的格式速查），生成根目录 `llms.txt` | `cli`、`llms.txt` | 只给 agent `eh guide` 的输出，它能写出通过 `eh check` 的笔记（TA.9 中验证） | T1.8 | ⬜ |
+| TA.6 | **MCP 服务器**：`eh mcp --vault <dir>`（stdio），工具 `list_notes / search / read_note / edit_note / create_note / import / validate / list_block_types`；只读模式、路径白名单 | `packages/mcp` | 在 Claude Code 中配置后能完成 07 §9 的示例任务 | TA.2, TA.3, TA.4 | ⬜ |
+| TA.7 | **保真模式的 agent 接口**：任意 HTML 的结构路径 ID（结构路径 + 文本哈希）、outline、`setText / setHtml / insertAfter / remove` 编译为区间补丁；接入 CLI 与 MCP | `importer/src/preserve/agent.ts` | agent 改一个 HTML 页面的错别字，未改字节逐字节相同 | T2.2, T2.4, TA.6 | ⬜ |
+| TA.8 | **与编辑器共存**：编辑器的本地通道（localhost WebSocket + 令牌），CLI/MCP 检测到编辑器在运行时走通道提交；agent 修改带作者标记，编辑器高亮、逐块接受/拒绝、整批撤销 | `editor/src/agent/`、`apps/web` | E2E：用户编辑中 agent 插入块，用户内容不丢、可一键撤销 agent 修改 | TA.3, T3.2, T5.5 | ⬜ |
+| TA.9 | **浏览器 JS API**：`window.EditHTML.{outline, read, apply, save}`，工具栏 ARIA 标签；来源不明页面默认只读 | `runtime`、`editor` | Claude in Chrome 通过 API 完成一次插入并保存 | TA.2, TA.3, T3.8 | ⬜ |
+| TA.10 | **agent 评估基准**：`tests/agent-evals/` 任务集 + 运行脚本，测"直接改文件 / CLI / MCP"三条路径的成功率、token、误改率 | `tests/agent-evals/` | 产出一份基线报告 | TA.6 | ⬜ |
+
 ## 并行建议
+
+- **当前（M1 已完成）**：M2 剩余任务（T2.4→…）与 MA 前半部分（TA.1–TA.5，相互独立可并行）可同时推进；TA.6 在 TA.2–TA.4 之后；
 
 - M0 完成后：**M1（T1.1→T1.2/T1.3/T1.4 并行）与 M2（T2.1→T2.2/T2.3 并行）可以同时推进**，两者只在 T2.6 处汇合；
 - M3 中 T3.6（组件）与 T3.2–T3.5（编辑器）可并行；

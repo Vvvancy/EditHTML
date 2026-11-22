@@ -27,4 +27,9 @@
 20. **其他边界**：Unicode 规范化、CRLF 是否统一为 LF、空段落是否保留、块 ID 字符集是否放宽、`#eh-meta` 缺失时 meta 的默认值。
 21. ✅ **`ForeignBlock` → `HtmlBlock` 迁移**（2026-11-22 完成：`kind: 'html'`、`<eh-html>`、新增可逆的 `setHtml` Op，旧名 `eh-foreign` 仍可读取）。原记录：M1 代码（T1.1–T1.4，2026-11-22 合入）仍使用只读的 `ForeignBlock` / `<eh-foreign>`；06 §4 与 01 §3.5 已改为可编辑的 `HtmlBlock` / `<eh-html>`。需要一个任务把 `kind: 'foreign'` → `'html'`、`eh-foreign` → `eh-html`，并开放块内编辑的 Op；01 §6.1 中"外来块"细则同步改名。
 
+22. **大块降级内容/资源是否外置**（07 §1）：data URI、长 SVG fallback 会占满 agent 上下文。建议超过 4KB 外置到 `assets/.eh-cache/<hash>.*`，代价是单文件不再完全自包含（分享版导出时再内联）。
+23. **agent 修改的默认路径**（07 §7）：编辑器运行时，CLI/MCP 是否默认走本地通道而非直接写文件？建议是，并在通道不可用时退回写文件 + 三方合并。
+24. **保真模式结构路径 ID 的稳定性**（07 §3.2）：用户在 agent 两次调用之间编辑了页面，路径 ID 可能失效。建议：`ifMatch` 校验失败时返回新 outline，由 agent 重读。
+25. **MCP 写权限默认值**：`eh mcp` 默认只读还是可写？建议默认可写但限定在 `--vault` 目录内，且所有写入都可整批撤销。
+
 > 13–20 来自 T0.3 / T1.2 / T1.3 实现过程中发现的规范空白，详见 `tests/fixtures/README.md`。

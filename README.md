@@ -237,7 +237,8 @@ EditHTML/
 │   ├── importer/    任意 HTML 保真编辑（区间补丁）· HTML/MD → 原生块 · 批量导入
 │   ├── blocks/      组件块：chart · mermaid · math · tabs · callout · embed · script
 │   ├── runtime/     嵌入 .eh.html 的轻量加载器
-│   └── cli/         eh convert / check / fmt
+│   ├── cli/         eh convert / check / fmt / outline / get / apply / schema
+│   └── mcp/         MCP 服务器：让 AI agent 读写笔记库
 ├── apps/
 │   ├── web/              独立 Web 编辑器
 │   └── obsidian-plugin/  Obsidian 插件（M5）
@@ -256,6 +257,7 @@ EditHTML/
 | 🗺️ | [04 · 路线图](docs/04-roadmap.md) | 里程碑与可分派任务 |
 | ❓ | [05 · 待决问题](docs/05-open-questions.md) | 尚未拍板的设计选择 |
 | 📥 | [06 · 导入与兼容](docs/06-import.md) | 任意 HTML 保真编辑、HTML/MD 转换、批量导入 |
+| 🤖 | [07 · AI agent 友好](docs/07-agent-friendly.md) | 分层视图、块级原子操作、诊断、CLI / MCP / 浏览器 API |
 
 ## 🤝 参与开发
 
