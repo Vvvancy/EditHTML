@@ -96,6 +96,30 @@ describe('buildSpanIndex', () => {
     expect(idx.nodes.some((n) => n.kind === 'text' && n.value === 't')).toBe(true);
   });
 
+  it('head 中的空白文本后紧跟字符引用时，两段文本区间不重叠', () => {
+    for (const src of ['<script></script>\r\n&#x41;', '<title>t</title>\n&amp;']) {
+      const texts = buildSpanIndex(src).nodes.filter((n): n is TextSpan => n.kind === 'text');
+      const ws = req(texts.find((t) => t.parent?.kind === 'element' && t.parent.tag === 'head'));
+      expect(cut(src, ws.span)).toBe(src.includes('\r\n') ? '\r\n' : '\n');
+      const body = req(texts.find((t) => t.parent?.kind === 'element' && t.parent.tag === 'body'));
+      expect(cut(src, body.span)).toMatch(/^&/);
+    }
+  });
+
+  it('<pre> 首文本包在重建的格式元素里时，同样剔除被丢弃的开头换行', () => {
+    for (const src of ['<b><pre>\n x</b>', '<p><i><pre>\n x']) {
+      const t = req(buildSpanIndex(src).nodes.find((n): n is TextSpan => n.kind === 'text'));
+      expect(t.value).toBe(' x');
+      expect(cut(src, t.span)).toBe(' x');
+    }
+  });
+
+  it('表格寄养拼成的不连续文本没有区间', () => {
+    const src = '<table>a<!-- c -->b</table>';
+    const t = req(buildSpanIndex(src).nodes.find((n): n is TextSpan => n.kind === 'text' && n.value === 'ab'));
+    expect(t.span).toBeNull();
+  });
+
   it('property: arbitrary tag soup never throws and text slices re-parse to their values', () => {
     const piece = fc.constantFrom(
       '<p>',
