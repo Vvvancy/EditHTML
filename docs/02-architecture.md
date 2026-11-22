@@ -15,6 +15,9 @@
 ├────────────────────────────────────────────────────────────┤
 │  renderer      Doc → DOM 增量更新 · 懒加载 · 虚拟化           │
 ├────────────────────────────────────────────────────────────┤
+│  importer      任意 HTML → 原生块 / 保真模式区间补丁          │
+│                Markdown(含 Obsidian 方言) → 原生块 · 批量导入  │
+├────────────────────────────────────────────────────────────┤
 │  blocks        组件块注册表（chart/mermaid/math/tabs/…）     │
 │                每个组件 = schema + render + fallback + editor │
 ├────────────────────────────────────────────────────────────┤
@@ -37,7 +40,7 @@ interface Doc {
   version: number;                 // 每次事务 +1
 }
 
-type Block = TextBlock | ComponentBlock | ForeignBlock;
+type Block = TextBlock | ComponentBlock | HtmlBlock;
 
 interface TextBlock {
   id: BlockId; kind: 'text';
@@ -56,7 +59,8 @@ interface ComponentBlock {
   hash: number;
 }
 
-interface ForeignBlock { id: BlockId; kind: 'foreign'; html: string; hash: number }
+// 原样保留的任意 HTML（eh-html 块），可编辑，见 06-import.md §4
+interface HtmlBlock { id: BlockId; kind: 'html'; html: string; spans?: SourceSpanIndex; hash: number }
 ```
 
 > **实现说明（T1.1）**：完整定义见 `packages/core/src/model.ts`，以代码为准。相对上面的草图有以下细化：
@@ -105,6 +109,15 @@ type Op =
 ```
 
 关键点：**DOM 不是数据源**。contenteditable 只作为输入事件来源，内容以模型为准，渲染器负责把模型同步回 DOM（与 ProseMirror / Lexical 同类思路）。
+
+## 3.5 两条文档路径
+
+| 路径 | 文件 | 数据源 | 保存 |
+| --- | --- | --- | --- |
+| 原生 | `.ehtml` / `.md`（导入后） | `core` 的 `Doc` 模型 | 规范形式序列化 |
+| 保真 | 任意 `.html` | **原始源码字符串** + 源码区间索引 | 区间补丁，只改动改过的字节 |
+
+保真路径由 `packages/importer/preserve` 实现：编辑器在其上复用选区、工具栏、输入规则，但事务产出的是"源码补丁"而不是 Doc Op。两条路径共享同一套撤销重做框架（补丁同样可逆）。
 
 ## 4. 组件块插件接口（packages/blocks）
 

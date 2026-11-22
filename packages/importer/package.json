@@ -1,0 +1,21 @@
+{
+  "name": "@edithtml/importer",
+  "version": "0.0.0",
+  "description": "导入：任意 HTML 保真编辑（区间补丁）、HTML/MD → 原生块、批量导入",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@edithtml/core": "workspace:*"
+  }
+}

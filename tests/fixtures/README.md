@@ -2,6 +2,8 @@
 
 解析/序列化往返测试样本（任务 T0.3）。纯数据文件，不含代码。规范依据：[`docs/01-format-spec.md`](../../docs/01-format-spec.md)，尤其是 §6.1 规范形式细则（下文 "§n" 均指该文档章节）。
 
+> 路线图（04）中 T0.3 现要求 `ehtml/ md/ html/ obsidian/` 四类样本：`html/`（任意真实风格 HTML，供保真模式与 HTML 转换）与 `obsidian/`（Obsidian 方言）尚待补充。
+
 - `ehtml/NN-name.ehtml`：完整的 `.ehtml` 文档。运行时统一写作占位路径 `./.ehtml/runtime.js`，不引用外部脚本（16、27 号样本中的 `*.example.invalid` 是被测的外来内容）。
 - `md/NN-name.md`：EHMD / 纯 Markdown 源（§7）。
 - **同名配对**：`md/NN-x.md` 与 `ehtml/NN-x.ehtml` 基名相同时互为等价物，供 T1.6 做转换测试。比较时应**忽略降级内容**（EHMD 中没有 fallback，由渲染器重新生成），以及 `<head>` 中的 `eh-theme`、`eh-user-style`、`eh-runtime`。无法用 Markdown 表达的块在 `.md` 中省略或近似表示，已在备注中列出。

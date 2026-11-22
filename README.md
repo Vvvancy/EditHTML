@@ -24,13 +24,14 @@
 
 > [!NOTE]
 > **EditHTML** 是一种面向个人笔记的文档格式与编辑器：**文件本身就是网页**，双击即可在任意浏览器阅读；打开后能**直接在渲染好的页面上编辑**，同时保留 Markdown 的输入手感。
+> **所有 HTML 和 Markdown 都是 EditHTML 的一部分**：任意 `.html` 直接打开就能改（只改动改过的地方），任意 `.md`（含 Obsidian 笔记库）无损导入。
 > 一句话 —— **Markdown 的编辑体验 + HTML 的表现力**。
 
 ## 👀 预览
 
 <div align="center">
 <img src="docs/assets/editor-preview.svg" alt="EditHTML 编辑器设计预览" width="100%">
-<sub>设计预览：选中文字浮出工具栏 · 输入 <code>/</code> 插入组件 · 图表 / 标签页 / 提示框就地可编辑（编辑器在 M2 实现）</sub>
+<sub>设计预览：选中文字浮出工具栏 · 输入 <code>/</code> 插入组件 · 图表 / 标签页 / 提示框就地可编辑（原生编辑器在 M3 实现）</sub>
 </div>
 
 ## ✨ 特性
@@ -76,6 +77,26 @@
 
 </td>
 </tr>
+<tr>
+<td valign="top">
+
+### 🪄 任意 HTML 保真编辑
+AI 生成的页面、旧网页笔记，直接打开就能改字；只按源码区间打补丁，没改的地方逐字节不变。
+
+</td>
+<td valign="top">
+
+### 📥 Markdown / Obsidian 导入
+CommonMark + GFM + Obsidian 方言（双链、callout、块引用、frontmatter），整个笔记库批量导入。
+
+</td>
+<td valign="top">
+
+### 🧱 识别不了也能编辑
+映射不到原生块的 HTML 包成 `eh-html` 块原样保留，照样就地编辑，还能一键"拆解为原生块"。
+
+</td>
+</tr>
 </table>
 
 ### 和常见做法比一比
@@ -87,6 +108,7 @@
 | 任意浏览器直接打开 | ❌ 需要渲染器 | ✅ | ✅ |
 | 纯文本友好、git diff 干净 | ✅ | ⚠️ 噪音大 | ✅ 规范序列化 |
 | 换工具不丢格式 | ⚠️ 扩展语法不通用 | ✅ | ✅ 标准 HTML + 降级内容 |
+| 编辑现有 HTML 文件 | ❌ | ⚠️ 只能改源码 | ✅ 保真模式，diff 最小 |
 
 ## 🧩 组件块
 
@@ -183,12 +205,13 @@ await writeFile(path, serialize(next)); // 规范形式，diff 干净
 
 | 里程碑 | 内容 | 进度 |
 | :-- | :-- | :-- |
-| **M0** 工程脚手架 | monorepo · CI · 48 个测试样本 | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
-| **M1** 核心读写 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销 · EHMD · CLI | ![](https://img.shields.io/badge/-57%25-8b5cf6?style=flat-square) |
-| **M2** 阅读与编辑 MVP | 增量渲染 · 编辑器 · 输入规则 · 斜杠菜单 · 组件 · 运行时 · 主题 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
-| **M3** 富组件与性能 | 图表 · 容器块 · 沙箱脚本 · 懒渲染 · 虚拟化 · 增量保存 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
-| **M4** 笔记库体验 | Web 应用 · 全库搜索 · 双链 · 三方合并 · 源码模式 · 导出 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
-| **M5** 生态 | Obsidian 插件 · 自定义组件 · 模板库 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M0** 工程脚手架 | monorepo ✅ · CI ✅ · 测试样本（ehtml/md ✅，html/obsidian 待补） | ![](https://img.shields.io/badge/-90%25-22c55e?style=flat-square) |
+| **M1** 核心格式 + Markdown 导入 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销 · EHMD · Markdown 导入器 · CLI | ![](https://img.shields.io/badge/-50%25-8b5cf6?style=flat-square) |
+| **M2** 保真模式 ⭐ | 任意 HTML 就地编辑：源码区间索引 · 补丁引擎 · 区域源码编辑 · 写回（**第一个可用版本**） | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M3** 原生编辑器 MVP | 增量渲染 · ProseMirror 编辑器 · 输入规则 · 斜杠菜单 · 组件 · `eh-html` 块 · 运行时 · 主题 · 粘贴 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M4** HTML 转换 + 富组件 + 性能 | HTML → 原生块 · 图表 · 容器块 · 沙箱脚本 · 懒渲染 · 虚拟化 · 增量保存 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M5** 笔记库 + 批量导入 | Web 应用 · `eh import` 整库导入 · 全库搜索 · 双链 · 三方合并 · 源码模式 · 导出 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
+| **M6** 生态 | Obsidian 插件 · 自定义组件 · 模板库 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
 
 每个任务都可以独立交给一个 Agent 完成，见 [路线图](docs/04-roadmap.md)。
 
@@ -200,6 +223,7 @@ EditHTML/
 │   ├── core/        文档模型 · 解析器 · 序列化器 · 事务 · 撤销 · EHMD
 │   ├── renderer/    Doc → DOM 增量渲染 · 懒加载 · 虚拟化 · 主题
 │   ├── editor/      就地编辑：选区 · 输入规则 · 斜杠菜单 · 工具栏
+│   ├── importer/    任意 HTML 保真编辑（区间补丁）· HTML/MD → 原生块 · 批量导入
 │   ├── blocks/      组件块：chart · mermaid · math · tabs · callout · embed · script
 │   ├── runtime/     嵌入 .eh.html 的轻量加载器
 │   └── cli/         eh convert / check / fmt
@@ -220,6 +244,7 @@ EditHTML/
 | ⚡ | [03 · 算法](docs/03-algorithms.md) | 流式解析、增量渲染、虚拟化、增量保存、合并 |
 | 🗺️ | [04 · 路线图](docs/04-roadmap.md) | 里程碑与可分派任务 |
 | ❓ | [05 · 待决问题](docs/05-open-questions.md) | 尚未拍板的设计选择 |
+| 📥 | [06 · 导入与兼容](docs/06-import.md) | 任意 HTML 保真编辑、HTML/MD 转换、批量导入 |
 
 ## 🤝 参与开发
 

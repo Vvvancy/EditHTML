@@ -247,6 +247,12 @@ importers:
         specifier: workspace:*
         version: link:../renderer
 
+  packages/importer:
+    dependencies:
+      '@edithtml/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/renderer:
     dependencies:
       '@edithtml/blocks':
