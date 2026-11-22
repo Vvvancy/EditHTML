@@ -18,7 +18,13 @@ import {
 } from '../model.js';
 import { emitAttrBlock, isAttrKey } from './attrs.js';
 import { encodeContainer, HTML_DIRECTIVE, PROPS_DIRECTIVE, SLOT_DIRECTIVE, type DirectiveHead } from './directives.js';
-import { destination, escapeText, serializeInline, titleString } from './inline-serialize.js';
+import {
+  destination,
+  escapeText,
+  serializeInline as serializeInlineBase,
+  titleString,
+  type InlineContext,
+} from './inline-serialize.js';
 import { directiveRegistry, parseEhmd } from './parse.js';
 import { maxColonRun } from './prepass.js';
 import type { BlockSerializer, EhmdSerializeOptions, SerializeContext } from './types.js';
@@ -74,6 +80,26 @@ export function serializeEhmd(doc: Doc, opts: EhmdSerializeOptions = {}): string
   const mode = opts.ids ?? 'referenced';
   const registry = directiveRegistry(opts.extensions ?? []);
   const hooks: BlockSerializer[] = (opts.extensions ?? []).flatMap((e) => (e.serializeBlock ? [e.serializeBlock] : []));
+  const atomHooks = (opts.extensions ?? []).flatMap((e) => (e.serializeAtom ? [e.serializeAtom] : []));
+  const atom: InlineContext['atom'] =
+    atomHooks.length === 0
+      ? undefined
+      : (a, c, prev, next) => {
+          for (const h of atomHooks) {
+            const r = h(a, c, prev, next);
+            if (r !== undefined) return r;
+          }
+          return undefined;
+        };
+  const escHooks = (opts.extensions ?? []).flatMap((e) => (e.escapeChar ? [e.escapeChar] : []));
+  const escapeChar: InlineContext['escapeChar'] =
+    escHooks.length === 0 ? undefined : (c, prev, next) => escHooks.some((h) => h(c, prev, next));
+  const extra: Pick<InlineContext, 'atom' | 'escapeChar'> = {
+    ...(atom ? { atom } : {}),
+    ...(escapeChar ? { escapeChar } : {}),
+  };
+  const serializeInline = (content: Parameters<typeof serializeInlineBase>[0], c: InlineContext = {}): string =>
+    serializeInlineBase(content, { ...c, ...extra });
   const refs = mode === 'referenced' ? referencedIds(doc) : new Set<BlockId>();
   for (const id of opts.keepIds ?? []) refs.add(id);
   const forced = new Set<BlockId>();
@@ -317,9 +343,9 @@ export function serializeEhmd(doc: Doc, opts: EhmdSerializeOptions = {}): string
 
   const parts: string[] = [];
   const meta = orderedMeta(doc.meta);
-  if (Object.keys(meta).length > 0) parts.push(`---\n${emitYaml(meta)}\n---`);
+  if (!opts.fragment && Object.keys(meta).length > 0) parts.push(`---\n${emitYaml(meta)}\n---`);
   let body = sequence(doc.root);
-  if (parts.length === 0 && body.startsWith('---')) body = '***' + body.slice(3);
+  if (!opts.fragment && parts.length === 0 && body.startsWith('---')) body = '***' + body.slice(3);
   if (body !== '') parts.push(body);
   return parts.length ? parts.join('\n\n') + '\n' : '';
 }

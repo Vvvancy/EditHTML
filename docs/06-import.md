@@ -94,6 +94,48 @@
 
 **无损保证**：`md → ehtml → md` 对上表覆盖的语法逐字节一致（空白规范化除外），属性测试 + Obsidian 真实笔记库样本验证。
 
+### 5.1 实现约定（T1.7，暂定）
+
+`packages/importer/src/markdown/`（`importMarkdown` / `exportMarkdown`）在上表未定义处采用的规则。05 #6、#7、#11、#18 仍未决，以下只是可工作的默认值，不代表这些问题已定案。
+
+**架构**：不另写 Markdown 解析器。Obsidian 方言是叠加在 core EHMD（01 §7.1）之上的一个 `EhmdExtension`（micromark 行内语法 + mdast 变换 + 块/行内处理器 + 中间块变换 + 原子/转义钩子）；导出复用 core 的 `serializeEhmd`（以 `fragment` 模式逐段调用，块/原子写法通过钩子定制）。本模块不使用 DOM。
+
+**映射**
+
+| Markdown | 模型 |
+| --- | --- |
+| `> [!type] 标题` | `callout {kind, title}`，`kind` **原样**保存（`note`、`TIP`、`custom-type` 都不归一化为 info/warn/tip，由渲染端映射） |
+| `> [!type]-` / `> [!type]+` | `toggle {title, open: false/true}`，`attrs.kind` 保存原类型；导出时由 `open` 还原 `-`/`+` |
+| ```` ```mermaid ```` / `~~~mermaid` | `mermaid {source}`（围栏字符记入来源表） |
+| `$$…$$`（块）；`$$ ^id` 结束行 | `math {tex}`；结束行上的 `^id` 是该块的 ID（等长预处理成单独一行） |
+| 行内 `$$…$$` | `math` 原子，`attrs.display = 'block'`（不拆段落） |
+| 行内 `$…$` | `math` 原子；但 `$` 内侧紧邻空白、或结束 `$` 后紧跟数字时是普通文本（Obsidian 的规则；与 05 #7 相关，待定） |
+| `[[t#h\|a]]` | `wikilink` 原子，`attrs = {target, heading? \| block?, alias?}`，`target` 按原文写法保存，拼接即还原原文 |
+| `![[x.png\|200]]`（单独成段） | `figure {src, alt, width?, height?, syntax: 'wikilink'}`；`\|` 后是 `N` / `NxM` 时为尺寸，否则为 alt |
+| `![[笔记]]` / `![[笔记#标题]]` / `![[笔记#^id]]` / `![[x.pdf#page=3]]`（单独成段） | `note-embed {target, heading?, block?, alias?}` 组件 |
+| 段落中的 `![[…]]` | `embed` 原子（属性同 wikilink） |
+| `#tag` | `tag` 原子（core 规则） |
+| `[^x]` / `[^x]: …` / `^[…]` | `footnote` 原子 `{label}` / `footnote {label}` 容器 / `footnote` 原子 `{inline: 'true'}`（文本为原 Markdown） |
+| `%%…%%` | 段落中：`comment` 原子；单独成段或跨段：`markdown {source}` 组件（`attrs.syntax = 'comment'`） |
+| `[ref]: url` | `markdown {source}`（`syntax = 'definition'`），原样保留 |
+| 被空行拆开的 `<details>…</details>` | `toggle {title, open}`，`attrs.syntax = 'html'`（导出时写回 `<details>`） |
+| 其他原始 HTML | core：能识别的成为原生块，其余为 HTML 块 |
+| Dataview 等未知代码块 | 普通代码块，`lang` 原样 |
+
+**块 ID**：源码中写明的 ID 一律存入 `attrs['md-id']`。符合 `BLOCK_ID_RE` 且不重复的同时作为块 ID；不符合的（`goal-1`、`deep-task`）由 core 重新分配块 ID，原 ID 只在 `md-id` 中（`BLOCK_ID_RE` 不变）。**导出只写回 `md-id`**，从不写自动分配的 ID（05 #6）。已知限制：HTML 块没有 `attrs`，其后的 `^id` 只在原文中保留。
+
+**来源表与无损导出**：导入时为每个顶层 Markdown 节点（一个"段"）记录其顶层块 ID 和内容指纹；只有按模型重新生成的写法与原文不同时才保存原文；段前空白不是 `\n\n` 时保存。frontmatter 保存原文与 `meta` 指纹。还记录少量写法（围栏字符、分割线写法、标题 ID 写法）、末尾文本、`\r\n` 与 BOM。这些都放在 `doc.head.extra` 的 `<script type="application/json" id="eh-md-source">` 中，不进入块属性。导出时，指纹未变的段按原文输出，其余按模型生成；只有两侧都与原文完全一致时才沿用"无空行"的段间隔。因此**未知语法原样往返**：模型表达不了的写法（`[-]` 任务状态、多段列表项、表格多余单元格等）在未编辑时原样写回；编辑该段后按模型生成，报告的 `lossy` 中列出这类内容。
+
+**安全**：含安全剔除（`on*`、`javascript:`，01 §9）的段不保存原文，导出的是清洗后的内容（故意不往返）。
+
+**导出目标**：`obsidian`（默认，见上）；没有 Obsidian 写法的组件（tabs、columns、chart、没有 `kind` 的 toggle、callout 体中含指令时）写成 EHMD 指令块。`commonmark`：不用原文、不写 ID；mermaid/math → 代码块，chart → 图片（取自降级内容中的 `<img>`）+ YAML 数据代码块，其他组件 → 引用块 + 原始 YAML（+ 槽位内容）；双链 → 普通链接，行内公式 → 行内代码，标签 → 文本，注释 → HTML 注释。
+
+**空白规范化**（往返比较）：只有 `\r\n` → `\n`、行尾空格/制表符、文件末尾恰好一个 `\n`。实际所有样本连这些都不需要。
+
+**转换报告**：原生块数、组件数（按类型）、HTML 块数、保存了原文的段数、原样保留的扩展语法（`preserved`）、模型有损但原文已保存（`lossy`）、安全剔除（`sanitized`）、真正丢失（`dropped`，样本中为空）、全部链接目标（原文写法，含 frontmatter 字符串中的 `[[…]]`，供 T5.2 改写）与源码 ID 表。跨文件的链接解析（同名笔记、缺失目标）留给 T5.2。
+
+**不能往返的样本**：`obsidian/vault/notes/Raw HTML.md`、`md/36-entities-unicode.md`——只有含 `onclick` / `javascript:` 的那一行不同（安全清洗）。
+
 ## 6. 批量导入
 
 - `eh import <文件夹>`（CLI）/ Web 应用"导入文件夹"：

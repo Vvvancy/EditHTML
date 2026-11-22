@@ -6,7 +6,7 @@
 import type { Nodes, Root, RootContent, PhrasingContent } from 'mdast';
 import type { Extension as FromMarkdownExtension } from 'mdast-util-from-markdown';
 import type { Extension as MicromarkExtension } from 'micromark-util-types';
-import type { Block, BlockId, Doc, DocHead, InlineNode, Mark, TableData, TextBlockType } from '../model.js';
+import type { Block, BlockId, Doc, DocHead, InlineAtom, InlineNode, Mark, TableData, TextBlockType } from '../model.js';
 import type { ParseWarningCode } from '../parse/warnings.js';
 import type { DirectiveSpec } from './directives.js';
 
@@ -58,6 +58,31 @@ export interface EhmdParseOptions {
   readonly head?: DocHead;
   /** 扩展（按顺序应用；后注册的处理器优先）。 */
   readonly extensions?: readonly EhmdExtension[];
+  /** 为 `true` 时在结果中附带 {@link EhmdSourceMap}（顶层块 ↔ 源码区间，T1.7 的无损导出用）。 */
+  readonly sourceMap?: boolean;
+}
+
+/**
+ * 顶层源码区间：一个顶层 Markdown 节点（或指令块）在输入中的范围，以及它产生的顶层块。
+ * 单独一行的 `^id` 附着到前一个块时，其区间并入前一段。
+ */
+export interface EhmdSourceSegment {
+  /** 在 {@link EhmdSourceMap.text} 中的起点（UTF-16 码元）。 */
+  readonly start: number;
+  /** 终点（不含）。 */
+  readonly end: number;
+  /** 该区间产生的顶层块（可能为空，如空白 HTML）。 */
+  readonly blocks: readonly BlockId[];
+}
+
+/** {@link EhmdParseOptions.sourceMap} 的结果。 */
+export interface EhmdSourceMap {
+  /** 规范化后的输入（去 BOM、换行统一为 `\n`），所有偏移都相对于它。 */
+  readonly text: string;
+  /** frontmatter（含首尾 `---` 行及其后的换行）的终点；没有 frontmatter 时为 `null`。 */
+  readonly frontmatterEnd: number | null;
+  /** 按文档顺序的顶层区间。 */
+  readonly segments: readonly EhmdSourceSegment[];
 }
 
 /** `parseEhmd` 的结果。 */
@@ -65,6 +90,8 @@ export interface EhmdParseResult {
   /** 解析得到的文档（`validateDoc(doc)` 恒为空）。 */
   readonly doc: Doc;
   readonly warnings: EhmdWarning[];
+  /** 仅当 `opts.sourceMap` 为 `true` 时存在。 */
+  readonly sourceMap?: EhmdSourceMap;
 }
 
 /** `serializeEhmd` 的选项。 */
@@ -73,7 +100,12 @@ export interface EhmdSerializeOptions {
   readonly ids?: EhmdIdMode;
   /** `'referenced'` 模式下额外需要保留的 ID（如其他笔记的反向链接引用的块）。 */
   readonly keepIds?: Iterable<BlockId>;
-  /** 扩展（只用到 `directives` 与 `serializeBlock`）。 */
+  /**
+   * 只输出块序列（文档片段）：不写 frontmatter，也不把开头的 `---` 改写成 `***`。
+   * 用于把若干块嵌入更大的 Markdown 文本（T1.7 的逐段导出）。
+   */
+  readonly fragment?: boolean;
+  /** 扩展（只用到 `directives`、`serializeBlock`、`serializeAtom` 与 `escapeChar`）。 */
   readonly extensions?: readonly EhmdExtension[];
 }
 
@@ -168,6 +200,23 @@ export interface SerializeContext {
 export type BlockSerializer = (block: Block, ctx: SerializeContext) => string | undefined;
 
 /**
+ * 原子序列化钩子：返回字符串则替代内置的原子输出（`$tex$`、`[[…]]`、`#tag` 或 span）；
+ * 返回 `undefined` 交给内置实现。`prev` / `next` 是同一行内序列中的相邻节点。
+ */
+export type AtomSerializer = (
+  atom: InlineAtom,
+  ctx: { readonly table?: boolean; readonly singleLine?: boolean },
+  prev: InlineNode | undefined,
+  next: InlineNode | undefined,
+) => string | undefined;
+
+/**
+ * 文本转义钩子：对文本中的 ASCII 标点 `c`（`prev` / `next` 为同一文本节点中的相邻字符，节点边缘为 `undefined`）
+ * 返回 `true` 时额外转义。用于扩展新增的行内语法（如 Obsidian 的 `%%注释%%`）。
+ */
+export type EscapeHook = (c: string, prev: string | undefined, next: string | undefined) => boolean;
+
+/**
  * EHMD 扩展（T1.7 的 Obsidian 方言、`.md` 导出、`packages/blocks` 的组件都通过它接入）。
  */
 export interface EhmdExtension {
@@ -175,14 +224,26 @@ export interface EhmdExtension {
   readonly micromark?: readonly MicromarkExtension[];
   /** mdast-util-from-markdown 扩展，与 `micromark` 配对。 */
   readonly fromMarkdown?: readonly FromMarkdownExtension[];
-  /** 转换前对每棵 mdast 树（每段 Markdown 一棵）做的变换。 */
-  readonly transforms?: readonly ((tree: Root) => void)[];
+  /**
+   * 转换前对每棵 mdast 树（每段 Markdown 一棵）做的变换。`source` 是该树对应的 Markdown 文本
+   * （节点 `position.offset` 指向它；指令已替换为占位注释）。
+   */
+  readonly transforms?: readonly ((tree: Root, source: string) => void)[];
   /** 块级处理器，按 mdast 节点类型（`node.type`）注册。 */
   readonly blockHandlers?: Readonly<Record<string, BlockHandler>>;
   /** 行内处理器，按 mdast 节点类型注册。 */
   readonly inlineHandlers?: Readonly<Record<string, InlineHandler>>;
   /** 组件 ↔ 指令映射规格（同 `type` 覆盖内置规格）。 */
   readonly directives?: readonly DirectiveSpec[];
+  /**
+   * 中间块变换：在分配块 ID 之前，对顶层中间块序列（含容器槽位中的子块，需自行递归）调用一次，可原地修改。
+   * 例如把不符合 `BLOCK_ID_RE` 的源码 ID 转存到 `attrs` 中。
+   */
+  readonly pendingTransforms?: readonly ((blocks: PendingBlock[]) => void)[];
   /** 块序列化钩子。 */
   readonly serializeBlock?: BlockSerializer;
+  /** 原子序列化钩子（`serializeEhmd` 中所有行内内容都会经过它）。 */
+  readonly serializeAtom?: AtomSerializer;
+  /** 文本转义钩子（`serializeEhmd` 中所有行内文本都会经过它）。 */
+  readonly escapeChar?: EscapeHook;
 }

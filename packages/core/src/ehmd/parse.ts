@@ -46,6 +46,8 @@ import type {
   EhmdExtension,
   EhmdParseOptions,
   EhmdParseResult,
+  EhmdSourceMap,
+  EhmdSourceSegment,
   EhmdWarning,
   EhmdWarningCode,
   InlineHandler,
@@ -84,6 +86,7 @@ interface Config {
   readonly micromark: NonNullable<EhmdExtension['micromark']>[number][];
   readonly fromMarkdown: NonNullable<EhmdExtension['fromMarkdown']>[number][];
   readonly transforms: NonNullable<EhmdExtension['transforms']>[number][];
+  readonly pendingTransforms: NonNullable<EhmdExtension['pendingTransforms']>[number][];
   readonly blockHandlers: Map<string, BlockHandler[]>;
   readonly inlineHandlers: Map<string, InlineHandler[]>;
   readonly directives: Map<string, DirectiveSpec>;
@@ -111,6 +114,7 @@ function buildConfig(extensions: readonly EhmdExtension[]): Config {
     micromark: extensions.flatMap((e) => e.micromark ?? []),
     fromMarkdown: extensions.flatMap((e) => e.fromMarkdown ?? []),
     transforms: extensions.flatMap((e) => e.transforms ?? []),
+    pendingTransforms: extensions.flatMap((e) => e.pendingTransforms ?? []),
     blockHandlers,
     inlineHandlers,
     directives: directiveRegistry(extensions),
@@ -147,6 +151,13 @@ function stripTrailingId(
   return { id: (m[2] ?? m[3]) as string, children: out };
 }
 
+/** 顶层源码区间（ID 分配前）。 */
+interface RawSegment {
+  start: number;
+  end: number;
+  items: PendingBlock[];
+}
+
 /** 递归解析器（每段 Markdown 文本一个实例）。 */
 class BodyParser {
   constructor(
@@ -156,6 +167,8 @@ class BodyParser {
     private readonly base: number,
     private readonly container: ContainerCtx | null,
     private readonly depth: number,
+    /** 只有文档顶层的解析器记录源码区间。 */
+    private readonly segments: RawSegment[] | null = null,
   ) {}
 
   private scan!: ScanResult;
@@ -178,7 +191,7 @@ class BodyParser {
       extensions: [gfm(), math(), ...ehmdSyntax(), ...this.cfg.micromark],
       mdastExtensions: [...GFM_FROM_MARKDOWN, mathFromMarkdown(), ehmdFromMarkdown(), ...this.cfg.fromMarkdown],
     });
-    for (const t of this.cfg.transforms) t(tree);
+    for (const t of this.cfg.transforms) t(tree, this.scan.markdown);
     const defs = this.defs;
     const collect = (n: Nodes): void => {
       if (n.type === 'definition') {
@@ -208,7 +221,42 @@ class BodyParser {
       warn: (c, m, o) => this.warn(c, m, o),
     };
     this.inl = new InlineConverter(this.ctx, this.cfg.inlineHandlers, defs);
+    if (this.segments) return this.flowSegments(tree.children, this.segments);
     return this.attachIdMarks(this.flow(tree.children));
+  }
+
+  /** 逐个顶层节点转换并记录源码区间（`^id` 行附着到前一块时并入前一段）。 */
+  private flowSegments(nodes: readonly RootContent[], segs: RawSegment[]): Item[] {
+    const out: Item[] = [];
+    for (const n of nodes) {
+      const start = this.ctx.offset(n);
+      let end = this.abs(n.position?.end.offset ?? 0);
+      if (n.type === 'html') {
+        const pm = this.scan.placeholder.exec(n.value.trim());
+        const d = pm ? this.scan.directives[Number(pm[1])] : undefined;
+        if (d) end = this.base + d.offset + d.raw.length;
+      }
+      const items = this.flow([n]);
+      const kept: PendingBlock[] = [];
+      let attached = false;
+      for (const it of items) {
+        if (it.k !== 'idmark') {
+          if (it.k === 'text' || it.k === 'component' || it.k === 'html') kept.push(it);
+          out.push(it);
+          continue;
+        }
+        const p = this.attachIdMark(out, it);
+        if (!p) attached = true;
+        else {
+          kept.push(p);
+          out.push(p);
+        }
+      }
+      const last = segs[segs.length - 1];
+      if (attached && kept.length === 0 && last) last.end = end;
+      else segs.push({ start, end, items: kept });
+    }
+    return out;
   }
 
   private sub(src: string, offset: number, container: ContainerCtx | null): Item[] {
@@ -219,22 +267,29 @@ class BodyParser {
   private attachIdMarks(items: Item[]): Item[] {
     const out: Item[] = [];
     for (const it of items) {
-      if (it.k !== 'idmark') {
-        out.push(it);
-        continue;
+      if (it.k !== 'idmark') out.push(it);
+      else {
+        const p = this.attachIdMark(out, it);
+        if (p) out.push(p);
       }
-      const prev = out[out.length - 1];
-      if (
-        prev &&
-        (prev.k === 'text' || prev.k === 'component' || prev.k === 'html') &&
-        prev.trailingId &&
-        prev.id === undefined
-      ) {
-        prev.id = it.id;
-        prev.trailingId = false;
-      } else out.push({ k: 'text', type: 'p', attrs: {}, content: [], id: it.id, offset: it.offset });
     }
     return out;
+  }
+
+  /** 把 `^id` 接到 `out` 的最后一项上；接不上时返回带该 ID 的空段落。 */
+  private attachIdMark(out: readonly Item[], it: Extract<Item, { k: 'idmark' }>): PendingBlock | null {
+    const prev = out[out.length - 1];
+    if (
+      prev &&
+      (prev.k === 'text' || prev.k === 'component' || prev.k === 'html') &&
+      prev.trailingId &&
+      prev.id === undefined
+    ) {
+      prev.id = it.id;
+      prev.trailingId = false;
+      return null;
+    }
+    return { k: 'text', type: 'p', attrs: {}, content: [], id: it.id, offset: it.offset };
   }
 
   private flow(nodes: readonly RootContent[]): Item[] {
@@ -723,12 +778,14 @@ export function parseEhmd(src: string, opts: EhmdParseOptions = {}): EhmdParseRe
       });
     }
   }
-  const items = new BodyParser(cfg, warnings, fm.rest, fm.restOffset, null, 0).run();
+  const rawSegs: RawSegment[] | null = opts.sourceMap ? [] : null;
+  const items = new BodyParser(cfg, warnings, fm.rest, fm.restOffset, null, 0, rawSegs).run();
   const seq = [
     ...pre,
     ...items.filter((x): x is PendingBlock => x.k === 'text' || x.k === 'component' || x.k === 'html'),
   ];
   fixIndents(seq);
+  for (const t of cfg.pendingTransforms) t(seq);
 
   // 统一分配块 ID：先按文档顺序保留合法且首次出现的 ID，再为其余块分配新 ID
   const all: PendingBlock[] = [];
@@ -764,5 +821,19 @@ export function parseEhmd(src: string, opts: EhmdParseOptions = {}): EhmdParseRe
   };
   const root = seq.map(build);
   const doc = createDoc(blocks, { root, meta, ...(opts.head ? { head: opts.head } : {}) });
-  return { doc, warnings };
+  if (!rawSegs) return { doc, warnings };
+  const segments: EhmdSourceSegment[] = [];
+  const preBlock = pre[0];
+  if (preBlock) {
+    const end = fm.restOffset > 0 && text[fm.restOffset - 1] === '\n' ? fm.restOffset - 1 : fm.restOffset;
+    segments.push({ start: 0, end, blocks: [ids.get(preBlock) as BlockId] });
+  }
+  for (const s of rawSegs)
+    segments.push({ start: s.start, end: s.end, blocks: s.items.map((p) => ids.get(p) as BlockId) });
+  const sourceMap: EhmdSourceMap = {
+    text,
+    frontmatterEnd: fm.yaml !== null && !preBlock ? fm.restOffset : null,
+    segments,
+  };
+  return { doc, warnings, sourceMap };
 }

@@ -15,6 +15,7 @@
 import { classifyCharacter } from 'micromark-util-classify-character';
 import { MARK_ORDER, markEquals, type InlineAtom, type InlineNode, type Mark } from '../model.js';
 import { isTagBody, isTagChar } from './syntax.js';
+import type { AtomSerializer, EscapeHook } from './types.js';
 
 /** 行内语境。 */
 export interface InlineContext {
@@ -24,6 +25,10 @@ export interface InlineContext {
   readonly singleLine?: boolean;
   /** 硬换行后续行的前缀（列表项缩进、引用的 `> `）。 */
   readonly prefix?: string;
+  /** 原子序列化钩子（扩展用，见 `EhmdExtension.serializeAtom`）；返回 `undefined` 时用内置写法。 */
+  readonly atom?: AtomSerializer;
+  /** 额外的转义判定（扩展用，见 `EhmdExtension.escapeChar`）：返回 `true` 时该 ASCII 标点写成 `\c`。 */
+  readonly escapeChar?: EscapeHook;
 }
 
 type Tree = { mark: Mark; children: Tree[] } | { leaf: InlineNode; index: number };
@@ -146,6 +151,7 @@ export function escapeText(s: string, ctx: InlineContext, lineStart: boolean, li
         continue;
     }
     if (i === escapeAt) esc = true;
+    if (!esc && ctx.escapeChar && ASCII_PUNCT.test(c) && ctx.escapeChar(c, prev, next)) esc = true;
     if (lineHead) {
       if (isWs(c)) {
         out += charRef(c);
@@ -279,6 +285,8 @@ export function serializeInline(nodes: readonly InlineNode[], ctx: InlineContext
       return `\\\n${prefix}`;
     }
     if (node.t === 'atom') {
+      const custom = inCode || !ctx.atom ? undefined : ctx.atom(node, ctx, prevNode, nextNode);
+      if (custom !== undefined) return custom;
       const syn = inCode ? null : atomSyntax(node, ctx, prevNode, nextNode);
       if (syn !== null) return syn;
       const attrs = Object.keys(node.attrs)
