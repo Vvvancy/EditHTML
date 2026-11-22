@@ -37,7 +37,7 @@
 | T1.3 | 确定性序列化器 | `core/src/serialize/` | 往返 + 幂等属性测试 | T1.1 | ✅ |
 | T1.4 | Op / Transaction / invert / Mapping | `core/src/tx/` | 随机 Op 序列 apply+invert 回到原文档 | T1.1 | ✅ |
 | T1.5 | 撤销重做（输入合并） | `core/src/history.ts` | 03 §4 规则单测 | T1.4 | ✅ |
-| T1.6 | EHMD（Markdown + 指令块）↔ Doc | `core/src/ehmd/` | 往返无损 | T1.2, T1.3 | ⬜ |
+| T1.6 | EHMD（Markdown + 指令块）↔ Doc | `core/src/ehmd/` | 往返无损 | T1.2, T1.3 | ✅ |
 | T1.7 | **Markdown 导入器**：CommonMark + GFM + Obsidian 方言 → Doc（06 §5 全表）；Doc → `.md` 导出 | `importer/src/markdown/` | `md→ehtml→md` 对 fixtures/md、fixtures/obsidian 逐字节一致（空白规范化除外）；内嵌 HTML 落入 `HtmlBlock` | T1.2, T1.3 | ⬜ |
 | T1.8 | CLI：`eh convert / eh check / eh fmt` | `packages/cli` | `eh convert note.md` 产出可在浏览器打开的 `.ehtml` | T1.7 | ⬜ |
 
