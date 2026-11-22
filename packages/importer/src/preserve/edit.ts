@@ -602,7 +602,9 @@ export function openPreserve(doc: Document, source: string, options: PreserveOpt
     const nodes = buildFragmentDom(doc, tree);
     mount.graft(nodes, fx.root, parent);
     if (emitKids(nodes, virtual(fx.root), true, true) !== html)
-      throw new Error('这段 HTML 无法逐字节保留（例如表格中的游离文本），请调整后重试');
+      throw new Error(
+        '这段 HTML 无法逐字节保留（例如表格中的游离文本、嵌套的 <a> 等会被解析器改写的结构），请调整后重试',
+      );
 
     const next = last.nextSibling;
     hist.silently(() =>

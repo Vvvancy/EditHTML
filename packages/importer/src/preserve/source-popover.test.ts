@@ -130,7 +130,16 @@ describe('replaceSource：整段替换区域源码', () => {
         const r = regions[pick % regions.length] as SourceRegion;
         const { start, end } = spanOfRegion(s, r);
         expect(s.getSource(r)).toBe(src.slice(start, end));
-        s.replaceSource(r, html);
+        try {
+          s.replaceSource(r, html);
+        } catch (e) {
+          // 解析器会改写结构的 HTML（游离表格文本、嵌套 <a> 等）必须被拒绝，且 DOM 与历史都不变
+          expect(String(e)).toMatch(/无法逐字节保留/);
+          expect(s.canUndo()).toBe(false);
+          expect(s.patches()).toEqual([]);
+          expect(s.save()).toBe(src);
+          return;
+        }
         const expected = src.slice(0, start) + html + src.slice(end);
         expect(s.save()).toBe(expected);
         expect(s.undo()).toBe(true);
