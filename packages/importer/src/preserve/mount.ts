@@ -35,7 +35,9 @@
  *
  * ## 用户改动 vs 脚本改动
  *
- * 观察 `childList` + `characterData`（不观察属性：本层只负责内容，属性补丁在 T2.4/T2.5）。
+ * 观察 `childList` + `characterData`（带旧值）。属性变动也观察，但**只用于转发用户编辑**
+ * （{@link MountOptions.onUserMutations}，供补丁层撤销重做 T2.6 使用）：脚本改属性不会收回容器，
+ * 挂载层自己写的属性（`contenteditable`、标灰属性与提示）的变动一律忽略。
  * 一条变动记录被视为**用户编辑**，当且仅当：
  * - 发生在 {@link PreserveMount.userEdit} 回调内（编辑器自己的命令、工具栏、`execCommand` 都应包在里面）；或
  * - 发生在某个容器的 `beforeinput` → `input` 窗口内，或该容器的输入法组合（`compositionstart` → `compositionend`）期间，
@@ -174,6 +176,12 @@ export interface MountOptions {
   onGenerated?: (el: Element) => void;
   /** 挂载时把未配对的元素标灰，默认 `true`。 */
   markUnpaired?: boolean;
+  /**
+   * 一批被判定为**用户编辑**的变动记录（按发生顺序；含属性记录，已排除挂载层自己写的属性）。
+   * 在 {@link MountOptions.onUserEdit} 之前同步回调。补丁层撤销重做（T2.6）据此记录可逆操作。
+   * 观察时开启了 `characterDataOldValue` / `attributeOldValue`。
+   */
+  onUserMutations?: (records: readonly MutationRecord[]) => void;
 }
 
 /** {@link mountPreserve} 的返回值。 */
@@ -276,6 +284,8 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
   /** 我们改过的属性 → 原值（`null` 表示原本没有）。 */
   const original = new Map<Element, Map<string, string | null>>();
   const unpaired: Element[] = [];
+  /** 挂载层写过的属性名（只增不减）：这些属性上的变动记录不是用户编辑。 */
+  const ownedNames = new WeakMap<Element, Set<string>>();
 
   // ---- 1. 并行结构遍历配对 ----
   const domHash = new WeakMap<Node, number>();
@@ -415,6 +425,9 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
     let m = original.get(el);
     if (!m) original.set(el, (m = new Map()));
     if (!m.has(name)) m.set(name, el.getAttribute(name));
+    let names = ownedNames.get(el);
+    if (!names) ownedNames.set(el, (names = new Set()));
+    names.add(name);
     el.setAttribute(name, value);
   };
   const restoreAttr = (el: Element, name: string): void => {
@@ -514,22 +527,34 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
 
   const process = (records: readonly MutationRecord[]): void => {
     const touched = new Set<HTMLElement>();
+    const userRecords: MutationRecord[] = [];
     for (const r of records) {
+      if (r.type === 'attributes' && ownedNames.get(r.target as Element)?.has(r.attributeName ?? '')) continue;
       const c = containerOf(r.target);
       const user = userDepth > 0 || (c !== undefined && userWindow.has(c));
       if (user) {
         if (c) touched.add(c);
+        userRecords.push(r);
         continue;
       }
+      if (r.type === 'attributes') continue; // 脚本改属性：不收回、不标灰
       if (c) revoke(c);
       if (r.type === 'childList') r.addedNodes.forEach(considerAdded);
     }
+    if (userRecords.length > 0) options.onUserMutations?.(userRecords);
     for (const c of touched) if (containers.has(c)) options.onUserEdit?.(c);
   };
 
   const MO = doc.defaultView?.MutationObserver ?? globalThis.MutationObserver;
   const observer = new MO(process);
-  observer.observe(doc, { childList: true, characterData: true, subtree: true });
+  observer.observe(doc, {
+    childList: true,
+    characterData: true,
+    characterDataOldValue: true,
+    attributes: true,
+    attributeOldValue: true,
+    subtree: true,
+  });
   const flush = (): void => process(observer.takeRecords());
 
   const targetContainer = (e: Event): HTMLElement | undefined => {
@@ -577,7 +602,7 @@ export function mountPreserve(doc: Document, index: SpanIndex, options: MountOpt
     spanOf: (node) => toSpan.get(node),
     nodeOf: (s) => toNode.get(s),
     containers() {
-      const all = [...containers];
+      const all = [...containers].filter((c) => c.isConnected); // 撤销后脱离文档的新块不算
       // 文档顺序：DOCUMENT_POSITION_FOLLOWING = 4
       return all.sort((a, b) => (a === b ? 0 : a.compareDocumentPosition(b) & 4 ? -1 : 1));
     },

@@ -168,8 +168,10 @@ export function buildSpanIndex(source: string): SpanIndex {
     const attrs = new Map<string, Span>();
     if (loc?.attrs)
       for (const a of el.attrs) {
-        const l = loc.attrs[a.name];
-        if (l) attrs.set(a.name, span(l.startOffset, l.endOffset));
+        // 键用 DOM 中的限定名（`xlink:href`、SVG 校正大小写后的 `viewBox`）；parse5 的位置表按原文小写名索引。
+        const name = a.prefix ? `${a.prefix}:${a.name}` : a.name;
+        const l = loc.attrs[name] ?? loc.attrs[name.toLowerCase()];
+        if (l) attrs.set(name, span(l.startOffset, l.endOffset));
       }
     const startTag = toSpan(loc?.startTag);
     const endTag = toSpan(loc?.endTag);

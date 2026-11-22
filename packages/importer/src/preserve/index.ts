@@ -7,3 +7,4 @@ export * from './span-index.js';
 export * from './patch.js';
 export * from './mount.js';
 export * from './edit.js';
+export * from './history.js';
