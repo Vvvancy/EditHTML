@@ -52,7 +52,10 @@ export interface InlineAtom {
   readonly t: 'atom';
   /** `data-eh-inline` 的值，如 `math` / `wikilink` / `tag`。 */
   readonly kind: string;
-  /** 除 `data-eh-inline` 以外的 `data-eh-*` 属性（不含前缀 `data-eh-`）。 */
+  /**
+   * 除 `data-eh-inline` 以外的 `data-eh-*` 属性（不含前缀 `data-eh-`）。
+   * 键 `inline` 保留（与 `data-eh-inline` 冲突，序列化时忽略）；键须是合法的 HTML 属性名片段。
+   */
   readonly attrs: Readonly<Record<string, string>>;
   /** 元素的文本内容（如 TeX 源码、链接目标）。 */
   readonly text: string;

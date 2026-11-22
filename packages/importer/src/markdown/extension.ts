@@ -10,7 +10,7 @@
  * - `![[…]]`：单独成段时，图片 → `figure {src, alt, width?, height?, syntax: 'wikilink'}`，其他 → `note-embed`
  *   组件；段落中间的 → `embed` 原子；
  * - 脚注 `[^x]` → `footnote` 原子 `{label}`；脚注定义 → `footnote {label}` 容器；行内脚注 `^[…]` →
- *   `footnote` 原子 `{inline: 'true'}`；
+ *   `footnote` 原子 `{form: 'inline'}`；
  * - `%%注释%%` → 段落中：`comment` 原子；单独成段 / 跨段：`markdown {source}` 组件（`attrs.syntax = 'comment'`）；
  *   链接定义 `[x]: url` 同样保留为 `markdown` 组件（`syntax = 'definition'`）；
  * - HTML 中成对、但被空行分到不同 mdast 节点的 `<details>…</details>` → `toggle`；
@@ -394,7 +394,7 @@ const inlineHandlers: Record<string, InlineHandler> = {
     return atom('footnote', { label }, label, marks);
   },
   obsInlineFootnote: (n, marks) =>
-    n.type === 'obsInlineFootnote' ? atom('footnote', { inline: 'true' }, n.value, marks) : undefined,
+    n.type === 'obsInlineFootnote' ? atom('footnote', { form: 'inline' }, n.value, marks) : undefined,
   obsComment: (n, marks) => (n.type === 'obsComment' ? atom('comment', {}, n.value, marks) : undefined),
   inlineMath: (n, marks, ctx) => {
     if ((n.type as string) !== 'inlineMath') return undefined;
@@ -449,7 +449,7 @@ export const obsidianAtom: AtomSerializer = (a: InlineAtom, ctx, prev, next) => 
       return display ? `$$${t}$$` : `$${t}$`;
     }
     case 'footnote': {
-      if (a.attrs.inline === 'true' && Object.keys(a.attrs).length === 1) {
+      if (a.attrs.form === 'inline' && Object.keys(a.attrs).length === 1) {
         if (t === '' || /[\n\r]/.test(t) || !balanced(t) || t.endsWith('\\') || (ctx.table && t.includes('|')))
           return undefined;
         return `^[${t}]`;
@@ -457,6 +457,8 @@ export const obsidianAtom: AtomSerializer = (a: InlineAtom, ctx, prev, next) => 
       const label = a.attrs.label;
       if (label === undefined || Object.keys(a.attrs).length !== 1 || t !== label) return undefined;
       if (!/^[^\s[\]\\^]+$/.test(label) || (ctx.table && label.includes('|'))) return undefined;
+      // `[^1]` 紧跟 `:` 时，在行首会被读成脚注定义 `[^1]:` —— 退回 span 写法。
+      if (edgeFirst(next) === ':') return undefined;
       return `[^${label}]`;
     }
     case 'comment': {
@@ -498,7 +500,8 @@ function spanAtom(a: InlineAtom, ctx: { readonly table?: boolean }): string {
 /** Obsidian 新增的行内语法需要的额外转义：`%%`（注释）、`^[`（行内脚注）。 */
 export const obsidianEscape: EscapeHook = (c, prev, next) => {
   if (c === '%') return prev === '%' || next === '%' || next === undefined || prev === undefined;
-  if (c === '^') return next === '[' || next === undefined;
+  // `^[` 是行内脚注；`[^` 是脚注引用/定义（`[^1]`、行首 `[^1]:`），字面文本必须转义，否则再导入会变成脚注。
+  if (c === '^') return next === '[' || next === undefined || prev === '[';
   return false;
 };
 

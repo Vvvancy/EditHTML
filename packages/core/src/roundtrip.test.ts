@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { docToComparable } from './model.js';
+import { createDoc, docToComparable, textBlock, type Block, type Doc } from './model.js';
 import { parse } from './parse/index.js';
 import { serialize } from './serialize/index.js';
 import { arbDoc } from './testing/arbitraries.js';
@@ -103,6 +103,37 @@ describe('parse ∘ serialize round-trip', () => {
         expect(fmt(once)).toBe(once);
       }),
       { numRuns: 2000 },
+    );
+  });
+});
+
+/** 给随机文档中的文本块加上任意附加属性（模拟导入器写入的 `md-id`、`syntax` 等）。 */
+const EXTRA: Record<string, string>[] = [
+  {},
+  { 'md-id': 'goal-1' },
+  { syntax: 'wikilink', width: '200' },
+  { class: 'x y', 'data-x': '"q" & <a>' },
+];
+const withExtraAttrs = (doc: Doc, picks: readonly number[]): Doc => {
+  let i = 0;
+  const blocks: Block[] = [...doc.blocks.values()].map((b) => {
+    if (b.kind !== 'text') return b;
+    const extra = EXTRA[(picks[i++ % picks.length] ?? 0) % EXTRA.length] as Record<string, string>;
+    return textBlock(b.id, b.type, b.content, { ...extra, ...b.attrs }, b.table);
+  });
+  return createDoc(blocks, { root: [...doc.root], meta: doc.meta, head: doc.head });
+};
+
+describe('extra attributes on every text block survive .ehtml save/reload', () => {
+  it('docEquals(parse(serialize(doc)), doc) with random extra attrs', () => {
+    fc.assert(
+      fc.property(arbDoc(), fc.array(fc.nat(), { minLength: 1, maxLength: 40 }), (d, picks) => {
+        const doc = withExtraAttrs(d, picks);
+        const { doc: back, warnings } = parse(serialize(doc));
+        expect(warnings).toEqual([]);
+        expect(docToComparable(back)).toBe(docToComparable(doc));
+      }),
+      { numRuns: 300 },
     );
   });
 });

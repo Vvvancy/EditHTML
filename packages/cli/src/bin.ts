@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { ehmdMarkdown, run } from './index.js';
+import { obsidianMarkdown, run } from './index.js';
 
 const code = await run(process.argv.slice(2), {
   io: { out: (s) => process.stdout.write(s), err: (s) => process.stderr.write(s) },
-  markdown: ehmdMarkdown,
+  markdown: obsidianMarkdown,
 });
 process.exitCode = code;

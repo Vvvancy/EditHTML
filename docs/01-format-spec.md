@@ -239,6 +239,7 @@ v1 内置组件（详见 `packages/blocks/`）：
 **解析器的宽容规则**（非规范输入 → 规范模型）：
 - 标签名大小写不敏感；属性顺序、缩进、引号风格任意；
 - `b`→`strong`、`i`→`em`、`del`/`strike`→`s`；其他白名单外的行内元素去壳保留文本；文本块内的 `script`/`style` 丢弃；
+- 文本块上的附加 HTML 属性（除 `data-eh` 与 `on*`）原样进入 `attrs`，序列化时原样写回，保证模型中任意附加属性（如导入器写入的 `md-id`、`syntax`）在 `.ehtml` 往返中不丢失；只有与模型合成键冲突的属性名（`li` 的 `list`/`indent`/`task`、代码块的 `lang`、图片的 `src`/`alt`）被丢弃并告警；行内原子的属性键 `inline` 保留（与 `data-eh-inline` 冲突）；
 - `on*` 属性一律剔除；`javascript:`（忽略大小写与空白）链接去掉链接标记、保留文本；
 - 缺失或重复的块 ID 在扫描结束后按文档顺序用 `createIdGenerator` 重新分配（首次出现者保留原 ID）；
 - 没有 `main#eh-doc` 时解析 `body` 的子元素；

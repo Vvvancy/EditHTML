@@ -371,7 +371,7 @@ const commonmarkAtom: AtomSerializer = (a, ctx) => {
     case 'math':
       return codeSpan(a.attrs.display === 'block' ? `$$${a.text}$$` : `$${a.text}$`);
     case 'footnote':
-      if (a.attrs.inline === 'true') return text(`^[${a.text}]`);
+      if (a.attrs.form === 'inline') return text(`^[${a.text}]`);
       return a.attrs.label !== undefined && /^[^\s[\]\\^|]+$/.test(a.attrs.label)
         ? `[^${a.attrs.label}]`
         : text(a.text);

@@ -539,7 +539,7 @@ describe('lenient rules', () => {
     expect(only('<h1 data-eh="a">x</h2>')).toEqual(textBlock('a', 'h1', [text('x')]));
   });
 
-  it('keeps extra attributes on p/h/quote/hr (minus on*), drops them elsewhere', () => {
+  it('keeps extra attributes on every text block (minus on*); drops only names that collide with model keys', () => {
     expect(only('<p data-eh="a" class="x" onclick="y()" data-eh-k="v">y</p>')).toEqual(
       textBlock('a', 'p', [text('y')], { class: 'x', 'data-eh-k': 'v' }),
     );
@@ -547,9 +547,20 @@ describe('lenient rules', () => {
     expect(only('<blockquote data-eh="a" cite="u">q</blockquote>')).toEqual(
       textBlock('a', 'quote', [text('q')], { cite: 'u' }),
     );
-    const html = '<pre data-eh="a" class="x"><code>y</code></pre>';
+    expect(only('<pre data-eh="a" class="x" data-lang="ts"><code>y</code></pre>')).toEqual(
+      textBlock('a', 'code', [text('y')], { class: 'x', lang: 'ts' }),
+    );
+    expect(only('<ul><li data-eh="a" md-id="goal-1" data-eh-task="done">t</li></ul>')).toEqual(
+      textBlock('a', 'li', [text('t')], { 'md-id': 'goal-1', list: 'ul', indent: '0', task: 'done' }),
+    );
+    expect(only('<figure data-eh="a" syntax="wikilink"><img alt="" src="x.png"></figure>')).toEqual(
+      textBlock('a', 'figure', [], { syntax: 'wikilink', src: 'x.png', alt: '' }),
+    );
+    // names that collide with synthetic model keys cannot be kept unambiguously
+    const html = '<pre data-eh="a" lang="x"><code>y</code></pre>';
     expect(only(html)).toEqual(textBlock('a', 'code', [text('y')]));
     expect(codes(html)).toEqual(['dropped-attribute']);
+    expect(codes('<ul><li data-eh="a" indent="3">t</li></ul>')).toEqual(['dropped-attribute']);
   });
 });
 

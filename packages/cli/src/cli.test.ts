@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse, validateDoc } from '@edithtml/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { detectFormat, ehmdMarkdown, lineColumn, run } from './index.js';
+import { detectFormat, lineColumn, obsidianMarkdown, run } from './index.js';
 
 const FIX = join(__dirname, '../../../tests/fixtures');
 let dir: string;
@@ -11,7 +11,7 @@ let out: string;
 let err: string;
 
 const eh = (...argv: string[]): Promise<number> =>
-  run(argv, { io: { out: (s) => (out += s), err: (s) => (err += s) }, markdown: ehmdMarkdown, cwd: dir });
+  run(argv, { io: { out: (s) => (out += s), err: (s) => (err += s) }, markdown: obsidianMarkdown, cwd: dir });
 
 beforeEach(async () => {
   dir = await mkdtemp(join(tmpdir(), 'eh-cli-'));
@@ -136,4 +136,22 @@ describe('eh convert', () => {
       expect(validateDoc(doc)).toEqual([]);
     }
   });
+
+  it('round-trips the whole Obsidian vault byte-for-byte through .eh.html files (md → eh.html → md)', async () => {
+    // Raw HTML.md 含 onclick / javascript: —— 按安全规则（01 §9）剔除，不能逐字节往返（见 obsidian/EXPECTED.md）。
+    const SANITIZED = new Set(['notes/Raw HTML.md']);
+    await cp(join(FIX, 'obsidian/vault'), join(dir, 'vault'), { recursive: true });
+    expect(await eh('convert', 'vault', '-o', 'eh')).toBe(0);
+    expect(await eh('convert', 'eh', '--to', 'md', '-o', 'back')).toBe(0);
+    const notes = (await readdir(join(dir, 'vault'), { recursive: true })).filter(
+      (f) => f.endsWith('.md') && !f.startsWith('.'),
+    );
+    expect(notes.length).toBeGreaterThanOrEqual(16);
+    for (const f of notes) {
+      const original = await readFile(join(dir, 'vault', f), 'utf8');
+      const back = await readFile(join(dir, 'back', f), 'utf8');
+      if (SANITIZED.has(f)) expect(back).not.toMatch(/onclick=|javascript:/);
+      else expect(back, f).toBe(original);
+    }
+  }, 60_000);
 });

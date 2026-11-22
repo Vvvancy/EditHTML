@@ -5,9 +5,9 @@
 <br>
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Vvvancy/EditHTML/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Vvvancy/EditHTML/actions/workflows/ci.yml)
-![Status](https://img.shields.io/badge/status-M1_核心读写-8b5cf6?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-M2_保真模式-8b5cf6?style=for-the-badge)
 ![Spec](https://img.shields.io/badge/spec-v0.1-ec4899?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-433_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-530_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646cff?style=flat-square&logo=vite&logoColor=white)
@@ -178,6 +178,7 @@ data: { x: [线性, 二分], y: [1000000, 20] }
 | 序列化 10,000 块 | < 50 ms | **≈ 18–40 ms** |
 | 单次文本编辑事务（10,000 块文档） | < 16 ms | **≈ 0.8 ms** |
 | `parse ∘ serialize` 往返 | 无损 + 幂等 | ✅ 随机文档 + 9 万次乱序标签模糊测试 |
+| Obsidian 库 `md → .eh.html → md` | 逐字节一致 | ✅ 16 篇中 15 篇逐字节一致（另 1 篇按安全规则剔除 `onclick`） |
 
 ## 🚀 本地开发
 
@@ -216,7 +217,7 @@ await writeFile(path, serialize(next)); // 规范形式，diff 干净
 | 里程碑 | 内容 | 进度 |
 | :-- | :-- | :-- |
 | **M0** 工程脚手架 | monorepo ✅ · CI ✅ · 测试样本 ✅（ehtml · md · html · Obsidian 库，共 80+） | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
-| **M1** 核心格式 + Markdown 导入 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销重做 ✅ · EHMD ✅ · Markdown 导入器 · CLI | ![](https://img.shields.io/badge/-75%25-8b5cf6?style=flat-square) |
+| **M1** 核心格式 + Markdown 导入 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销重做 ✅ · EHMD ✅ · Markdown/Obsidian 导入器 ✅ · CLI ✅ | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
 | **M2** 保真模式 ⭐ | 任意 HTML 就地编辑：源码区间索引 · 补丁引擎 · 区域源码编辑 · 写回（**第一个可用版本**） | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
 | **M3** 原生编辑器 MVP | 增量渲染 · ProseMirror 编辑器 · 输入规则 · 斜杠菜单 · 组件 · `eh-html` 块 · 运行时 · 主题 · 粘贴 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
 | **M4** HTML 转换 + 富组件 + 性能 | HTML → 原生块 · 图表 · 容器块 · 沙箱脚本 · 懒渲染 · 虚拟化 · 增量保存 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |

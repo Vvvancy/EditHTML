@@ -264,7 +264,7 @@ function buildReport(
           blockId,
         });
       } else if (n.kind === 'comment') preserved.push({ kind: 'inline-comment', blockId, text: n.text });
-      else if (n.kind === 'footnote' && n.attrs.inline === 'true')
+      else if (n.kind === 'footnote' && n.attrs.form === 'inline')
         preserved.push({ kind: 'inline-footnote', blockId, text: n.text });
     }
   };

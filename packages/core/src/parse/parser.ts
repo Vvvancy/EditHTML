@@ -366,13 +366,26 @@ class Parser {
     return out ?? (tok.attrs as Attr[]);
   }
 
-  /** 文本块：只保留规范允许的属性，其余丢弃并告警。 */
-  private checkTextAttrs(tok: StartTagToken, allowed: readonly string[]): Attr[] {
+  /**
+   * li / pre / table / figure：`structural` 是由解析器专门处理的 HTML 属性（如 `data-lang`），
+   * 其余属性（除 `data-eh` 与 `on*`）原样存入返回的 `extra`，与序列化器把未知键写回为 HTML 属性对称，
+   * 保证模型中的任意附加属性在 `.ehtml` 往返中不丢失。名字与模型合成键（`reserved`，如 `lang`、
+   * `list`/`indent`/`task`、`src`/`alt`）冲突的属性无法无歧义地保留，丢弃并告警。
+   */
+  private textAttrs(
+    tok: StartTagToken,
+    structural: readonly string[],
+    reserved: readonly string[],
+  ): { attrs: Attr[]; extra: Record<string, string> } {
     const attrs = this.safeAttrs(tok);
-    for (const a of attrs)
-      if (a.name !== 'data-eh' && !allowed.includes(a.name))
+    const extra: Record<string, string> = {};
+    for (const a of attrs) {
+      if (a.name === 'data-eh' || structural.includes(a.name)) continue;
+      if (reserved.includes(a.name))
         this.warn('dropped-attribute', `dropped attribute ${a.name} on <${tok.name}>`, tok.start);
-    return attrs;
+      else extra[a.name] = a.value;
+    }
+    return { attrs, extra };
   }
 
   /**
@@ -766,7 +779,7 @@ class Parser {
   }
 
   private codeBlock(t: StartTagToken, seq: Pending[]): void {
-    const attrs = this.checkTextAttrs(t, ['data-lang']);
+    const { attrs, extra } = this.textAttrs(t, ['data-lang'], ['lang']);
     let lang = getAttr(attrs, 'data-lang');
     const rec = this.add<PendingText>(seq, this.text(t, 'code', {}));
     let out = '';
@@ -816,7 +829,7 @@ class Parser {
     if (tail.trim() !== '') out += tail;
     // 无 <code> 时按 HTML 规范去掉紧跟 <pre> 的一个换行
     if (!sawCode && out.startsWith('\n')) out = out.slice(1);
-    if (lang) rec.attrs = { lang };
+    rec.attrs = lang ? { ...extra, lang } : extra;
     rec.content = out === '' ? [] : [{ t: 'text', text: out, marks: [] }];
   }
 
@@ -867,7 +880,7 @@ class Parser {
   }
 
   private listItem(t: StartTagToken, list: 'ul' | 'ol', indent: number, seq: Pending[]): void {
-    const attrs = this.checkTextAttrs(t, ['data-eh-task']);
+    const { attrs, extra } = this.textAttrs(t, ['data-eh-task'], ['list', 'indent', 'task']);
     const rec = this.add<PendingText>(seq, this.text(t, 'li', {}));
     let task: 'done' | 'todo' | undefined;
     const rawTask = getAttr(attrs, 'data-eh-task');
@@ -894,15 +907,15 @@ class Parser {
       this.list(lt, indent + 1, seq);
     }
     this.open.pop();
-    rec.attrs = { list, indent: String(indent), ...(task ? { task } : {}) };
+    rec.attrs = { ...extra, list, indent: String(indent), ...(task ? { task } : {}) };
     rec.content = content;
   }
 
   // ── 表格 ──
 
   private table(t: StartTagToken, seq: Pending[]): void {
-    this.checkTextAttrs(t, []);
-    const rec = this.add<PendingText>(seq, this.text(t, 'table', {}));
+    const { extra } = this.textAttrs(t, [], []);
+    const rec = this.add<PendingText>(seq, this.text(t, 'table', extra));
     this.open.push('table');
     interface Row {
       cells: { content: InlineNode[]; align: CellAlign; th: boolean }[];
@@ -1036,7 +1049,7 @@ class Parser {
   // ── 图片 ──
 
   private figure(t: StartTagToken, seq: Pending[]): void {
-    this.checkTextAttrs(t, []);
+    const { extra } = this.textAttrs(t, [], ['src', 'alt']);
     const rec = this.add<PendingText>(seq, this.text(t, 'figure', {}));
     this.open.push('figure');
     let img: Attr[] | null = null;
@@ -1085,7 +1098,7 @@ class Parser {
     }
     this.open.pop();
     if (img === null) throw new AbortToHtml();
-    const attrs: Record<string, string> = {};
+    const attrs: Record<string, string> = { ...extra };
     const src = getAttr(img, 'src');
     const alt = getAttr(img, 'alt');
     if (src !== undefined) attrs.src = src;

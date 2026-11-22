@@ -232,6 +232,9 @@ importers:
       '@edithtml/core':
         specifier: workspace:*
         version: link:../core
+      '@edithtml/importer':
+        specifier: workspace:*
+        version: link:../importer
 
   packages/core:
     dependencies:

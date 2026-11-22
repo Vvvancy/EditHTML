@@ -285,7 +285,7 @@ describe('06 §5 row 10: ==highlight== and footnotes', () => {
     const p = getBlock(doc, doc.root[0] as string);
     expect(atoms(p)).toEqual([
       { t: 'atom', kind: 'footnote', attrs: { label: '1' }, text: '1', marks: [] },
-      { t: 'atom', kind: 'footnote', attrs: { inline: 'true' }, text: '脚注', marks: [] },
+      { t: 'atom', kind: 'footnote', attrs: { form: 'inline' }, text: '脚注', marks: [] },
     ]);
     expect(tree(doc).slice(1)).toEqual([
       {
@@ -454,5 +454,14 @@ describe('conversion report', () => {
     expect(r.report.dropped).toEqual([]);
     expect(r.report.lossy.map((l) => l.code)).toEqual(['dropped-content']);
     expect(r.report.verbatimSegments).toBe(1);
+  });
+});
+
+describe('literal footnote-like text', () => {
+  it('escapes [^ so plain text never turns into a footnote reference or definition', () => {
+    for (const src of ['\\[^1]: >a', 'see \\[^1] here', '<b>[^1]: >a\n[^1]: ']) {
+      const once = exportMarkdown(importMarkdown(src).doc, { verbatim: false });
+      expect(exportMarkdown(importMarkdown(once).doc, { verbatim: false })).toBe(once);
+    }
   });
 });
