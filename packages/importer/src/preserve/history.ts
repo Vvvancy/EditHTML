@@ -82,6 +82,8 @@ interface ChildOp {
   readonly added: readonly Node[];
   readonly removed: readonly Node[];
   readonly next: Node | null;
+  /** 回放之后调用（`forward` 为真表示重做方向）；区域源码替换（T2.5）据此切换替换记录的生效状态。 */
+  readonly after?: (forward: boolean) => void;
 }
 
 /** 一个可逆的 DOM 操作。 */
@@ -131,6 +133,15 @@ export interface PreserveHistory {
   checkpoint(): void;
   /** 清空历史。 */
   clear(): void;
+  /**
+   * 直接压入一项由调用方构造的操作（不经变动记录翻译），并断开输入组。用于整段替换这类
+   * 需要精确控制「移除了哪些节点、插入了哪些节点」的命令（T2.5）；配合 {@link silently} 使用。
+   */
+  push(ops: readonly DomOp[]): void;
+  /** 在 `fn` 期间收到的变动记录一律不记入历史（调用方随后用 {@link push} 记一项）。 */
+  silently<T>(fn: () => T): T;
+  /** 丢弃 redo 栈顶的一项（撤销「预览」之后不应还能重做它）。 */
+  discardRedo(): void;
   readonly undoDepth: number;
   readonly redoDepth: number;
   /** 移除事件监听。 */
@@ -168,6 +179,7 @@ function apply(op: DomOp, forward: boolean): void {
       for (const n of out) if (n.parentNode === op.parent) op.parent.removeChild(n);
       const ref = refIn(op.parent, op.next);
       for (const n of into) op.parent.insertBefore(n, ref);
+      op.after?.(forward);
       return;
     }
   }
@@ -383,6 +395,25 @@ export function createPreserveHistory(
       stack.clear();
       broken = true;
       changed();
+    },
+    push(ops) {
+      mount.flush();
+      if (ops.length === 0) return;
+      stack.push({ ops, size: sizeOf(ops), group: null, composition: false });
+      broken = true;
+      changed();
+    },
+    silently<T>(fn: () => T): T {
+      const was = replaying;
+      replaying = true;
+      try {
+        return fn();
+      } finally {
+        replaying = was;
+      }
+    },
+    discardRedo() {
+      if (stack.popRedo()) changed();
     },
     get undoDepth() {
       return stack.undoDepth;

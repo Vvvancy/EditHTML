@@ -178,7 +178,10 @@ export class PreserveController<S extends PreserveSessionLike> {
     session.close();
     this.#session = null;
     for (const c of containers) c.normalize();
-    const next = this.options.open(doc, text, { onUserEdit: () => this.#edited() });
+    const next = this.options.open(doc, text, {
+      onUserEdit: () => this.#edited(),
+      unpairedMadeByScript: this.#scripts === 'running',
+    });
     if (doc.querySelectorAll(`[${GENERATED}]`).length <= before) {
       this.#session = next;
       return;

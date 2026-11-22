@@ -1,9 +1,10 @@
 /**
- * apps/web 最小页面（T2.7）：打开任意 `.html` → 保真模式编辑 → 保存写回。
+ * apps/web 最小页面（T2.7）：打开任意 `.html` → 保真模式编辑 → 保存写回；区域源码弹层（T2.5）。
  * 逻辑都在 `@edithtml/runtime`，这里只有界面接线。
  */
 import { canPickWithHandle, pickWithHandle, readDropped, readFile, type OpenedFile } from '@edithtml/runtime';
 import { createOpener } from './opener.js';
+import { bindSourcePopover } from './source-editor.js';
 import './style.css';
 
 const $ = <T extends HTMLElement>(id: string): T => {
@@ -35,7 +36,14 @@ const opener = createOpener(stage, {
   },
 });
 
+// 区域源码弹层（T2.5）：悬停区域时在宿主页面显示「编辑 HTML 源码」，CodeMirror 按需加载。
+const sourcePopover = bindSourcePopover(opener, stage, () => {
+  opener.refreshDirty();
+  render();
+});
+
 function render(): void {
+  sourcePopover.sync();
   const file = opener.file;
   nameEl.textContent = file ? file.name : '未打开文件';
   nameEl.title = file ? `${file.name}${file.handle ? '' : '（保存时将下载新文件）'}` : '';

@@ -10,7 +10,7 @@
  *
  * @module
  */
-import { parse } from 'parse5';
+import { defaultTreeAdapter, parse, parseFragment } from 'parse5';
 import type { DefaultTreeAdapterMap } from 'parse5';
 
 type P5Node = DefaultTreeAdapterMap['node'];
@@ -140,7 +140,31 @@ function childNodesOf(n: P5Node): readonly P5Node[] {
  * @param source 原文（不做任何预处理）。
  */
 export function buildSpanIndex(source: string): SpanIndex {
-  const ast = parse(source, { sourceCodeLocationInfo: true });
+  return indexTree(source, parse(source, { sourceCodeLocationInfo: true }));
+}
+
+/** parse5 的片段树（{@link buildFragmentIndex} 的结果之一，供调用方按树搭建 DOM）。 */
+export type FragmentTree = DefaultTreeAdapterMap['documentFragment'];
+
+/** {@link buildFragmentIndex} 的结果。 */
+export interface FragmentIndex {
+  /** 区间均相对片段原文；根为 `kind: 'document'`，区间为整个片段 `[0, html.length)`。 */
+  readonly index: SpanIndex;
+  readonly tree: FragmentTree;
+}
+
+/**
+ * 按 HTML 片段解析算法（与 `innerHTML` 相同）在给定上下文元素中解析 `html`，并建立区间索引（T2.5 区域源码编辑）。
+ *
+ * @param context 上下文元素的小写标签名与命名空间（如 `{ tag: 'body', namespace: HTML_NS }`）。
+ */
+export function buildFragmentIndex(html: string, context: { tag: string; namespace: string }): FragmentIndex {
+  const ctx = defaultTreeAdapter.createElement(context.tag, context.namespace as P5Element['namespaceURI'], []);
+  const tree = parseFragment(ctx, html, { sourceCodeLocationInfo: true });
+  return { index: indexTree(html, tree), tree };
+}
+
+function indexTree(source: string, ast: P5Node): SpanIndex {
   const nodes: SpanNode[] = [];
 
   const visit = (n: P5Node, parent: ElementSpan | DocumentSpan, path: number[]): SpanNode | null => {
