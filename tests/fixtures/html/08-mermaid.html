@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>系统架构</title>
+<script type="module">
+  import mermaid from './vendor/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+</head>
+<body>
+<h1>系统架构</h1>
+<p>请求链路：</p>
+<pre class="mermaid">
+flowchart LR
+    U[用户] --> G{网关}
+    G -->|/api| S[服务]
+    G -->|/static| C[(CDN)]
+    S --> D[(数据库)]
+</pre>
+
+<p>登录时序（用 <code>div.mermaid</code> 写的）：</p>
+<div class="mermaid">
+sequenceDiagram
+    participant B as 浏览器
+    participant A as 认证服务
+    B->>A: POST /login
+    A-->>B: 200 Set-Cookie
+</div>
+
+<p>从 Markdown 渲染器输出的围栏代码块（尚未被 mermaid.js 处理）：</p>
+<pre><code class="language-mermaid">stateDiagram-v2
+    [*] --> 草稿
+    草稿 --> 已发布: publish()
+    已发布 --> [*]
+</code></pre>
+
+<p>已经被 mermaid.js 渲染过、只剩 SVG 的图（保存网页时常见）：</p>
+<pre class="mermaid" data-processed="true"><svg aria-roledescription="flowchart-v2" role="graphics-document document" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg" id="mermaid-1"><g><rect width="40" height="20" x="0" y="10"></rect><text x="5" y="24">A</text><rect width="40" height="20" x="60" y="10"></rect><text x="65" y="24">B</text></g></svg></pre>
+</body>
+</html>

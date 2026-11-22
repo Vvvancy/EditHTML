@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>表格合集</title>
+<style>table { border-collapse: collapse; } td, th { border: 1px solid #999; padding: 4px 8px; }</style>
+</head>
+<body>
+<h1>表格合集</h1>
+
+<h2>1. 简单表格（可原生化）</h2>
+<table>
+  <thead>
+    <tr><th>语言</th><th style="text-align:center">年份</th><th align="right">流行度</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Rust</strong></td><td style="text-align:center">2015</td><td align="right">87%</td></tr>
+    <tr><td>Go</td><td style="text-align:center">2012</td><td align="right">62%</td></tr>
+  </tbody>
+</table>
+
+<h2>2. 没有 thead，第一行是 th</h2>
+<table>
+<tr><th>键</th><th>值</th></tr>
+<tr><td>a | b</td><td></td></tr>
+</table>
+
+<h2>3. colspan / rowspan</h2>
+<table>
+  <thead>
+    <tr><th rowspan="2">季度</th><th colspan="2">收入（万元）</th></tr>
+    <tr><th>国内</th><th>海外</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Q1</td><td>120</td><td>30</td></tr>
+    <tr><td>Q2</td><td colspan="2">合计 170（未拆分）</td></tr>
+  </tbody>
+</table>
+
+<h2>4. caption、tfoot、colgroup</h2>
+<table>
+  <caption>表 4：月度预算</caption>
+  <colgroup><col style="width:60%"><col></colgroup>
+  <thead><tr><th>项目</th><th>金额</th></tr></thead>
+  <tbody><tr><td>房租</td><td>4500</td></tr><tr><td>伙食</td><td>2000</td></tr></tbody>
+  <tfoot><tr><td>合计</td><td>6500</td></tr></tfoot>
+</table>
+
+<h2>5. 单元格中有块级内容</h2>
+<table>
+  <tr><th>步骤</th><th>说明</th></tr>
+  <tr><td>1</td><td><p>第一段</p><ul><li>子项 A</li><li>子项 B</li></ul></td></tr>
+  <tr><td>2</td><td><pre>code
+block</pre></td></tr>
+</table>
+
+<h2>6. 布局表格（老式网页）</h2>
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="200" valign="top"><b>菜单</b><br><a href="a.html">页面 A</a><br><a href="b.html">页面 B</a></td>
+    <td valign="top"><table><tr><td>嵌套表格</td></tr></table></td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>部署手册</title>
+<style>
+  .callout { border-left: 4px solid #3b82f6; padding: .5em 1em; background: #eff6ff; }
+  .callout-warning { border-color: #f59e0b; background: #fffbeb; }
+  .alert { padding: 1em; border-radius: 6px; }
+  .alert-danger { background: #fee2e2; }
+  .admonition { border: 1px solid #ddd; }
+  .admonition-title { font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>部署手册</h1>
+
+<details>
+  <summary>前置条件（点击展开）</summary>
+  <ul>
+    <li>Node.js ≥ 20</li>
+    <li>已配置 <code>DEPLOY_TOKEN</code></li>
+  </ul>
+</details>
+
+<details open>
+<summary><strong>常见问题</strong>：构建失败怎么办？</summary>
+<p>先清缓存：</p>
+<pre><code class="language-bash">rm -rf node_modules/.cache
+npm run build</code></pre>
+<details>
+  <summary>还是失败？</summary>
+  <p>检查 Node 版本。</p>
+</details>
+</details>
+
+<details><p>没有 summary 的 details（浏览器会显示默认的“详情”）。</p></details>
+
+<div class="callout">
+  <p><strong>提示</strong> 部署窗口为每周二 14:00–16:00。</p>
+</div>
+
+<div class="callout callout-warning">
+  <div class="callout-title">注意</div>
+  <p>不要在周五下午部署。</p>
+</div>
+
+<div class="alert alert-danger" role="alert">
+  <h4 class="alert-heading">危险操作</h4>
+  <p><code>--force</code> 会覆盖生产数据库。</p>
+</div>
+
+<div class="admonition tip">
+  <p class="admonition-title">技巧</p>
+  <p>用 <kbd>Ctrl</kbd>+<kbd>R</kbd> 搜索历史命令。</p>
+</div>
+
+<aside class="note">
+  这是一个用 <code>aside.note</code> 写的旁注，没有段落标签。
+</aside>
+
+<div class="admonition">
+  <p class="admonition-title">没有类型的 admonition</p>
+  <p>只有标题。</p>
+</div>
+
+<div class="callout-container">
+  <p>class 名只是包含 "callout" 子串，不是提示框。</p>
+</div>
+</body>
+</html>

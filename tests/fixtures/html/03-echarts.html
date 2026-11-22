@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>周报：站点访问量</title>
+  <script src="./vendor/echarts.min.js"></script>
+  <style>
+    .chart { width: 100%; height: 360px; }
+  </style>
+</head>
+<body>
+  <h1>第 47 周访问量</h1>
+  <p>本周 PV 在周三达到峰值，周末回落。</p>
+
+  <div id="pv-chart" class="chart"></div>
+  <script>
+    echarts.init(document.getElementById('pv-chart')).setOption({
+      title: { text: '每日 PV' },
+      tooltip: { trigger: 'axis' },
+      xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] },
+      yAxis: { type: 'value' },
+      series: [{ name: 'PV', type: 'line', smooth: true, data: [820, 932, 1290, 1130, 990, 610, 540] }]
+    });
+  </script>
+
+  <h2>来源构成</h2>
+  <div id="source-chart" style="width:480px;height:320px"></div>
+  <script>
+    var sourceChart = echarts.init(document.getElementById('source-chart'));
+    var option = {
+      series: [{
+        type: 'pie',
+        radius: '60%',
+        data: [
+          { value: 1048, name: '搜索引擎' },
+          { value: 735, name: '直接访问' },
+          { value: 580, name: '邮件' },
+          { value: 300, name: '社交媒体' }
+        ]
+      }]
+    };
+    sourceChart.setOption(option);
+  </script>
+
+  <h2>每小时热力（数据由代码生成）</h2>
+  <div id="heat"></div>
+  <script>
+    // 无法静态识别：数据在运行时计算，且使用了 ECharts 的 heatmap 类型
+    const hours = Array.from({ length: 24 }, (_, i) => i + '时');
+    const days = ['一', '二', '三', '四', '五', '六', '日'];
+    const data = [];
+    for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) data.push([h, d, Math.round(Math.sin(h / 3) * 50 + 50)]);
+    const heat = document.getElementById('heat');
+    heat.style.height = '300px';
+    echarts.init(heat).setOption({
+      xAxis: { type: 'category', data: hours },
+      yAxis: { type: 'category', data: days },
+      visualMap: { min: 0, max: 100 },
+      series: [{ type: 'heatmap', data }]
+    });
+  </script>
+
+  <p>数据来源：内部统计，已脱敏。</p>
+</body>
+</html>
