@@ -74,6 +74,16 @@ describe('openPreserve: edit → patch', () => {
     expect(s.save()).toBe(src);
   });
 
+  it.each(fixtures)(
+    '%s: touching every element (incl. body, tables, svg) without changing it → byte-identical',
+    (_n, src) => {
+      const s = open(src);
+      for (const el of Array.from(document.querySelectorAll('*'))) s.touch(el);
+      expect(s.patches()).toEqual([]);
+      expect(s.save()).toBe(src);
+    },
+  );
+
   it.each(fixtures)('%s: changing one character changes exactly one line', (_n, src) => {
     const s = open(src);
     const c = s.mount.containers()[0];

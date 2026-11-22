@@ -57,7 +57,8 @@ describe('buildSpanIndex', () => {
         expect(src.slice(n.endTag.start, n.endTag.end).toLowerCase().replace(/\s+/g, '')).toBe(`</${n.tag}>`);
         expect(n.endTag.end).toBe(n.span.end);
       }
-      for (const [name, a] of n.attrs) expect(src.slice(a.start, a.end).toLowerCase().startsWith(name)).toBe(true);
+      for (const [name, a] of n.attrs)
+        expect(src.slice(a.start, a.end).toLowerCase().startsWith(name.toLowerCase())).toBe(true);
       // `</body>` 之后的空白按规范会被追加进 body，所以 html/body 的子节点可能越过其结束标签。
       if (n.inner && n.tag !== 'html' && n.tag !== 'body')
         for (const c of n.children)

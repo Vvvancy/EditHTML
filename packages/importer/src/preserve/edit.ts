@@ -23,12 +23,19 @@
  * 补丁同样由父元素的混合序列化得出。
  *
  * 一个会话对应一份原文：{@link PreserveSession.save} 返回新文本，但不会把会话变基到新文本上——
- * 打开器（T2.7）写回后用新文本重新打开；补丁层撤销重做见 T2.6。
+ * 打开器（T2.7）写回后用新文本重新打开。
+ *
+ * ## 撤销重做（T2.6）
+ *
+ * 会话自带 {@link PreserveHistory}（见 `history.ts`）：挂载层把判定为用户编辑的变动记录转发给它，
+ * 它记录可逆的 DOM 操作（保留原节点对象，配对不丢），{@link PreserveSession.undo} 撤销到底时
+ * `patches()` 为空、`save() === source`。
  *
  * @module
  */
 import { decodeHTML, decodeHTMLAttribute } from 'entities/decode';
-import { mountPreserve, type MountOptions, type PreserveMount } from './mount.js';
+import { STYLE_ATTR, mountPreserve, type MountOptions, type PreserveMount } from './mount.js';
+import { createPreserveHistory, type PreserveHistory, type PreserveHistoryOptions } from './history.js';
 import { applyPatches, type Patch } from './patch.js';
 import {
   RAW_TEXT_TAGS,
@@ -68,6 +75,8 @@ export interface PreserveOptions extends Omit<MountOptions, 'onUserEdit'> {
   onUserEdit?: (container: HTMLElement) => void;
   /** 插入文本中的换行写成什么；默认 `auto`：原文以 CRLF 为主则用 `\r\n`。 */
   lineEnding?: 'auto' | '\n' | '\r\n';
+  /** 撤销重做的选项（合并时间窗、上限、时钟、变化回调）。 */
+  history?: PreserveHistoryOptions;
 }
 
 /** 保真编辑会话。 */
@@ -89,6 +98,16 @@ export interface PreserveSession {
   remove(el: Element): void;
   /** 卸载挂载层。 */
   close(): void;
+  /** 补丁层撤销重做（T2.6）。 */
+  readonly history: PreserveHistory;
+  /** 撤销一步（同 `history.undo()`）；没有可撤销的返回 `false`。 */
+  undo(): boolean;
+  /** 重做一步（同 `history.redo()`）；没有可重做的返回 `false`。 */
+  redo(): boolean;
+  canUndo(): boolean;
+  canRedo(): boolean;
+  /** 断开输入组，之后的编辑开始新的一步（工具栏命令前后调用）。 */
+  checkpoint(): void;
 }
 
 const nameOf = (el: Element): string => (el.namespaceURI === HTML_NS ? el.tagName.toLowerCase() : el.localName);
@@ -181,14 +200,35 @@ export function openPreserve(doc: Document, source: string, options: PreserveOpt
     if (el) dirty.push(el);
   };
 
+  /** 历史层在挂载之后才建立；挂载层的转发回调经由这里找到它。 */
+  const late: { history?: PreserveHistory } = {};
   const mount = mountPreserve(doc, index, {
     ...options,
+    onUserMutations(records) {
+      for (const r of records) touch(r.target); // 编辑器命令改属性/结构时也无需手动 touch
+      late.history?.record(records);
+      options.onUserMutations?.(records);
+    },
     onUserEdit(c) {
       dirty.push(c);
       options.onUserEdit?.(c);
     },
   });
   const raw = (s: { start: number; end: number }): string => source.slice(s.start, s.end);
+  const hist = createPreserveHistory(
+    {
+      doc,
+      mount,
+      touch,
+      originalAttr(el, name) {
+        const s = mount.spanOf(el);
+        const sp = s?.kind === 'element' ? s.attrs.get(name) : undefined;
+        return sp ? attrValue(raw(sp)) : null;
+      },
+    },
+    options.history,
+  );
+  late.history = hist;
 
   // ---- 混合序列化 ----
 
@@ -300,8 +340,13 @@ export function openPreserve(doc: Document, source: string, options: PreserveOpt
     const s = mount.spanOf(n);
     if (n.nodeType === TEXT) {
       const data = (n as Text).data;
-      if (s?.kind === 'text' && s.span)
-        return data === s.value ? raw(s.span) : changedText({ ...s, span: s.span }, data);
+      if (s?.kind === 'text' && s.span) {
+        // `</body>` / `</html>` 之后的空白会被解析器并进 body 的最后一个文本：它的区间越过父元素的结束标签。
+        // 只输出父元素内容之内的那段，越出的原文由祖先结束标签之后的原文覆盖（否则会重复输出结束标签）。
+        const inner = s.parent?.kind === 'element' ? s.parent.inner : null;
+        const sp = inner && s.span.start < inner.end && s.span.end > inner.end ? { ...s.span, end: inner.end } : s.span;
+        return data === s.value ? raw(sp) : changedText({ ...s, span: sp }, data);
+      }
       const p = n.parentElement;
       return p && RAW_TEXT_TAGS.has(nameOf(p)) ? data : escapeText(fixNl(data));
     }
@@ -318,6 +363,9 @@ export function openPreserve(doc: Document, source: string, options: PreserveOpt
       if (s.startTag && !s.inner) return open; // 空元素
       return open + emitChildren(el, s) + (s.endTag ? raw(s.endTag) : '');
     }
+    if (!s && el.hasAttribute(STYLE_ATTR)) return ''; // 挂载层注入的样式
+    // 解析器补出的隐式元素（`<table>` 里的 `<tbody>` 等）：原文中没有它的标签，只输出子节点。
+    if (s?.kind === 'element' && !s.startTag && !s.endTag) return emitChildren(el, s);
     const open = `<${tag}${emitAttrs(el)}>`;
     if (VOID_TAGS.has(tag)) return open;
     return open + emitChildren(el, undefined) + `</${tag}>`;
@@ -402,6 +450,15 @@ export function openPreserve(doc: Document, source: string, options: PreserveOpt
       });
       touch(parent);
     },
-    close: () => mount.unmount(),
+    close: () => {
+      hist.dispose();
+      mount.unmount();
+    },
+    history: hist,
+    undo: () => hist.undo(),
+    redo: () => hist.redo(),
+    canUndo: () => hist.canUndo(),
+    canRedo: () => hist.canRedo(),
+    checkpoint: () => hist.checkpoint(),
   };
 }

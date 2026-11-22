@@ -55,7 +55,7 @@
 | T2.3 | 可编辑判定 + 挂载：为文本容器开启 contenteditable，WeakMap 映射 DOM → 区间；脚本生成的节点用 MutationObserver 识别并标灰 | `importer/src/preserve/mount.ts` | E2E：AI 生成的带 ECharts 页面中，正文可改、图表区标灰且不可改（目前为 happy-dom 模拟：离线无法加载 ECharts，用脚本函数往图表容器插入 canvas；真实浏览器 E2E 随 T2.7 补） | T2.1 | ✅ |
 | T2.4 | 编辑 → 补丁：容器内容变化时序列化片段生成补丁；结构操作（新增/删除段落）转插入/删除补丁并沿用兄弟缩进 | `importer/src/preserve/edit.ts` | 改一个字保存后 `git diff` 只有 1 行变化 | T2.2, T2.3 | ✅ |
 | T2.5 | 区域源码编辑器：任意元素"编辑 HTML 源码"弹层（CodeMirror），改的是对应区间 | `importer/src/preserve/source-popover.ts` | 修改后即时预览、保存正确 | T2.4 | ⬜ |
-| T2.6 | 撤销重做（补丁层），复用 T1.5 的历史框架 | — | 连续编辑后撤销到底 = 原文件字节 | T2.4, T1.5 | ⬜ |
+| T2.6 | 撤销重做（补丁层），复用 T1.5 的历史框架 | `importer/src/preserve/history.ts` | 连续编辑后撤销到底 = 原文件字节 | T2.4, T1.5 | ✅ |
 | T2.7 | 运行时 / 打开器：浏览器中打开任意 `.html`（文件选择或拖入）→ 保真模式编辑 → File System Access API 写回；来源不明文件脚本默认不执行 | `packages/runtime` + `apps/web` 最小页面 | 手动验收：打开本机一个现有 HTML 笔记、改字、保存、刷新可见 | T2.4 | ⬜ |
 | T2.8 | 基础格式工具栏（粗体/斜体/链接/标题级别）在保真模式中可用 | `editor/src/ui/toolbar.ts` | E2E | T2.4 | ⬜ |
 
