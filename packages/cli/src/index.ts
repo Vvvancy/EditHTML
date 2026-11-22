@@ -1,17 +1,29 @@
 /**
- * @edithtml/cli — `eh convert / check / fmt`（任务 T1.7）。
+ * @edithtml/cli — `eh convert / check / fmt`（任务 T1.8）。
  *
  * @packageDocumentation
  */
-import { SPEC_VERSION } from '@edithtml/core';
+import { parseEhmd, serializeEhmd } from '@edithtml/core';
+import type { MarkdownAdapter } from './formats.js';
 
-/** CLI 帮助文本。 */
-export function helpText(): string {
-  return `eh — EditHTML command line (spec v${SPEC_VERSION})
+export { helpText, run, type CliEnv, type Io } from './cli.js';
+export {
+  detectFormat,
+  extensionFor,
+  lineColumn,
+  readDoc,
+  writeDoc,
+  type Diagnostic,
+  type Format,
+  type MarkdownAdapter,
+  type MarkdownFlavor,
+} from './formats.js';
 
-Usage:
-  eh convert <in> <out>   md ↔ ehtml (T1.7)
-  eh check <file...>      validate (T1.7)
-  eh fmt <file...>        canonicalize (T1.7)
-`;
-}
+/**
+ * 基于 EHMD（CommonMark + GFM + 指令块，T1.6）的 Markdown 读写。
+ * Obsidian 方言与按风格导出由 `@edithtml/importer`（T1.7）提供后替换。
+ */
+export const ehmdMarkdown: MarkdownAdapter = {
+  read: (src) => parseEhmd(src),
+  write: (doc) => serializeEhmd(doc),
+};

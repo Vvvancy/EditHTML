@@ -1,4 +1,8 @@
 #!/usr/bin/env node
-import { helpText } from './index.js';
+import { ehmdMarkdown, run } from './index.js';
 
-process.stdout.write(helpText());
+const code = await run(process.argv.slice(2), {
+  io: { out: (s) => process.stdout.write(s), err: (s) => process.stderr.write(s) },
+  markdown: ehmdMarkdown,
+});
+process.exitCode = code;

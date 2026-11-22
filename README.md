@@ -191,6 +191,16 @@ pnpm build     # tsc 项目引用 + Vite
 pnpm --filter @edithtml/web dev   # Web 应用开发服务器
 ```
 
+命令行 `eh`（`pnpm build` 后位于 `packages/cli/dist/bin.js`）：
+
+```bash
+eh convert note.md                 # → note.eh.html，双击即可在浏览器打开（从不覆盖源文件）
+eh convert vault/ -o out/          # 整个文件夹镜像转换（跳过 .obsidian 等点目录）
+eh convert note.eh.html --to md    # 导回 Markdown
+eh check notes/ --strict           # 校验并以 file:line:col 报告告警
+eh fmt notes/                      # 规范化 .eh.html（--check 只检查）
+```
+
 需要 Node ≥ 22.12 与 pnpm。在代码里直接使用内核：
 
 ```ts
