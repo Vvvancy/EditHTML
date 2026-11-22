@@ -15,6 +15,8 @@
 - 所有文档修改必须经过 `Transaction`，禁止直接修改 `Doc` 或把 DOM 当作数据源；
 - 每个 `Op` 必须实现 `invert`；
 - 序列化输出必须符合 `01-format-spec.md §6` 的规范形式且幂等。
+- **agent 接口一致**：同一能力在 CLI、MCP、浏览器 JS API 中的参数与返回格式必须一致，统一实现在 `core`（或 `importer`）中，各入口只做薄封装（见 `docs/07-agent-friendly.md`）；
+- agent 可见的输出（视图、诊断、错误信息）要简短、稳定、机器可读，默认不包含 fallback 和主题 CSS。
 
 ## 代码约定
 

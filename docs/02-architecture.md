@@ -161,7 +161,10 @@ interface BlockPlugin<P> {
 | `runtime`（文件内嵌） | File System Access API / 下载 | 零安装：浏览器打开即编辑 |
 | `apps/web` | File System Access API 打开整个笔记文件夹 | 带侧边栏、搜索、双链 |
 | `apps/obsidian-plugin` | Obsidian Vault API | 注册 `.ehtml` 视图，复用 Obsidian 的同步与文件管理 |
-| `cli` | Node fs | 转换、校验、批量导出 |
+| `cli` | Node fs | 转换、校验、批量导出；agent 用的 `outline / get / query / apply / schema / guide` |
+| `mcp` | Node fs（或编辑器本地通道） | AI agent 通过 MCP 读写笔记库，见 [07-agent-friendly.md](07-agent-friendly.md) |
+
+agent 相关能力（分层视图、操作批、诊断、schema）统一实现在 `core`（保真模式的在 `importer/preserve`），`cli` / `mcp` / 浏览器 `window.EditHTML` 只是薄封装，保证三者行为一致。
 
 ## 7. 技术栈（建议）
 
