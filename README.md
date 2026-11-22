@@ -205,7 +205,7 @@ await writeFile(path, serialize(next)); // 规范形式，diff 干净
 
 | 里程碑 | 内容 | 进度 |
 | :-- | :-- | :-- |
-| **M0** 工程脚手架 | monorepo ✅ · CI ✅ · 测试样本（ehtml/md ✅，html/obsidian 待补） | ![](https://img.shields.io/badge/-90%25-22c55e?style=flat-square) |
+| **M0** 工程脚手架 | monorepo ✅ · CI ✅ · 测试样本 ✅（ehtml · md · html · Obsidian 库，共 80+） | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
 | **M1** 核心格式 + Markdown 导入 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销 · EHMD · Markdown 导入器 · CLI | ![](https://img.shields.io/badge/-50%25-8b5cf6?style=flat-square) |
 | **M2** 保真模式 ⭐ | 任意 HTML 就地编辑：源码区间索引 · 补丁引擎 · 区域源码编辑 · 写回（**第一个可用版本**） | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
 | **M3** 原生编辑器 MVP | 增量渲染 · ProseMirror 编辑器 · 输入规则 · 斜杠菜单 · 组件 · `eh-html` 块 · 运行时 · 主题 · 粘贴 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |

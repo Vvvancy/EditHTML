@@ -26,7 +26,7 @@
 | --- | --- | --- | --- | --- | --- |
 | T0.1 | pnpm monorepo + TS strict + Vite + Vitest + ESLint/Prettier；为 `packages/*`、`apps/*` 建 `package.json`/`tsconfig` | 根配置 + 各包空壳（导出一个占位函数） | `pnpm install && pnpm build && pnpm test && pnpm lint` 全通过 | — | ✅ |
 | T0.2 | GitHub Actions CI：lint、test、build | `.github/workflows/ci.yml` | PR 上自动运行且通过 | T0.1 | ✅ |
-| T0.3 | 测试样本 | `tests/fixtures/{ehtml,md,html,obsidian}/` 共 ≥ 30 个样本：规范内各种块；CommonMark/GFM/Obsidian 方言（双链、callout、嵌入、块 ID、frontmatter）；真实风格的任意 HTML（手写笔记、AI 生成带 CSS/JS 的页面、含 ECharts、含 KaTeX、含 `details`） | 覆盖 01 规范每种块与 06 每张映射表的每一行；每个样本附 `.expected.*` 或说明 | — | 🟨 |
+| T0.3 | 测试样本 | `tests/fixtures/{ehtml,md,html,obsidian}/` 共 ≥ 30 个样本：规范内各种块；CommonMark/GFM/Obsidian 方言（双链、callout、嵌入、块 ID、frontmatter）；真实风格的任意 HTML（手写笔记、AI 生成带 CSS/JS 的页面、含 ECharts、含 KaTeX、含 `details`） | 覆盖 01 规范每种块与 06 每张映射表的每一行；每个样本附 `.expected.*` 或说明 | — | ✅ |
 
 ## M1 · 核心格式 + Markdown 导入
 
