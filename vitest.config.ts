@@ -15,6 +15,8 @@ export default defineConfig({
   test: {
     include: ['packages/*/src/**/*.test.ts', 'apps/*/src/**/*.test.ts', 'tests/**/*.test.ts'],
     environment: 'node',
+    // 属性测试在整套并行、机器负载高时会超过默认 5s；超时只防死循环，不衡量性能（性能另有断言）。
+    testTimeout: 30_000,
     coverage: { provider: 'v8', include: ['packages/*/src/**'], exclude: ['**/*.test.ts'] },
   },
 });
