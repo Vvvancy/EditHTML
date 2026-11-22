@@ -6,7 +6,25 @@
     <title>EditHTML</title>
   </head>
   <body>
-    <div id="app"></div>
+    <header class="bar" role="toolbar" aria-label="文件">
+      <button type="button" id="open" title="打开 HTML 文件（Ctrl/⌘+O）">打开</button>
+      <button type="button" id="save" title="保存（Ctrl/⌘+S）" disabled>保存</button>
+      <span class="file">
+        <span id="name">未打开文件</span>
+        <span id="dirty" class="dirty" title="有未保存的修改" hidden>●</span>
+      </span>
+      <span id="status" class="status" role="status" aria-live="polite"></span>
+    </header>
+    <div id="banner" class="banner" role="alert" hidden>
+      <span>此文件包含脚本，是否运行？</span>
+      <button type="button" id="run-once">运行</button>
+      <button type="button" id="run-always">始终运行此文件的脚本</button>
+      <span class="hint">未运行时页面中的图表等动态内容不会显示，正文仍可编辑。</span>
+    </div>
+    <main id="stage" class="stage">
+      <div class="empty">拖入 HTML 文件，或点击「打开」</div>
+    </main>
+    <input type="file" id="picker" accept=".html,.htm,text/html" hidden />
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
