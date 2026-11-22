@@ -30,7 +30,10 @@ interface SpanBase {
   readonly parent: ElementSpan | DocumentSpan | null;
   /** 从文档根到本节点的子节点下标路径（`template` 的内容按其子节点计）。 */
   readonly path: readonly number[];
-  /** 整个节点在原文中的区间；解析器隐式创建的节点（如省略的 `<body>`）为 `null`。 */
+  /**
+   * 整个节点在原文中的区间；解析器隐式创建的节点（如省略的 `<body>`）为 `null`，
+   * 由不连续原文拼成的文本（表格寄养）也为 `null`。
+   */
   readonly span: Span | null;
 }
 
@@ -196,7 +199,12 @@ export function buildSpanIndex(source: string): SpanIndex {
     nodes.push(rec);
     walkChildren(el, rec, path, children);
     // 被丢弃的开头换行不属于任何文本节点：把它从第一个文本的区间里剔除，替换文本时才不会吃掉它。
-    const first = children[0];
+    // 第一个文本可能包在解析器重建的格式元素里（`<b><pre>\n x</b>`、`<i><pre>\n x`）：这类元素没有开始标签，
+    // 或沿用了 pre 之前那个原始开始标签的位置。
+    const innerStart = inner?.start ?? -1;
+    let first = children[0];
+    while (first?.kind === 'element' && (first.startTag === null || first.startTag.start < innerStart))
+      first = first.children[0];
     if (inner && LEADING_NEWLINE_TAGS.has(rec.tag) && first?.kind === 'text' && first.span?.start === inner.start) {
       const lf = source.startsWith('\r\n', inner.start) ? 2 : /[\r\n]/.test(source[inner.start] ?? '') ? 1 : 0;
       if (lf > 0) (first as { span: Span }).span = span(inner.start + lf, first.span.end);
@@ -222,6 +230,39 @@ export function buildSpanIndex(source: string): SpanIndex {
   };
   nodes.push(root);
   walkChildren(ast, root, [], rootChildren);
+
+  // parse5 在空白文本后紧跟字符引用时（`<head>` 里的 `\n&amp;`：空白留在 head，`&` 进 body），
+  // 报告的空白文本终点会越过实体的一部分，与下一个文本重叠。文本互不重叠，按原文顺序把终点截到下一个文本的起点。
+  const texts = nodes
+    .filter((n): n is TextSpan & { span: Span } => n.kind === 'text' && n.span !== null)
+    .sort((a, b) => a.span.start - b.span.start);
+  texts.forEach((t, i) => {
+    const next = texts[i + 1];
+    if (!next || t.span.end <= next.span.start || t.span.start >= next.span.start) return;
+    // 只修这一种情形：纯空白文本，且截断后的原文（CRLF 归一）恰为其值。其余重叠（如表格的寄养文本）保持原样。
+    const cutText = source.slice(t.span.start, next.span.start).replace(/\r\n?/g, '\n');
+    if (/^[\t\n\f ]+$/.test(t.value) && cutText === t.value)
+      (t as { span: Span }).span = span(t.span.start, next.span.start);
+  });
+
+  // 表格寄养（`<table>a<!-- c -->b`）会把原文中不连续的几段字符并成一个文本节点，其区间内部还夹着别的节点，
+  // 无法就地替换：这类文本的区间置为 null（与隐式节点一样不可编辑）。
+  const starts = nodes
+    .filter((n) => n.kind !== 'document' && n.span !== null)
+    .map((n) => n.span?.start ?? 0)
+    .sort((a, b) => a - b);
+  for (const t of texts) {
+    const { start, end } = t.span;
+    // 二分找第一个 > start 的起点。
+    let lo = 0;
+    let hi = starts.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if ((starts[mid] ?? 0) > start) hi = mid;
+      else lo = mid + 1;
+    }
+    if ((starts[lo] ?? end) < end) (t as { span: Span | null }).span = null;
+  }
 
   return {
     source,

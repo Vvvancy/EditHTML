@@ -7,7 +7,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Vvvancy/EditHTML/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Vvvancy/EditHTML/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-M2_保真模式-8b5cf6?style=for-the-badge)
 ![Spec](https://img.shields.io/badge/spec-v0.1-ec4899?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-567_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-652_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646cff?style=flat-square&logo=vite&logoColor=white)
@@ -218,7 +218,7 @@ await writeFile(path, serialize(next)); // 规范形式，diff 干净
 | :-- | :-- | :-- |
 | **M0** 工程脚手架 | monorepo ✅ · CI ✅ · 测试样本 ✅（ehtml · md · html · Obsidian 库，共 80+） | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
 | **M1** 核心格式 + Markdown 导入 | 模型 ✅ · 解析器 ✅ · 序列化器 ✅ · 事务 ✅ · 撤销重做 ✅ · EHMD ✅ · Markdown/Obsidian 导入器 ✅ · CLI ✅ | ![](https://img.shields.io/badge/-100%25-22c55e?style=flat-square) |
-| **M2** 保真模式 ⭐ | 任意 HTML 就地编辑：源码区间索引 · 补丁引擎 · 区域源码编辑 · 写回（**第一个可用版本**） | ![](https://img.shields.io/badge/-13%25-8b5cf6?style=flat-square) |
+| **M2** 保真模式 ⭐ | 任意 HTML 就地编辑：源码区间索引 · 补丁引擎 · 区域源码编辑 · 写回（**第一个可用版本**） | ![](https://img.shields.io/badge/-38%25-8b5cf6?style=flat-square) |
 | **M3** 原生编辑器 MVP | 增量渲染 · ProseMirror 编辑器 · 输入规则 · 斜杠菜单 · 组件 · `eh-html` 块 · 运行时 · 主题 · 粘贴 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
 | **M4** HTML 转换 + 富组件 + 性能 | HTML → 原生块 · 图表 · 容器块 · 沙箱脚本 · 懒渲染 · 虚拟化 · 增量保存 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |
 | **M5** 笔记库 + 批量导入 | Web 应用 · `eh import` 整库导入 · 全库搜索 · 双链 · 三方合并 · 源码模式 · 导出 | ![](https://img.shields.io/badge/-0%25-64748b?style=flat-square) |

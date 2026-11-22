@@ -4,4 +4,5 @@
  * @module
  */
 export * from './span-index.js';
+export * from './patch.js';
 export * from './mount.js';
