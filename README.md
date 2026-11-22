@@ -7,7 +7,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Vvvancy/EditHTML/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Vvvancy/EditHTML/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-M2_保真模式-8b5cf6?style=for-the-badge)
 ![Spec](https://img.shields.io/badge/spec-v0.1-ec4899?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-711_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-743_passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646cff?style=flat-square&logo=vite&logoColor=white)
