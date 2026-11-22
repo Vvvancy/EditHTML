@@ -220,6 +220,12 @@ importers:
       '@edithtml/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@edithtml/importer':
+        specifier: workspace:*
+        version: link:../../packages/importer
+      '@edithtml/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
 
   packages/blocks:
     dependencies:

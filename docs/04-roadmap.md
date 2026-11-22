@@ -56,7 +56,7 @@
 | T2.4 | 编辑 → 补丁：容器内容变化时序列化片段生成补丁；结构操作（新增/删除段落）转插入/删除补丁并沿用兄弟缩进 | `importer/src/preserve/edit.ts` | 改一个字保存后 `git diff` 只有 1 行变化 | T2.2, T2.3 | ✅ |
 | T2.5 | 区域源码编辑器：任意元素"编辑 HTML 源码"弹层（CodeMirror），改的是对应区间 | `importer/src/preserve/source-popover.ts` | 修改后即时预览、保存正确 | T2.4 | ⬜ |
 | T2.6 | 撤销重做（补丁层），复用 T1.5 的历史框架 | `importer/src/preserve/history.ts` | 连续编辑后撤销到底 = 原文件字节 | T2.4, T1.5 | ✅ |
-| T2.7 | 运行时 / 打开器：浏览器中打开任意 `.html`（文件选择或拖入）→ 保真模式编辑 → File System Access API 写回；来源不明文件脚本默认不执行 | `packages/runtime` + `apps/web` 最小页面 | 手动验收：打开本机一个现有 HTML 笔记、改字、保存、刷新可见 | T2.4 | ⬜ |
+| T2.7 | 运行时 / 打开器：浏览器中打开任意 `.html`（文件选择或拖入）→ 保真模式编辑 → File System Access API 写回；来源不明文件脚本默认不执行 | `packages/runtime` + `apps/web` 最小页面 | 手动验收：打开本机一个现有 HTML 笔记、改字、保存、刷新可见（自动化部分已完成：脚本激活顺序与 transfer、BOM 往返、未改动逐字节相同、脏标记；**手动验收待用户按 apps/web/README.md 步骤确认**） | T2.4 | ✅ |
 | T2.8 | 基础格式工具栏（粗体/斜体/链接/标题级别）在保真模式中可用 | `editor/src/ui/toolbar.ts` | E2E（目前为 happy-dom 集成测试：工具栏 × 保真会话；真实浏览器 E2E 随 T2.7 补） | T2.4 | ✅ |
 
 ## M3 · 原生编辑器 MVP

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@edithtml/core": "workspace:*"
+    "@edithtml/core": "workspace:*",
+    "@edithtml/importer": "workspace:*",
+    "@edithtml/runtime": "workspace:*"
   }
 }

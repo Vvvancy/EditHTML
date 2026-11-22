@@ -1,0 +1,155 @@
+:root {
+  --bg: #f6f6f4;
+  --panel: #ffffff;
+  --text: #1f2328;
+  --muted: #6b7076;
+  --line: #d8dadd;
+  --accent: #2f6feb;
+  --warn-bg: #fff6d6;
+  --warn-line: #e8cf72;
+  color-scheme: light dark;
+  font:
+    14px/1.4 system-ui,
+    -apple-system,
+    'PingFang SC',
+    'Microsoft YaHei',
+    sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18191b;
+    --panel: #222326;
+    --text: #e6e6e6;
+    --muted: #9a9ea4;
+    --line: #3a3c40;
+    --accent: #5b8cff;
+    --warn-bg: #3a3218;
+    --warn-line: #7a6624;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+
+button {
+  font: inherit;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin-left: 4px;
+}
+
+#name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dirty {
+  color: var(--accent);
+}
+
+.status {
+  margin-left: auto;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status.error {
+  color: #d1242f;
+}
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--warn-bg);
+  border-bottom: 1px solid var(--warn-line);
+}
+
+.banner[hidden],
+.dirty[hidden] {
+  display: none;
+}
+
+.banner .hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.stage.drop {
+  outline: 3px dashed var(--accent);
+  outline-offset: -8px;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--muted);
+  font-size: 16px;
+  padding: 16px;
+  text-align: center;
+}
+
+.eh-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
