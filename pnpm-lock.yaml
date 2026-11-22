@@ -283,6 +283,10 @@ importers:
       '@edithtml/renderer':
         specifier: workspace:*
         version: link:../renderer
+    devDependencies:
+      '@edithtml/importer':
+        specifier: workspace:*
+        version: link:../importer
 
   packages/importer:
     dependencies:

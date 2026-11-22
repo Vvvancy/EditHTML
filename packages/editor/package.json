@@ -19,5 +19,8 @@
     "@edithtml/core": "workspace:*",
     "@edithtml/blocks": "workspace:*",
     "@edithtml/renderer": "workspace:*"
+  },
+  "devDependencies": {
+    "@edithtml/importer": "workspace:*"
   }
 }

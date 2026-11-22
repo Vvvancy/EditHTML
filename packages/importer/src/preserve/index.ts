@@ -8,3 +8,4 @@ export * from './patch.js';
 export * from './mount.js';
 export * from './edit.js';
 export * from './history.js';
+export * from './toolbar-host.js';
