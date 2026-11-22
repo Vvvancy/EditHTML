@@ -402,3 +402,66 @@ describe('extension points (for T1.7)', () => {
     ).toBe('```mermaid\ngraph TD\n```\n');
   });
 });
+
+describe('T1.7 extension points', () => {
+  it('sourceMap: top-level segments with exact source spans; ^id lines merge into the previous segment', () => {
+    const src = '---\na: 1\n---\n\n# T\n\n| x |\n| - |\n| 1 |\n\n^tid\n\n:::callout 标题\n内容\n:::\n';
+    const { doc, sourceMap } = parseEhmd(src, { sourceMap: true });
+    expect(sourceMap?.frontmatterEnd).toBe(13);
+    const spans = sourceMap?.segments.map((s) => [src.slice(s.start, s.end), s.blocks]);
+    expect(spans).toEqual([
+      ['# T', [doc.root[0]]],
+      ['| x |\n| - |\n| 1 |\n\n^tid', ['tid']],
+      [':::callout 标题\n内容\n:::', [doc.root[2]]],
+    ]);
+    expect(parseEhmd(src).sourceMap).toBeUndefined();
+  });
+
+  it('transforms receive the source; pendingTransforms run before id assignment', () => {
+    let seen = '';
+    const { doc } = parseEhmd('a ^bad-id\n', {
+      extensions: [
+        {
+          transforms: [
+            (_t, s) => {
+              seen = s;
+            },
+          ],
+          pendingTransforms: [
+            (seq) => {
+              for (const p of seq)
+                if (p.k === 'text' && p.id !== undefined) {
+                  p.attrs = { ...p.attrs, orig: p.id };
+                  delete p.id;
+                }
+            },
+          ],
+        },
+      ],
+    });
+    expect(seen).toBe('a ^bad-id\n');
+    expect(getBlock(doc, doc.root[0] as string)).toMatchObject({ attrs: { orig: 'bad-id' } });
+  });
+
+  it('serializeAtom / escapeChar / fragment', () => {
+    const doc = createDoc([
+      textBlock('h', 'hr', []),
+      textBlock('p', 'p', [
+        text('50%'),
+        { t: 'atom', kind: 'wikilink', attrs: { target: 'x' }, text: '[[x]]', marks: [] },
+      ]),
+    ]);
+    const out = serializeEhmd(doc, {
+      ids: 'none',
+      fragment: true,
+      extensions: [
+        {
+          serializeAtom: (a) => (a.kind === 'wikilink' ? `[[${a.attrs.target ?? ''}]]` : undefined),
+          escapeChar: (c) => c === '%',
+        },
+      ],
+    });
+    expect(out).toBe('---\n\n50\\%[[x]]\n');
+    expect(serializeEhmd(doc, { ids: 'none' })).toMatch(/^\*\*\*\n/);
+  });
+});

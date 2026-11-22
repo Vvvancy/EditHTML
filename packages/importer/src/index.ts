@@ -7,3 +7,5 @@ import { SPEC_VERSION } from '@edithtml/core';
 
 /** 本包所针对的规范版本。 */
 export const IMPORTER_SPEC_VERSION: string = SPEC_VERSION;
+
+export * from './markdown/index.js';

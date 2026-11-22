@@ -37,5 +37,18 @@ export default tseslint.config(
     files: ['packages/{blocks,renderer,editor,runtime,importer}/**', 'apps/web/**'],
     languageOptions: { globals: { ...globals.browser } },
   },
+  {
+    // T1.7：Markdown 导入/导出必须能在 Node / Worker 中运行，不得使用 DOM
+    files: ['packages/importer/src/markdown/**'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        ...['window', 'document', 'DOMParser', 'Node', 'Element', 'HTMLElement', 'navigator'].map((name) => ({
+          name,
+          message: 'importer/markdown 必须保持无 DOM 依赖',
+        })),
+      ],
+    },
+  },
   prettier,
 );

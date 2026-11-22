@@ -11,7 +11,10 @@
  * - `transforms`：转换前改写 mdast 树；
  * - `blockHandlers` / `inlineHandlers`：按 mdast 节点类型接管转换，可调用 `next()` 回落到内置实现；
  * - `directives`：注册/覆盖组件 ↔ 指令映射（{@link DirectiveSpec}）；
- * - `serializeBlock`：接管某些块的输出。
+ * - `pendingTransforms`：在分配块 ID 之前改写中间块；
+ * - `serializeBlock` / `serializeAtom`：接管某些块 / 原子的输出。
+ *
+ * `opts.sourceMap` 让 `parseEhmd` 额外返回顶层块 ↔ 源码区间（{@link EhmdSourceMap}）。
  *
  * @module
  */
@@ -26,10 +29,17 @@ export {
   type DirectiveSpec,
 } from './directives.js';
 export { ehmdFromMarkdown, ehmdSyntax, type EhMarkNode, type EhTagNode, type EhWikiLinkNode } from './syntax.js';
-export { serializeInline as serializeEhmdInline, type InlineContext } from './inline-serialize.js';
+export {
+  destination as ehmdDestination,
+  escapeText as escapeEhmdText,
+  serializeInline as serializeEhmdInline,
+  type InlineContext,
+} from './inline-serialize.js';
 export { emitYaml, loadYaml } from './yaml.js';
 export type {
+  AtomSerializer,
   BlockContext,
+  EscapeHook,
   BlockHandler,
   BlockSerializer,
   EhmdExtension,
@@ -37,6 +47,8 @@ export type {
   EhmdParseOptions,
   EhmdParseResult,
   EhmdSerializeOptions,
+  EhmdSourceMap,
+  EhmdSourceSegment,
   EhmdWarning,
   EhmdWarningCode,
   InlineHandler,

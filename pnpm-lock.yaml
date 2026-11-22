@@ -286,6 +286,15 @@ importers:
       '@edithtml/core':
         specifier: workspace:*
         version: link:../core
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      mdast-util-from-markdown:
+        specifier: ^2.1.0
+        version: 2.1.0
+      micromark-util-types:
+        specifier: ^2.0.3
+        version: 2.0.3
 
   packages/renderer:
     dependencies:

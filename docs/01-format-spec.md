@@ -343,7 +343,8 @@ data:
 
 - `HtmlBlock` 能被读回为恰好一个、且在其后空行处结束的原始 HTML 块时原样写出（需要 ID 时其后单独一段 `^id`）；否则写成 `:::html {#id}` + 原文（不经 Markdown 解析）。
 - Markdown 中的原始 HTML 块交给 `.ehtml` 解析器：能识别的成为原生块（`data-eh` 写明的 ID 保留，`on*` 被剔除），其余为 HTML 块；会丢内容（产生 head/meta）的整段保留为 HTML 块。
-- `$$…$$` 读成 `math` 组件（写出时用 `:::math`）；```` ```mermaid ```` 等仍是代码块（Obsidian 方言留给 T1.7）。
+- `$$…$$` 读成 `math` 组件（写出时用 `:::math`）；```` ```mermaid ```` 等仍是代码块（Obsidian 方言由 T1.7 的扩展处理，见 06 §5.1）。
+- 扩展点（T1.7 增补，均为可选）：`opts.sourceMap` 返回顶层块 ↔ 源码区间；`transforms` 收到该树的 Markdown 源码；`pendingTransforms` 在分配 ID 前改写中间块；`serializeAtom` / `escapeChar` 定制原子写法与额外转义；`serializeEhmd` 的 `fragment` 只输出块序列（不写 frontmatter、不把开头的 `---` 改成 `***`）。
 
 **已知有损**（往返测试中显式约束/记录）
 
