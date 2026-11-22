@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://blog.example.invalid/2026/10/sqlite-wal-explained -->
+<html lang="zh-CN" class="js no-touch"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SQLite WAL 模式详解 | 某某技术博客</title>
+<link rel="stylesheet" href="./SQLite WAL 模式详解 _ 某某技术博客_files/main.css">
+<link rel="icon" href="https://blog.example.invalid/favicon.ico">
+<meta property="og:title" content="SQLite WAL 模式详解">
+<script async="" src="./SQLite WAL 模式详解 _ 某某技术博客_files/analytics.js"></script>
+</head>
+<body class="post-template">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="site-header">
+  <nav class="navbar" aria-label="主导航">
+    <a class="brand" href="https://blog.example.invalid/"><img src="./SQLite WAL 模式详解 _ 某某技术博客_files/logo.svg" alt="某某技术博客" height="28"></a>
+    <ul class="nav-links">
+      <li><a href="https://blog.example.invalid/">首页</a></li>
+      <li><a href="https://blog.example.invalid/tags/">标签</a></li>
+      <li><a href="https://blog.example.invalid/about/">关于</a></li>
+    </ul>
+    <form class="search" action="https://blog.example.invalid/search" method="get" role="search">
+      <input type="search" name="q" placeholder="搜索…" aria-label="搜索">
+      <button type="submit">搜索</button>
+    </form>
+  </nav>
+</header>
+
+<main id="main">
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">SQLite WAL 模式详解</h1>
+    <div class="post-meta"><time datetime="2026-10-12">2026 年 10 月 12 日</time> · 阅读约 6 分钟 · <a href="https://blog.example.invalid/tags/sqlite/" rel="tag">sqlite</a></div>
+  </header>
+  <div class="post-content">
+    <p>默认的回滚日志（rollback journal）模式下，写事务会阻塞所有读事务。<a href="https://sqlite.example.invalid/wal.html">WAL</a> 模式把写入追加到单独的 <code>-wal</code> 文件中，读写可以并发。</p>
+    <h2 id="how">工作原理</h2>
+    <p>每个读事务记住它开始时 WAL 中的“末尾标记”，只读取这个位置之前的帧。</p>
+    <figure class="kg-card kg-image-card"><img src="./SQLite WAL 模式详解 _ 某某技术博客_files/wal-diagram.png" alt="WAL 示意图" loading="lazy" srcset="./SQLite WAL 模式详解 _ 某某技术博客_files/wal-diagram.png 600w, ./SQLite WAL 模式详解 _ 某某技术博客_files/wal-diagram@2x.png 1200w"><figcaption>图 1：WAL 文件与检查点</figcaption></figure>
+    <h2 id="enable">如何开启</h2>
+    <pre class="language-sql"><code class="language-sql"><span class="token keyword">PRAGMA</span> journal_mode<span class="token operator">=</span>WAL<span class="token punctuation">;</span></code></pre>
+    <p>开启后会一直保持，直到显式改回。</p>
+  </div>
+  <div class="share-buttons"><a href="https://social.example.invalid/share?u=…" target="_blank" rel="noopener">分享</a><a href="javascript:void(0)" class="copy-link">复制链接</a></div>
+</article>
+
+<section class="comments">
+  <h3>评论 (2)</h3>
+  <form class="comment-form" action="https://blog.example.invalid/comments" method="post">
+    <label for="c-name">昵称</label> <input id="c-name" name="name" required>
+    <label for="c-body">评论</label>
+    <textarea id="c-body" name="body" rows="4">默认的文本域内容</textarea>
+    <select name="notify"><option value="1" selected>回复时通知我</option><option value="0">不通知</option></select>
+    <label><input type="checkbox" name="remember" checked> 记住我</label>
+    <button type="submit">发表</button>
+  </form>
+</section>
+</main>
+
+<aside class="sidebar"><h4>相关文章</h4><ul><li><a href="https://blog.example.invalid/2026/09/sqlite-vacuum">VACUUM 的代价</a></li></ul></aside>
+
+<footer class="site-footer">
+  <p>© 2026 某某技术博客 · <a href="https://blog.example.invalid/rss/">RSS</a></p>
+  <p>本页面由静态站点生成器生成。</p>
+</footer>
+<script src="./SQLite WAL 模式详解 _ 某某技术博客_files/main.js"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());</script>
+</body></html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust 所有权速查卡</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg);
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 2rem;
+        }
+        h1 { color: var(--primary); margin-bottom: 1rem; }
+        p { margin-bottom: 0.75rem; }
+        .hero { text-align: center; padding: 3rem 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        }
+        .card h3 { font-size: 1.1rem; margin-bottom: .5rem; }
+        .badge { display: inline-block; padding: 0 .5rem; border-radius: 999px; background: #e0e7ff; font-size: .8rem; }
+        .counter { font-size: 2rem; font-weight: 700; }
+        code { background: #f1f5f9; padding: 0 .25rem; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>🦀 Rust 所有权速查卡</h1>
+        <p>三条规则，记住就够了。</p>
+        <span class="badge">AI 生成 · 已校对</span>
+    </section>
+
+    <h2>三条规则</h2>
+    <ol>
+        <li>每个值都有一个<strong>所有者</strong>（owner）。</li>
+        <li>同一时刻只能有一个所有者。</li>
+        <li>所有者离开作用域时，值被 <code>drop</code>。</li>
+    </ol>
+
+    <div class="grid">
+        <div class="card">
+            <h3>移动 Move</h3>
+            <p><code>let b = a;</code> 之后 <code>a</code> 不能再用。</p>
+        </div>
+        <div class="card">
+            <h3>借用 Borrow</h3>
+            <p><code>&amp;T</code> 可以有多个，<code>&amp;mut T</code> 只能有一个。</p>
+        </div>
+        <div class="card">
+            <h3>生命周期 Lifetime</h3>
+            <p>引用不能比它指向的值活得更久。</p>
+        </div>
+    </div>
+
+    <h2>你已经复习了</h2>
+    <div class="card">
+        <div class="counter" id="count">0</div>
+        <p>次（数字由下方脚本根据 localStorage 生成）</p>
+        <button id="inc" type="button">我又复习了一次</button>
+    </div>
+
+    <p id="generated-tip"></p>
+
+    <script>
+        // 复习计数器
+        const KEY = 'rust-ownership-reviews';
+        const el = document.getElementById('count');
+        let n = Number(localStorage.getItem(KEY) || 0);
+        el.textContent = n;
+        document.getElementById('inc').addEventListener('click', () => {
+            n += 1;
+            localStorage.setItem(KEY, n);
+            el.textContent = n;
+        });
+        // 随机提示：这段文字只存在于运行时 DOM 中
+        const tips = ['clone() 不是万能药', '先让编译器满意，再优化', 'Rc<RefCell<T>> 是最后手段'];
+        document.getElementById('generated-tip').textContent = '提示：' + tips[Math.floor(Math.random() * tips.length)];
+    </script>
+</body>
+</html>

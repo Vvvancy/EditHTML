@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>带事件处理器的页面</title>
+</head>
+<body onload="init()">
+<h1 onclick="alert('标题被点击')">交互式笔记</h1>
+<p>点击<a href="javascript:toggleAll()">这里</a>展开全部，或者<a href="JavaScript:void(0)" onclick="return false">什么都不做</a>。</p>
+<p>大小写混合与空白：<a href=" jAvAsCrIpT:alert(1)">链接 1</a>、实体编码：<a href="&#106;avascript:alert(2)">链接 2</a>、tab：<a href="java&#9;script:alert(3)">链接 3</a>。</p>
+<p>其他协议：<a href="vbscript:msgbox(1)">vbscript</a>、<a href="data:text/html,&lt;script&gt;alert(4)&lt;/script&gt;">data:text/html</a>、<a href="data:image/png;base64,iVBORw0KGgo=">data:image</a>、<a href="mailto:me@example.invalid">mailto</a>、<a href="#local">锚点</a>、<a href="./other.html">相对链接</a>。</p>
+<p onmouseover="this.style.color='red'" ONMOUSEOUT="this.style.color=''">鼠标悬停变红（大写的 ONMOUSEOUT）。</p>
+<img src="missing.png" alt="坏图" onerror="this.src='fallback.png'">
+<button type="button" onclick="document.body.classList.toggle('dark')">切换暗色</button>
+<form action="javascript:submitIt()" onsubmit="return validate()"><input name="x" onfocus="this.select()" value="默认值"><input type="submit" formaction="javascript:alert(5)"></form>
+<div style="background:url('javascript:alert(6)')">CSS 中的 javascript: URL</div>
+<iframe src="javascript:'&lt;p&gt;iframe&lt;/p&gt;'"></iframe>
+<svg width="20" height="20"><a href="javascript:alert(7)"><circle cx="10" cy="10" r="8" onclick="alert(8)"/></a></svg>
+<p id="local">锚点目标</p>
+<script>
+function init() { console.log('loaded'); }
+function toggleAll() { document.querySelectorAll('details').forEach(d => d.open = !d.open); }
+function validate() { return true; }
+</script>
+</body>
+</html>

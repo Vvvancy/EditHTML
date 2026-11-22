@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>线性回归推导</title>
+<link rel="stylesheet" href="./vendor/katex.min.css">
+</head>
+<body>
+<h1>最小二乘法</h1>
+<p>模型为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>X</mi><mi>β</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">y = X\beta + \varepsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">ε</span></span></span></span>，目标是最小化残差平方和。</p>
+
+<p>闭式解：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mover accent="true"><mi>β</mi><mo>^</mo></mover><mo>=</mo><mo stretchy="false">(</mo><msup><mi>X</mi><mi mathvariant="normal">⊤</mi></msup><mi>X</mi><msup><mo stretchy="false">)</mo><mrow><mo>−</mo><mn>1</mn></mrow></msup><msup><mi>X</mi><mi mathvariant="normal">⊤</mi></msup><mi>y</mi></mrow><annotation encoding="application/x-tex">\hat\beta = (X^\top X)^{-1} X^\top y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1523em;vertical-align:-0.25em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9023em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span></span><span style="top:-3.2078em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span></span></span></span><span class="mrel">=</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">X</span><span class="msupsub"><span class="mord mtight">⊤</span></span></span><span class="mord mathnormal">X</span><span class="mclose">)</span><span class="msupsub"><span class="mord mtight">−1</span></span><span class="mord"><span class="mord mathnormal">X</span><span class="msupsub"><span class="mord mtight">⊤</span></span></span><span class="mord mathnormal">y</span></span></span></span></span></p>
+
+<p>矩阵形式（TeX 中含 <code>&amp;</code>、<code>\\</code> 和 <code>&lt;</code>）：</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>…</mtext></mrow><annotation encoding="application/x-tex">\begin{cases} 1 &amp; x &lt; 0 \\ 0 &amp; \text{otherwise} \end{cases}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="mord">{</span><span class="mord">1 x&lt;0, 0 otherwise</span></span></span></span></span>
+
+<p>没有 annotation 的 KaTeX（用 <code>output: "html"</code> 渲染，TeX 已丢失）：<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="mord mathnormal">a</span><span class="mord">²</span></span></span></span>。</p>
+</body>
+</html>

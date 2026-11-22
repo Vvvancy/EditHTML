@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>概率论笔记（MathJax）</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] } };
+</script>
+<script src="./vendor/mathjax/tex-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+<h1>贝叶斯公式</h1>
+
+<!-- 情况 A：源码中是未渲染的 TeX 分隔符，MathJax 在运行时替换 -->
+<p>条件概率定义为 \(P(A \mid B) = \frac{P(A \cap B)}{P(B)}\)，其中 $P(B) &gt; 0$。</p>
+<p>\[
+P(A \mid B) = \frac{P(B \mid A)\,P(A)}{P(B)}
+\]</p>
+
+<!-- 情况 B：MathJax 2 预处理后的形态：script type="math/tex" 保存了 TeX -->
+<p>全概率公式：<span class="MathJax_Preview">P(B)=∑P(B|A_i)P(A_i)</span><script type="math/tex; mode=display">P(B) = \sum_i P(B \mid A_i)\,P(A_i)</script></p>
+<p>期望 <script type="math/tex">\mathbb{E}[X]</script> 是线性的。</p>
+
+<!-- 情况 C：MathJax 3 CHTML 输出，带辅助 MathML，但没有 annotation -->
+<mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" display="true" tabindex="0" ctxtmenu_counter="0" style="font-size: 116.7%; position: relative;"><mjx-math display="true" class="MJX-TEX" aria-hidden="true" style="margin-left: 0px; margin-right: 0px;"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D449 TEX-I"></mjx-c></mjx-mi><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D44E TEX-I"></mjx-c></mjx-mi><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D45F TEX-I"></mjx-c></mjx-mi></mjx-math><mjx-assistive-mml unselectable="on" display="block"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>V</mi><mi>a</mi><mi>r</mi><mo stretchy="false">(</mo><mi>X</mi><mo stretchy="false">)</mo><mo>=</mo><mi>E</mi><mo stretchy="false">[</mo><msup><mi>X</mi><mn>2</mn></msup><mo stretchy="false">]</mo><mo>−</mo><mi>E</mi><mo stretchy="false">[</mo><mi>X</mi><msup><mo stretchy="false">]</mo><mn>2</mn></msup></math></mjx-assistive-mml></mjx-container>
+
+<!-- 情况 D：MathJax 3 + 保留了 TeX annotation（semantic-enrich 或手写 MathML） -->
+<p>标准正态密度：<math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>φ</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\varphi(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2}</annotation></semantics></math></p>
+
+<p>价格 $5 和 $10 不是公式（但 MathJax 的 <code>$…$</code> 配置会误识别）。</p>
+</body>
+</html>

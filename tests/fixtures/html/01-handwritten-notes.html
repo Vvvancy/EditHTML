@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+  <title>读书笔记：《设计数据密集型应用》</title>
+	<!-- 2023-04 手写，没用任何框架 -->
+</head>
+<body>
+
+<h1>读书笔记：DDIA 第 5 章 复制</h1>
+  <p>
+    复制（replication）就是在多台机器上保存<em>同一份</em>数据的副本。
+    目的有三个：
+  </p>
+<ul>
+   <li>降低延迟（数据离用户更近）</li>
+      <li>提高可用性
+      <ul>
+         <li>部分节点挂了还能用</li>
+      </ul>
+      </li>
+   <li>扩展读吞吐</li>
+</ul>
+
+<!-- TODO: 补上图 5-1 -->
+<h2>单主复制</h2>
+<p>所有写入都发给<strong>主库</strong>（leader），主库把变更日志发给<a href="https://example.invalid/followers">从库</a>。</p>
+
+    <h3>同步 vs 异步</h3>
+<ol>
+<li>同步：从库确认后才返回成功</li>
+<li>异步：主库不等从库</li>
+<li>半同步：只等<code>1</code>个从库</li>
+</ol>
+
+<blockquote>
+  “Replication lag is not a theoretical problem.” —— 书里原话
+</blockquote>
+
+<pre>
+-- 查看 PostgreSQL 复制延迟
+SELECT client_addr, replay_lag
+  FROM pg_stat_replication;
+</pre>
+
+<hr>
+
+<figure>
+	<img src="img/ch5-leader-follower.png" alt="主从复制示意图" width="480">
+	<figcaption>图 5-1：主从复制</figcaption>
+</figure>
+
+<img src="img/note-scan.jpg" alt="手写笔记扫描">
+
+<h2>多主复制</h2>
+<p>适合多数据中心。冲突解决方法：LWW、版本向量、CRDT
+<p>（这里忘了写 &lt;/p&gt;，浏览器会自动补上）
+
+<!--
+  多行注释
+  <p>这段被注释掉的 HTML 不能被当成内容</p>
+-->
+
+<h2>小结</h2>
+<p>复制的难点在于<em>处理变化</em>：节点故障、网络中断、复制延迟。</p>
+
+</body>
+</html>
